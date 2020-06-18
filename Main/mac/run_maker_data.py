@@ -18,7 +18,7 @@ maker.SetInputFile("/dune/data/users/calcuttj/pionana_5387_6_15_20.root");
 
 #maker.SetOutputFile("/dune/app/users/jiang/dunetpc_analysis/UBAna/Main/mac/output_test.root") # Run1 After Neutrino
 
-maker.SetOutputFile("/dune/app/users/jiang/dunetpc_analysis/UBAna/Main/mac/output_test_data.root") # Run1 After Neutrino
+maker.SetOutputFile("/dune/app/users/jiang/dunetpc_analysis/PionAbsChxAna/UBAna/Main/mac/output_test_data.root") # Run1 After Neutrino
 
 maker.SetEntries(-1)
 maker.SetBeamSpillStart(3.2)    
