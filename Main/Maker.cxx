@@ -502,7 +502,7 @@ bool Main::Maker::has_pi0shower(const std::vector<double> &track_score){
    return true;
 }
 //====================================================================================
-const std::vector<double> Main::Maker::truncatedMean_xglu(double truncate_low, double truncate_high, std::vector<std::vector<double>> &vecs_dEdX){
+const std::vector<double> Main::Maker::truncatedMean_xglu(int nhits_left, int nhits_right, double truncate_low, double truncate_high, std::vector<std::vector<double>> &vecs_dEdX){
 
    size_t size = 0;
    std::vector<double> trunc_mean;
@@ -860,10 +860,73 @@ const std::vector<double> Main::Maker::compute_angleVertex   ( double beam_endX,
 
 
 }
+//------------------------------------------------------------------------
+const std::vector<double> Main::Maker::compute_angleVertex_shower   ( double beam_endX,
+                                 double beam_endY,
+                                 double beam_endZ,
+                                 const std::vector<double> &d_startX,
+                                 const std::vector<double> &d_startY,
+                                 const std::vector<double> &d_startZ,
+                                 const std::vector<double> &d_endX,
+                                 const std::vector<double> &d_endY,
+                                 const std::vector<double> &d_endZ,
+                                 const std::vector<double> &d_dirX,
+                                 const std::vector<double> &d_dirY,
+                                 const std::vector<double> &d_dirZ){
+
+
+  std::vector<double> distance;
+  std::vector<double> angle;
+
+  double dummy = 0., dummy_1 = 0., dummy_2 = 0.;
+  double diff_X_end = 0., diff_Y_end = 0., diff_Z_end = 0.;
+  double diff_X_start = 0., diff_Y_start = 0., diff_Z_start = 0.;
+
+  if(d_startX.empty()) return angle;
+
+  for( size_t i = 0; i < d_startX.size(); ++i ) {
+    diff_X_end = d_endX[i] - beam_endX;
+    diff_Y_end = d_endY[i] - beam_endY;
+    diff_Z_end = d_endZ[i] - beam_endZ;
+
+    diff_X_start = d_startX[i] - beam_endX;
+    diff_Y_start = d_startY[i] - beam_endY;
+    diff_Z_start = d_startZ[i] - beam_endZ;
+
+    dummy_1 = sqrt(diff_X_end*diff_X_end + diff_Y_end*diff_Y_end + 
+                   diff_Z_end*diff_Z_end);
+
+    dummy_2 = sqrt(diff_X_start*diff_X_start + diff_Y_start*diff_Y_start +
+                   diff_Z_start*diff_Z_start);
+    //std::cout<<"dummy_1 "<<dummy_1<<std::endl;
+
+    TVector3 startv;
+    TVector3 trkv;
+    if(dummy_1 < dummy_2){
+      distance.push_back(dummy_1);
+      startv.SetXYZ(diff_X_end, diff_Y_end, diff_Z_end); 
+      trkv.SetXYZ(d_dirX[i], d_dirY[i], d_dirZ[i]);
+      angle.push_back(startv.Angle(trkv));
+    }
+    else{ 
+      distance.push_back(dummy_2);
+      startv.SetXYZ(diff_X_start, diff_Y_start, diff_Z_start);
+      trkv.SetXYZ(d_dirX[i], d_dirY[i], d_dirZ[i]);
+      angle.push_back(startv.Angle(trkv));
+   
+
+    }
+  } 
+
+  return angle;
 
 
 
+}
 
+
+
+//--------------------------------------------------------------------------
 void Main::Maker::SetMomThreshCut(double vmom)
 {
   momthreshcut = vmom;
@@ -1486,7 +1549,7 @@ void Main::Maker::MakeFile()
         //=========================================================================
         if(isdata==0){
         vector<int> vec_parid; //find out the parID of the photons but no loop
-        vec_parid.clear();
+        vec_parid.clear();     //save the photon parent ID into vec_parid
 
         for(unsigned int mm=0; mm<t->reco_daughter_PFP_true_byHits_PDG->size(); mm++){
              if(t->reco_daughter_PFP_true_byHits_PDG->at(mm) !=22) continue;
@@ -1567,11 +1630,11 @@ void Main::Maker::MakeFile()
 
 
         std::vector<double> daughter_distance3D, daughter_distance3D_shower;
-        std::vector<double> daughter_angle3D;
+        std::vector<double> daughter_angle3D, daughter_angle3D_shower;
 
         std::vector<std::vector<double>> *trkdedx_test_ptr=t->reco_daughter_allTrack_calibrated_dEdX_SCE;
 
-        const std::vector<double> reco_daughter_allTrack_truncLibo_dEdX_test = truncatedMean_xglu(libo_low, libo_high, *trkdedx_test_ptr);
+        const std::vector<double> reco_daughter_allTrack_truncLibo_dEdX_test = truncatedMean(libo_low, libo_high, *trkdedx_test_ptr);
  
 
 
@@ -1627,11 +1690,28 @@ void Main::Maker::MakeFile()
         std::vector<double> &newrdshwr_endY = *rdshwr_endY_ptr;
         std::vector<double> &newrdshwr_endZ = *rdshwr_endZ_ptr;
         */
+        std::vector<double> *rdshwr_dirX_ptr = t->reco_daughter_allShower_dirX;
+        std::vector<double> *rdshwr_dirY_ptr = t->reco_daughter_allShower_dirY;
+        std::vector<double> *rdshwr_dirZ_ptr = t->reco_daughter_allShower_dirZ;
+
+        std::vector<double> newrdshwr_dirX;
+        std::vector<double> newrdshwr_dirY;
+        std::vector<double> newrdshwr_dirZ;
+
         daughter_distance3D_shower =   compute_distanceVertex(t->reco_beam_endX, t->reco_beam_endY, t->reco_beam_endZ,
                                     newrdshwr_startX, newrdshwr_startY, newrdshwr_startZ,      
                                     newrdshwr_startX, newrdshwr_startY, newrdshwr_startZ);      
          
  
+        daughter_angle3D_shower    =   compute_angleVertex_shower(t->reco_beam_endX, t->reco_beam_endY, t->reco_beam_endZ,
+                                    newrdshwr_startX, newrdshwr_startY, newrdshwr_startZ,      
+                                    newrdshwr_startX, newrdshwr_startY, newrdshwr_startZ,      
+                                    newrdshwr_dirX, newrdshwr_dirY, newrdshwr_dirZ); 
+
+       
+        
+
+
 
 
 	//for(unsigned int jj=0; jj<t->reco_daughter_PFP_true_byHits_PDG->size(); jj++){
@@ -1639,18 +1719,22 @@ void Main::Maker::MakeFile()
             _event_histo_1d->h_trackscore_all->Fill(t->reco_daughter_PFP_trackScore_collection->at(jj));
             if(t->reco_daughter_PFP_trackScore_collection->at(jj)<trkscorecut){
                _event_histo_1d->h_trackscore_shwlike_all->Fill(t->reco_daughter_PFP_trackScore_collection->at(jj));
+               _event_histo_1d->h_shweng_all->Fill(t->reco_daughter_allShower_energy->at(jj));
                _event_histo_1d->h_nhits_shwlike_all->Fill(t->reco_daughter_PFP_nHits->at(jj));
                if(isdata == 0){
                    if(abs(t->reco_daughter_PFP_true_byHits_PDG->at(jj))==22){
                         _event_histo_1d->h_trackscore_shwlike_photon->Fill(t->reco_daughter_PFP_trackScore_collection->at(jj));
+                        _event_histo_1d->h_shweng_photon->Fill(t->reco_daughter_allShower_energy->at(jj));
                         _event_histo_1d->h_nhits_shwlike_photon->Fill(t->reco_daughter_PFP_nHits->at(jj));
 
                    }else if(abs(t->reco_daughter_PFP_true_byHits_PDG->at(jj))==11){ 
                         _event_histo_1d->h_trackscore_shwlike_electron->Fill(t->reco_daughter_PFP_trackScore_collection->at(jj));
+                        _event_histo_1d->h_shweng_electron->Fill(t->reco_daughter_allShower_energy->at(jj));
                         _event_histo_1d->h_nhits_shwlike_electron->Fill(t->reco_daughter_PFP_nHits->at(jj));
                          
                    }else {
                         _event_histo_1d->h_trackscore_shwlike_nonphoton->Fill(t->reco_daughter_PFP_trackScore_collection->at(jj));
+                        _event_histo_1d->h_shweng_nonphoton->Fill(t->reco_daughter_allShower_energy->at(jj));
                         _event_histo_1d->h_nhits_shwlike_nonphoton->Fill(t->reco_daughter_PFP_nHits->at(jj));
               
                    }
@@ -1956,7 +2040,7 @@ void Main::Maker::MakeFile()
         std::vector<std::vector<double>> trkdedxref=*trkdedx_ptr;
 
 
-        const std::vector<double> reco_daughter_allTrack_truncLibo_dEdX = truncatedMean_xglu(libo_low, libo_high, *trkdedx_ptr);
+        const std::vector<double> reco_daughter_allTrack_truncLibo_dEdX = truncatedMean(libo_low, libo_high, *trkdedx_ptr);
  
 
         if(!secondary_noPion_libo(*daughter_trkscore_ptr,
