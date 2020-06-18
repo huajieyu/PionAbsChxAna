@@ -84,10 +84,10 @@ namespace Base {
   
     // Opening a text file to write the integrals
     std::ofstream outfile;
-    if (variable == 0) outfile.open("./EvtWgtEfficiencyPlots/IntegralsPmu.txt");
-    if (variable == 1) outfile.open("./EvtWgtEfficiencyPlots/IntegralsCosThetaMu.txt");
-    if (variable == 2) outfile.open("./EvtWgtEventPlots/IntegralsPmu.txt");
-    if (variable == 3) outfile.open("./EvtWgtEventPlots/IntegralsCosThetaMu.txt");
+    if (variable == 0) outfile.open("./EvtWgtEfficiencyPlots/IntegralsPmom.txt");
+    if (variable == 1) outfile.open("./EvtWgtEfficiencyPlots/IntegralsPcostheta.txt");
+    if (variable == 2) outfile.open("./EvtWgtEventPlots/IntegralsPmom.txt");
+    if (variable == 3) outfile.open("./EvtWgtEventPlots/IntegralsPcostheta.txt");
   
   
   
@@ -96,10 +96,10 @@ namespace Base {
     std::ofstream latexFile;
     std::ofstream latexFile3;
     if(makeLaTeX) {
-      if (variable == 0) latexFile.open("./EvtWgtEfficiencyPlots/evtwgtEfficiencyPmu.tex");
-      if (variable == 1) latexFile.open("./EvtWgtEfficiencyPlots/evtwgtEfficiencyCosThetaMu.tex");
-      if (variable == 2) latexFile.open("./EvtWgtEventPlots/evtwgtEventPmu.tex");
-      if (variable == 3) latexFile.open("./EvtWgtEventPlots/evtwgtEventCosThetaMu.tex");
+      if (variable == 0) latexFile.open("./EvtWgtEfficiencyPlots/evtwgtEfficiencyPmom.tex");
+      if (variable == 1) latexFile.open("./EvtWgtEfficiencyPlots/evtwgtEfficiencyPcostheta.tex");
+      if (variable == 2) latexFile.open("./EvtWgtEventPlots/evtwgtEventPmom.tex");
+      if (variable == 3) latexFile.open("./EvtWgtEventPlots/evtwgtEventPcostheta.tex");
       latexFile << "\\begin{table}[]" << std::endl;
       latexFile << "\\caption{}" << std::endl;
       latexFile << "\\captionsetup{format=hang,labelfont={sf,bf}}" << std::endl;
@@ -111,10 +111,10 @@ namespace Base {
       else latexFile << "  &  Integral  &  Difference (\\%) \\\\" << std::endl;
       latexFile << "\\midrule" << std::endl;
 
-      if (variable == 0) latexFile3.open("./EvtWgtEfficiencyPlots/evtwgtEfficiencyPmu_figures.tex", std::ofstream::out | std::ofstream::trunc);
-      if (variable == 1) latexFile3.open("./EvtWgtEfficiencyPlots/evtwgtEfficiencyCosThetaMu_figures.tex", std::ofstream::out | std::ofstream::trunc);
-      if (variable == 2) latexFile3.open("./EvtWgtEventPlots/evtwgtEventPmu_figures.tex", std::ofstream::out | std::ofstream::trunc);
-      if (variable == 3) latexFile3.open("./EvtWgtEventPlots/evtwgtEventCosThetaMu_figures.tex", std::ofstream::out | std::ofstream::trunc);
+      if (variable == 0) latexFile3.open("./EvtWgtEfficiencyPlots/evtwgtEfficiencyPmom_figures.tex", std::ofstream::out | std::ofstream::trunc);
+      if (variable == 1) latexFile3.open("./EvtWgtEfficiencyPlots/evtwgtEfficiencyPcostheta_figures.tex", std::ofstream::out | std::ofstream::trunc);
+      if (variable == 2) latexFile3.open("./EvtWgtEventPlots/evtwgtEventPmom_figures.tex", std::ofstream::out | std::ofstream::trunc);
+      if (variable == 3) latexFile3.open("./EvtWgtEventPlots/evtwgtEventPcostheta_figures.tex", std::ofstream::out | std::ofstream::trunc);
       latexFile3 << "\\begin{figure}[t]" << std::endl;
       latexFile3 << "\\begin{adjustwidth}{-1cm}{-1cm}" << std::endl;
       latexFile3 << "\\centering" << std::endl;
@@ -162,8 +162,8 @@ namespace Base {
 
 
       TString SaveName;
-      if(variable == 0 || variable == 2) SaveName = "Pmu_"+function_name;
-      if(variable == 1 || variable == 3) SaveName = "CosThetaMu_"+function_name;
+      if(variable == 0 || variable == 2) SaveName = "Pmom_"+function_name;
+      if(variable == 1 || variable == 3) SaveName = "Pcostheta_"+function_name;
       TString LegName  = GetLegendName(function_name);
 
       if(normalised) SaveName += "_normalised";
@@ -304,7 +304,9 @@ namespace Base {
       //ratio_p1->SetMaximum(1.08); // .. range
       //ratio_p1->Sumw2();
       ratio_p1->SetStats(0);      // No statistics on lower plot
+      ratio_p1->Add(histo, -1.0);
       ratio_p1->Divide(histo);
+      //ratio_p1->Add(histo, -1.0);
       ratio_p1->SetLineWidth(2);
       ratio_p1->SetLineColor(kRed+1);
       //ratio_p1->Draw("hist");       // Draw the ratio plot
@@ -315,7 +317,9 @@ namespace Base {
       //ratio_m1->SetMaximum(1.1); // .. range
       //ratio_m1->Sumw2();
       ratio_m1->SetStats(0);      // No statistics on lower plot
+      ratio_m1->Add(histo, -1.0);
       ratio_m1->Divide(histo);
+      //ratio_m1->Add(histo, -1.0);
       ratio_m1->SetLineWidth(2);
       ratio_m1->SetLineColor(kGreen+2);
       //ratio_m1->Draw("hist same");       // Draw the ratio plot
@@ -343,7 +347,9 @@ namespace Base {
       hs->Add(ratio_m1);
       hs->SetMaximum(hs->GetMaximum("nostack")+0.01);
       hs->SetMinimum(hs->GetMinimum("nostack")-0.01);
-      //std::cout << "hs->GetMinimum(): " << hs->GetMinimum("nostack") << std::endl;
+
+
+
       hs->Draw("NOSTACK histo");
     
     
@@ -392,8 +398,8 @@ namespace Base {
       hs->GetYaxis()->SetLabelSize(15);
     
     
-      if(variable == 0 || variable == 2) hs->GetXaxis()->SetTitle("p_{#mu} [GeV]");
-      if(variable == 1 || variable == 3) hs->GetXaxis()->SetTitle("cos#theta_{#mu}");
+      if(variable == 0 || variable == 2) hs->GetXaxis()->SetTitle("P_{proton} [GeV]");
+      if(variable == 1 || variable == 3) hs->GetXaxis()->SetTitle("cos#theta_{proton}");
       hs->GetXaxis()->CenterTitle();
       hs->GetXaxis()->SetTitleSize(25);
       hs->GetXaxis()->SetTitleFont(43);
@@ -460,13 +466,7 @@ namespace Base {
   }
 
   void ReweightingPlotter::MakeBackgroundPlots(int variable, bool normalised, bool makeLaTeX) {
-    /*
-
-      // Pmu: variable == 0
-  // CosThetaMu: variable == 1
-
-
-  
+    
 
   
   // Create output directory
@@ -478,27 +478,25 @@ namespace Base {
   
   
   double scaleFactor = 1.;//5.3e19/1.22e20;
-  
-  std::cout << "numu:   " << _map_bs["signal"].GetNominal().Integral() * scaleFactor << std::endl;
-  std::cout << "anumu:  " << _map_bs["anumu"].GetNominal().Integral() * scaleFactor << std::endl;
-  std::cout << "nue:    " << _map_bs["nue"].GetNominal().Integral() * scaleFactor << std::endl;
-  std::cout << "nc:     " << _map_bs["nc"].GetNominal().Integral() * scaleFactor << std::endl;
-  std::cout << "outfv:  " << _map_bs["outfv"].GetNominal().Integral() * scaleFactor << std::endl;
-  std::cout << "cosmic: " << _map_bs["cosmic"].GetNominal().Integral() * scaleFactor << std::endl;
+  std::cout << "scaleFactor = " <<scaleFactor<<std::endl;
+  std::cout << "Pion Absorption:   " << _map_bs["signal"].GetNominal().Integral() * scaleFactor << std::endl;
+  std::cout << "Charge Exchage:  " << _map_bs["chxbac"].GetNominal().Integral() * scaleFactor << std::endl;
+  std::cout << "Pion Reaction:    " << _map_bs["reabac"].GetNominal().Integral() * scaleFactor << std::endl;
 
   std::ofstream latexFile;
   std::ofstream latexFile3;
 
+
+
+
+
   double numu_nominal = _map_bs["signal"].GetNominal().Integral();
-  double anumu_nominal = _map_bs["anumu"].GetNominal().Integral();
-  double nue_nominal = _map_bs["nue"].GetNominal().Integral();
-  double nc_nominal = _map_bs["nc"].GetNominal().Integral();
-  double outfv_nominal = _map_bs["outfv"].GetNominal().Integral();
-  double cosmic_nominal = _map_bs["cosmic"].GetNominal().Integral();
+  double anumu_nominal = _map_bs["chxbac"].GetNominal().Integral();
+  double nue_nominal = _map_bs["reabac"].GetNominal().Integral();
 
   if(makeLaTeX) {
-    if (variable == 0) latexFile.open("./EvtWgtBackgroundPlots/evtwgtBackgroundPmu.tex");
-    if (variable == 1) latexFile.open("./EvtWgtBackgroundPlots/evtwgtBackgroundCosThetaMu.tex");
+    if (variable == 0) latexFile.open("./EvtWgtBackgroundPlots/evtwgtBackgroundPmom.tex");
+    if (variable == 1) latexFile.open("./EvtWgtBackgroundPlots/evtwgtBackgroundPcostheta.tex");
     latexFile << "\\begin{table}[]" << std::endl;
     latexFile << "\\begin{adjustwidth}{-2.1cm}{-1cm}" << std::endl;
     latexFile << "\\caption{}" << std::endl;
@@ -506,20 +504,17 @@ namespace Base {
     latexFile << "\\label{tab:}" << std::endl;
     latexFile << "\\centering" << std::endl;
     latexFile << "\\tiny" << std::endl;
-    latexFile << "\\begin{tabular}{c   c c  c c  c c  c c  c c  c c }" << std::endl;
+    latexFile << "\\begin{tabular}{c   c c  c  }" << std::endl;
     latexFile << "\\toprule" << std::endl;
-    latexFile << "  &  \\multicolumn{2}{ c }{$\\nu_\\mu$ CC} &  \\multicolumn{2}{ c }{$\\bar{\\nu}_\\mu$ CC}   & \\multicolumn{2}{ c }{$\\nu_e$, $\\bar{\\nu}_e$ CC}   &  \\multicolumn{2}{ c }{NC} &  \\multicolumn{2}{ c }{OUTFV} &  \\multicolumn{2}{ c }{Cosmic} \\\\" << std::endl;
-    latexFile << "  &  Events   &  Diff. (\\%) &  Events  &  Diff. (\\%) & Events  &  Diff. (\\%) &  Events &  Diff. (\\%)  &  Events &  Diff. (\\%)  &  Events &  Diff. (\\%) \\\\" << std::endl;
+    latexFile << "  &  \\multicolumn{2}{ c }{PiAbs} &  \\multicolumn{2}{ c }{$PiChx}   & \\multicolumn{2}{ c }{PiRea}   \\\\" << std::endl;
+    latexFile << "  &  Events  &  Diff. (\\%) &  Events  &  Diff. (\\%) & Events  &  Diff. (\\%)  \\\\" << std::endl;
     latexFile << "\\midrule" << std::endl;
     latexFile << "Nominal & " << _map_bs["signal"].GetNominal().Integral() << " & 0 "
-    << " & " << _map_bs["anumu"].GetNominal().Integral() << " & 0 "
-    << " & " << _map_bs["nue"].GetNominal().Integral() << " & 0 "
-    << " & " << _map_bs["nc"].GetNominal().Integral() << " & 0 "
-    << " & " << _map_bs["outfv"].GetNominal().Integral() << " & 0 "
-    << " & " << _map_bs["cosmic"].GetNominal().Integral() << " & 0 " << "\\\\" << std::endl;
+    << " & " << _map_bs["chxbac"].GetNominal().Integral() << " & 0 "
+    << " & " << _map_bs["reabac"].GetNominal().Integral() << " & 0 " << "\\\\" << std::endl;
 
-    if (variable == 0) latexFile3.open("./EvtWgtBackgroundPlots/evtwgtBackgroundPmu_figures.tex", std::ofstream::out | std::ofstream::trunc);
-    if (variable == 1) latexFile3.open("./EvtWgtBackgroundPlots/evtwgtBackgroundCosThetaMu_figures.tex", std::ofstream::out | std::ofstream::trunc);
+    if (variable == 0) latexFile3.open("./EvtWgtBackgroundPlots/evtwgtBackgroundPmom_figures.tex", std::ofstream::out | std::ofstream::trunc);
+    if (variable == 1) latexFile3.open("./EvtWgtBackgroundPlots/evtwgtBackgroundPcostheta_figures.tex", std::ofstream::out | std::ofstream::trunc);
     latexFile3 << "\\begin{figure}[t]" << std::endl;
     latexFile3 << "\\begin{adjustwidth}{-1cm}{-1cm}" << std::endl;
     latexFile3 << "\\centering" << std::endl;
@@ -531,12 +526,9 @@ namespace Base {
   
   TCanvas *c = new TCanvas("c", "canvas", 800, 800);
   
-  std::map<std::string, std::vector<TH1D*>> map_bs_signal = _map_bs["signal"].UnpackPMHisto();
-  std::map<std::string, std::vector<TH1D*>> map_bs_anumu = _map_bs["anumu"].UnpackPMHisto();
-  std::map<std::string, std::vector<TH1D*>> map_bs_nue = _map_bs["nue"].UnpackPMHisto();
-  std::map<std::string, std::vector<TH1D*>> map_bs_nc = _map_bs["nc"].UnpackPMHisto();
-  std::map<std::string, std::vector<TH1D*>> map_bs_outfv = _map_bs["outfv"].UnpackPMHisto();
-  std::map<std::string, std::vector<TH1D*>> map_bs_cosmic = _map_bs["cosmic"].UnpackPMHisto();
+  std::map<std::string, std::vector<TH1D>> map_bs_signal = _map_bs["signal"].UnpackPMHisto();
+  std::map<std::string, std::vector<TH1D>> map_bs_anumu = _map_bs["chxbac"].UnpackPMHisto();
+  std::map<std::string, std::vector<TH1D>> map_bs_nue = _map_bs["reabac"].UnpackPMHisto();
 
   int function_counter = 0;
 
@@ -547,25 +539,17 @@ namespace Base {
     std::string function_name = iter.first;
 
     auto ii = map_bs_anumu.find(function_name);
-    std::vector<TH1D*> anumu_v = ii->second;
-    TH1D* anumu_nom = &_map_bs["anumu"].GetNominal();
+    std::vector<TH1D> anumu_v = ii->second;
+    const TH1D* anumu_nom = &_map_bs["chxbac"].GetNominal();
+
     ii = map_bs_nue.find(function_name);
-    std::vector<TH1D*> nue_v = ii->second;
-    TH1D* nue_nom = &_map_bs["nue"].GetNominal();
-    ii = map_bs_nc.find(function_name);
-    std::vector<TH1D*> nc_v = ii->second;
-    TH1D* nc_nom = &_map_bs["nc"].GetNominal();
-    ii = map_bs_outfv.find(function_name);
-    std::vector<TH1D*> outfv_v = ii->second;
-    TH1D* outfv_nom = &_map_bs["outfv"].GetNominal();
-    ii = map_bs_cosmic.find(function_name);
-    std::vector<TH1D*> cosmic_v = ii->second;
-    TH1D* cosmic_nom = &_map_bs["cosmic"].GetNominal();
+    std::vector<TH1D> nue_v = ii->second;
+    const TH1D* nue_nom = &_map_bs["reabac"].GetNominal();
 
     
     TString SaveName;
-    if (variable == 0) SaveName = "Pmu_" + function_name;
-    if (variable == 1) SaveName = "CosThetaMu_" + function_name;
+    if (variable == 0) SaveName = "Pmom_" + function_name;
+    if (variable == 1) SaveName = "PCosTheta_" + function_name;
     
     c->SetLogy();                                 // Log scale
     //c->SetGridy();                                // Horizontal grid
@@ -580,42 +564,22 @@ namespace Base {
     TH1D* histo_nue;
     TH1D* histo_nue_p1;
     TH1D* histo_nue_m1;
-    TH1D* histo_nc;
-    TH1D* histo_nc_p1;
-    TH1D* histo_nc_m1;
-    TH1D* histo_outfv;
-    TH1D* histo_outfv_p1;
-    TH1D* histo_outfv_m1;
-    TH1D* histo_cosmic;
-    TH1D* histo_cosmic_p1;
-    TH1D* histo_cosmic_m1;
 
 
     
-    if (variable == 0) {
+    if (variable == 0 || variable == 1) {
       histo_numu        = (TH1D*)_map_bs["signal"].GetNominal().Clone("histo_numu");
       histo_numu_p1     = (TH1D*)iter.second.at(1).Clone("histo_numu_p1");
       histo_numu_m1     = (TH1D*)iter.second.at(0).Clone("histo_numu_m1");
       
-      histo_anumu       = (TH1D*) (anumu_nom.Clone("histo_anumu"));
+      histo_anumu       = (TH1D*) (anumu_nom->Clone("histo_anumu"));
       histo_anumu_p1    = (TH1D*) (anumu_v.at(1).Clone("histo_anumu_p1"));
       histo_anumu_m1    = (TH1D*) (anumu_v.at(0).Clone("histo_anumu_m1"));
       
-      histo_nue         = (TH1D*) (nue_nom.Clone("histo_nue"));
+      histo_nue         = (TH1D*) (nue_nom->Clone("histo_nue"));
       histo_nue_p1      = (TH1D*) (nue_v.at(1).Clone("histo_nue_p1"));
       histo_nue_m1      = (TH1D*) (nue_v.at(0).Clone("histo_nue_m1"));
       
-      histo_nc          = (TH1D*) (nc_nom.Clone("histo_nc"));
-      histo_nc_p1       = (TH1D*) (nc_v.at(1).Clone("histo_nc_p1"));
-      histo_nc_m1       = (TH1D*) (nc_v.at(0).Clone("histo_nc_m1"));
-
-      histo_outfv       = (TH1D*) (outfv_nom.Clone("histo_outfv"));
-      histo_outfv_p1    = (TH1D*) (outfv_v.at(1).Clone("histo_outfv_p1"));
-      histo_outfv_m1    = (TH1D*) (outfv_v.at(0).Clone("histo_outfv_m1"));
-
-      histo_cosmic      = (TH1D*) (cosmic_nom.Clone("histo_cosmic"));
-      histo_cosmic_p1   = (TH1D*) (cosmic_v.at(1).Clone("histo_cosmic_p1"));
-      histo_cosmic_m1   = (TH1D*) (cosmic_v.at(0).Clone("histo_cosmic_m1"));
     }
     else {
       std::cout << "Invalid option. Exit." << std::endl;
@@ -625,11 +589,11 @@ namespace Base {
     
     // Settings
     histo_numu->SetStats(0);          // No statistics on upper plot
-    if (variable == 1) histo_numu->SetMinimum(1);
-    if (variable == 1) histo_numu->SetMaximum(1e5);
+    //if (variable == 1) histo_numu->SetMinimum(1);
+    //if (variable == 1) histo_numu->SetMaximum(1e5);
 
-    if (variable == 0) histo_numu->GetXaxis()->SetTitle("Reconstructed p_{#mu} [GeV]");
-    if (variable == 1) histo_numu->GetXaxis()->SetTitle("Reconstructed cos#theta_{#mu}");
+    if (variable == 0) histo_numu->GetXaxis()->SetTitle("Reconstructed p_{proton} [GeV]");
+    if (variable == 1) histo_numu->GetXaxis()->SetTitle("Reconstructed cos#theta_{proton}");
     histo_numu->GetXaxis()->CenterTitle();
     histo_numu->GetXaxis()->SetTitleSize(25);
     histo_numu->GetXaxis()->SetTitleFont(43);
@@ -647,80 +611,47 @@ namespace Base {
     histo_numu   ->Draw("histo");
     histo_anumu  ->Draw("histo same");
     histo_nue    ->Draw("histo same");
-    histo_nc     ->Draw("histo same");
-    histo_outfv  ->Draw("histo same");
-    histo_cosmic ->Draw("histo same");
 
     histo_numu   ->SetLineColor(kRed+1);
     histo_anumu  ->SetLineColor(kOrange+1);
     histo_nue    ->SetLineColor(kViolet+1);
-    histo_nc     ->SetLineColor(kGray+1);
-    histo_outfv  ->SetLineColor(kGreen+1);
-    histo_cosmic ->SetLineColor(kBlue+1);
     
     histo_numu   ->SetLineWidth(lineWidth+1);
     histo_anumu  ->SetLineWidth(lineWidth+1);
     histo_nue    ->SetLineWidth(lineWidth+1);
-    histo_nc     ->SetLineWidth(lineWidth+1);
-    histo_outfv  ->SetLineWidth(lineWidth+1);
-    histo_cosmic ->SetLineWidth(lineWidth+1);
 
     // +- 1 sigma
     histo_numu_p1   ->Draw("histo same");
     histo_anumu_p1  ->Draw("histo same");
     histo_nue_p1    ->Draw("histo same");
-    histo_nc_p1     ->Draw("histo same");
-    histo_outfv_p1  ->Draw("histo same");
-    histo_cosmic_p1 ->Draw("histo same");
 
     histo_numu_m1   ->Draw("histo same");
     histo_anumu_m1  ->Draw("histo same");
     histo_nue_m1    ->Draw("histo same");
-    histo_nc_m1     ->Draw("histo same");
-    histo_outfv_m1  ->Draw("histo same");
-    histo_cosmic_m1 ->Draw("histo same");
 
     histo_numu_p1  ->SetLineColor(kRed+1);
     histo_anumu_p1 ->SetLineColor(kOrange+1);
     histo_nue_p1   ->SetLineColor(kViolet+1);
-    histo_nc_p1    ->SetLineColor(kGray+1);
-    histo_outfv_p1 ->SetLineColor(kGreen+1);
-    histo_cosmic_p1->SetLineColor(kBlue+1);
 
     histo_numu_m1  ->SetLineColor(kRed+1);
     histo_anumu_m1 ->SetLineColor(kOrange+1);
     histo_nue_m1   ->SetLineColor(kViolet+1);
-    histo_nc_m1    ->SetLineColor(kGray+1);
-    histo_outfv_m1 ->SetLineColor(kGreen+1);
-    histo_cosmic_m1->SetLineColor(kBlue+1);
 
     histo_numu_p1  ->SetLineStyle(7);
     histo_anumu_p1 ->SetLineStyle(7);
     histo_nue_p1   ->SetLineStyle(7);
-    histo_nc_p1    ->SetLineStyle(7);
-    histo_outfv_p1 ->SetLineStyle(7);
-    histo_cosmic_p1->SetLineStyle(7);
 
     histo_numu_m1  ->SetLineStyle(3);
     histo_anumu_m1 ->SetLineStyle(3);
     histo_nue_m1   ->SetLineStyle(3);
-    histo_nc_m1    ->SetLineStyle(3);
-    histo_outfv_m1 ->SetLineStyle(3);
-    histo_cosmic_m1->SetLineStyle(3);
 
     histo_numu_p1  ->SetLineWidth(lineWidth);
     histo_anumu_p1 ->SetLineWidth(lineWidth);
     histo_nue_p1   ->SetLineWidth(lineWidth);
-    histo_nc_p1    ->SetLineWidth(lineWidth);
-    histo_outfv_p1 ->SetLineWidth(lineWidth);
-    histo_cosmic_p1->SetLineWidth(lineWidth);
 
     histo_numu_m1  ->SetLineWidth(lineWidth);
     histo_anumu_m1 ->SetLineWidth(lineWidth);
     histo_nue_m1   ->SetLineWidth(lineWidth);
-    histo_nc_m1    ->SetLineWidth(lineWidth);
-    histo_outfv_m1 ->SetLineWidth(lineWidth);
-    histo_cosmic_m1->SetLineWidth(lineWidth);
 
     
     // Legend
@@ -730,26 +661,17 @@ namespace Base {
     leg->SetTextFont(42);
     leg->SetBorderSize(0);
     
-    leg->AddEntry(histo_numu,  "#nu_{#mu} CC (nominal)");
-    leg->AddEntry(histo_anumu, "#bar{#nu}_{#mu} CC (nominal)");
-    leg->AddEntry(histo_nue,   "#nu_{e} CC (nominal)");
-    leg->AddEntry(histo_nc,    "NC all flavours (nominal)");
-    leg->AddEntry(histo_outfv,   "OUTFV (nominal)");
-    leg->AddEntry(histo_cosmic,    "Cosmic (nominal)");
+    leg->AddEntry(histo_numu,  "Pion Absorption (nominal)");
+    leg->AddEntry(histo_anumu, "Charge Exchange (nominal)");
+    leg->AddEntry(histo_nue,   "Pion Reaction (nominal)");
 
-    leg->AddEntry(histo_numu_p1,   "#nu_{#mu} CC (" + GetLegendName(function_name) + " + 1 #sigma)");
-    leg->AddEntry(histo_anumu_p1,  "#bar{#nu}_{#mu} CC (" + GetLegendName(function_name) + " + 1 #sigma)");
-    leg->AddEntry(histo_nue_p1,    "#nu_{e} CC (" + GetLegendName(function_name) + " + 1 #sigma)");
-    leg->AddEntry(histo_nc_p1,     "NC all flavours (" + GetLegendName(function_name) + " + 1 #sigma)");
-    leg->AddEntry(histo_outfv_p1,  "OUTFV (" + GetLegendName(function_name) + " + 1 #sigma)");
-    leg->AddEntry(histo_cosmic_p1, "Cosmic (" + GetLegendName(function_name) + " + 1 #sigma)");
+    leg->AddEntry(histo_numu_p1,   "PiAbs (" + GetLegendName(function_name) + " + 1 #sigma)");
+    leg->AddEntry(histo_anumu_p1,  "PiChx (" + GetLegendName(function_name) + " + 1 #sigma)");
+    leg->AddEntry(histo_nue_p1,    "PiRea (" + GetLegendName(function_name) + " + 1 #sigma)");
 
-    leg->AddEntry(histo_numu_m1,   "#nu_{#mu} CC (" + GetLegendName(function_name) + " - 1 #sigma)");
-    leg->AddEntry(histo_anumu_m1,  "#bar{#nu}_{#mu} CC (" + GetLegendName(function_name) + " - 1 #sigma)");
-    leg->AddEntry(histo_nue_m1,    "#nu_{e} CC (" + GetLegendName(function_name) + " - 1 #sigma)");
-    leg->AddEntry(histo_nc_m1,     "NC all flavours (" + GetLegendName(function_name) + " - 1 #sigma)");
-    leg->AddEntry(histo_outfv_m1,  "OUTFV (" + GetLegendName(function_name) + " - 1 #sigma)");
-    leg->AddEntry(histo_cosmic_m1, "Cosmic (" + GetLegendName(function_name) + " - 1 #sigma)");
+    leg->AddEntry(histo_numu_m1,   "PiAbs (" + GetLegendName(function_name) + " - 1 #sigma)");
+    leg->AddEntry(histo_anumu_m1,  "PiChx (" + GetLegendName(function_name) + " - 1 #sigma)");
+    leg->AddEntry(histo_nue_m1,    "PiRea (" + GetLegendName(function_name) + " - 1 #sigma)");
 
     leg->Draw();
     
@@ -767,23 +689,14 @@ namespace Base {
     histo_numu  ->Draw("histo");
     histo_anumu ->Draw("histo same");
     histo_nue   ->Draw("histo same");
-    histo_nc    ->Draw("histo same");
-    histo_outfv ->Draw("histo same");
-    histo_cosmic->Draw("histo same");
 
     histo_numu_p1  ->Draw("histo same");
     histo_anumu_p1 ->Draw("histo same");
     histo_nue_p1   ->Draw("histo same");
-    histo_nc_p1    ->Draw("histo same");
-    histo_outfv_p1 ->Draw("histo same");
-    histo_cosmic_p1->Draw("histo same");
 
     histo_numu_m1  ->Draw("histo same");
     histo_anumu_m1 ->Draw("histo same");
     histo_nue_m1   ->Draw("histo same");
-    histo_nc_m1    ->Draw("histo same");
-    histo_outfv_m1 ->Draw("histo same");
-    histo_cosmic_m1->Draw("histo same");
 
     TLegend* leg2;
     if (variable == 0) leg2 = new TLegend(0.566416,0.5535484,0.8822055,0.8825806,NULL,"brNDC");
@@ -791,12 +704,9 @@ namespace Base {
     leg2->SetTextFont(42);
     leg2->SetBorderSize(0);
 
-    leg2->AddEntry(histo_numu,  "#nu_{#mu} CC");
-    leg2->AddEntry(histo_anumu, "#bar{#nu}_{#mu} CC");
-    leg2->AddEntry(histo_nue,   "#nu_{e}, #bar{#nu}_{e} CC");
-    leg2->AddEntry(histo_nc,    "NC all flavours");
-    leg2->AddEntry(histo_outfv, "OUTFV");
-    leg2->AddEntry(histo_cosmic,"Cosmic");
+    leg2->AddEntry(histo_numu,  "Signal");
+    leg2->AddEntry(histo_anumu, "Charge Exchange");
+    leg2->AddEntry(histo_nue,   "Pion Reaction");
 
     leg2->Draw();
 
@@ -831,12 +741,6 @@ namespace Base {
     double anumu_m1;
     double nue_p1;
     double nue_m1;
-    double nc_p1;
-    double nc_m1;
-    double outfv_p1;
-    double outfv_m1;    
-    double cosmic_p1;
-    double cosmic_m1;
 
     if (variable == 0) {
       numu_p1   = histo_numu_p1   ->Integral();
@@ -845,13 +749,8 @@ namespace Base {
       anumu_m1  = histo_anumu_m1  ->Integral();
       nue_p1    = histo_nue_p1    ->Integral();
       nue_m1    = histo_nue_p1    ->Integral();
-      nc_p1     = histo_nc_p1     ->Integral();
-      nc_m1     = histo_nc_p1     ->Integral();
-      outfv_p1  = histo_outfv_p1  ->Integral();
-      outfv_m1  = histo_outfv_p1  ->Integral();
-      cosmic_p1 = histo_cosmic_p1 ->Integral();
-      cosmic_m1 = histo_cosmic_p1 ->Integral();
-    } 
+    }
+     
     
     if(makeLaTeX) {
       double numu_diff_p1 = (numu_p1 -numu_nominal)/numu_nominal * 100.;
@@ -863,31 +762,19 @@ namespace Base {
       double nue_diff_p1 = (nue_p1 -nue_nominal)/nue_nominal * 100.;
       double nue_diff_m1 = (nue_m1 -nue_nominal)/nue_nominal * 100.;
       
-      double nc_diff_p1 = (nc_p1 -nc_nominal)/nc_nominal * 100.;
-      double nc_diff_m1 = (nc_p1 -nc_nominal)/nc_nominal * 100.;
-
-      double outfv_diff_p1 = (outfv_p1 -outfv_nominal)/outfv_nominal * 100.;
-      double outfv_diff_m1 = (outfv_p1 -outfv_nominal)/outfv_nominal * 100.;
-
-      double cosmic_diff_p1 = (cosmic_p1 -cosmic_nominal)/cosmic_nominal * 100.;
-      double cosmic_diff_m1 = (cosmic_p1 -cosmic_nominal)/cosmic_nominal * 100.;
 
       latexFile << "\\midrule" << std::endl;
       latexFile << "$" << GetLegendName(function_name) << " + 1\\sigma$ "
       << " & " << std::setprecision(5) << numu_p1  << " & " << std::setprecision(2) << numu_diff_p1
       << " & " << std::setprecision(5) << anumu_p1 << " & " << std::setprecision(2) << anumu_diff_p1
       << " & " << std::setprecision(5) << nue_p1   << " & " << std::setprecision(2) << nue_diff_p1
-      << " & " << std::setprecision(5) << nc_p1    << " & " << std::setprecision(2) << nc_diff_p1
-      << " & " << std::setprecision(5) << outfv_p1 << " & " << std::setprecision(2) << outfv_diff_p1
-      << " & " << std::setprecision(5) << cosmic_p1<< " & " << std::setprecision(2) << cosmic_diff_p1 << "\\\\" << std::endl;
+      << "\\\\" << std::endl;
       
       latexFile << "$" << GetLegendName(function_name) << " - 1\\sigma$ "
       << " & " << std::setprecision(5) << numu_m1  << " & " << std::setprecision(2) << numu_diff_m1
       << " & " << std::setprecision(5) << anumu_m1 << " & " << std::setprecision(2) << anumu_diff_m1
       << " & " << std::setprecision(5) << nue_m1   << " & " << std::setprecision(2) << nue_diff_m1
-      << " & " << std::setprecision(5) << nc_m1    << " & " << std::setprecision(2) << nc_diff_m1
-      << " & " << std::setprecision(5) << outfv_m1 << " & " << std::setprecision(2) << outfv_diff_m1
-      << " & " << std::setprecision(5) << cosmic_m1<< " & " << std::setprecision(2) << cosmic_diff_m1 << "\\\\" << std::endl;
+      << "\\\\" << std::endl;
     }
   }
   
@@ -905,7 +792,7 @@ namespace Base {
     latexFile3 << "\\end{adjustwidth}" << std::endl;
     latexFile3 << "\\end{figure}" << std::endl;
   }
- */
+ 
 
   }
 
@@ -920,44 +807,10 @@ namespace Base {
   TString ReweightingPlotter::GetLegendName(std::string fName) {
     
     TString legName = "null";
-    if (fName.find("qema") != std::string::npos) legName = "M_{A}^{CCQE}";
-    if (fName.find("ncelEta") != std::string::npos) legName = "#eta^{NCEL}";
-    if (fName.find("ncelAxial") != std::string::npos) legName = "M_{A}^{NCEL}";
-    if (fName.find("qevec") != std::string::npos) legName = "VecFF";
-    if (fName.find("ccresAxial") != std::string::npos) legName = "M_{A}^{CCRES}";
-    if (fName.find("ccresVector") != std::string::npos) legName = "M_{V}^{CCRES}";
-    if (fName.find("ncresAxial") != std::string::npos) legName = "M_{A}^{NCRES}";
-    if (fName.find("ncresVector") != std::string::npos) legName = "M_{V}^{NCRES}";
-    if (fName.find("cohMA") != std::string::npos) legName = "M_{A}^{COH#pi}";
-    if (fName.find("cohR0") != std::string::npos) legName = "R_{0}^{COH#pi}";
-    if (fName.find("NonResRvp1pi") != std::string::npos) legName = "NonResRvp1pi";
-    if (fName.find("NonResRvbarp1pi") != std::string::npos) legName = "NonResRvbarp1pi";
-    if (fName.find("NonResRvp2pi") != std::string::npos) legName = "NonResRvp2pi";
-    if (fName.find("NonResRvbarp2pi") != std::string::npos) legName = "NonResRvbarp2pi";
-    if (fName.find("ResDecayGamma") != std::string::npos) legName = "BR(#gamma)";
-    if (fName.find("ResDecayEta") != std::string::npos) legName = "BR(#eta)";
-    if (fName.find("ResDecayTheta") != std::string::npos) legName = "Ang. distr.";
-    if (fName.find("DISAth") != std::string::npos) legName = "A_{HT}^{BY}";
-    if (fName.find("DISBth") != std::string::npos) legName = "B_{HT}^{BY}";
-    if (fName.find("DISCv1u") != std::string::npos) legName = "C_{V1u}^{BY}";
-    if (fName.find("DISCv2u") != std::string::npos) legName = "C_{V2u}^{BY}";
-    if (fName.find("AGKYxF") != std::string::npos) legName = "x_{F}";
-    if (fName.find("AGKYpT") != std::string::npos) legName = "p_{T}";
-    if (fName.find("FormZone") != std::string::npos) legName = "FZ";
-    if (fName.find("FermiGasModelKf") != std::string::npos) legName = "CCQE-PauliSup";
-    if (fName.find("FermiGasModelSf") != std::string::npos) legName = "Fermi Gas to SF";
-    if (fName.find("IntraNukeNmfp") != std::string::npos) legName = "x_{mfp}^{N}";
-    if (fName.find("IntraNukeNcex") != std::string::npos) legName = "x_{cex}^{N}";
-    if (fName.find("ntraNukeNel") != std::string::npos) legName = "x_{el}^{N}";
-    if (fName.find("ntraNukeNinel") != std::string::npos) legName = "x_{inel}^{N}";
-    if (fName.find("ntraNukeNabs") != std::string::npos) legName = "x_{abs}^{N}";
-    if (fName.find("ntraNukeNpi") != std::string::npos) legName = "x_{pi}^{N}";
-    if (fName.find("IntraNukePImfp") != std::string::npos) legName = "x_{mfp}^{PI}";
-    if (fName.find("IntraNukePIcex") != std::string::npos) legName = "x_{cex}^{PI}";
-    if (fName.find("ntraNukePIel") != std::string::npos) legName = "x_{el}^{PI}";
-    if (fName.find("ntraNukePIinel") != std::string::npos) legName = "x_{inel}^{PI}";
-    if (fName.find("ntraNukePIabs") != std::string::npos) legName = "x_{abs}^{PI}";
-    if (fName.find("ntraNukePIpi") != std::string::npos) legName = "x_{pi}^{PI}";
+    if (fName.find("fReac") != std::string::npos) legName = "fReac";
+    if (fName.find("fAbs1") != std::string::npos) legName = "fAbs1";
+    if (fName.find("fAbs2") != std::string::npos) legName = "fAbs2";
+    if (fName.find("fCex") != std::string::npos) legName = "fCex";
   
     return legName;
   }

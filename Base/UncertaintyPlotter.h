@@ -23,7 +23,7 @@
 #include <TH2D.h>
 #include "PlottingTools.h"
 #include "LoggerFeature.h"
-#include "ubana/DataTypes/UBTH2Poly.h"
+#include "../DataTypes/UBTH2Poly.h"
 
 using namespace DataTypes;
 

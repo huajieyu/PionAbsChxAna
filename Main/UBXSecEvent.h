@@ -1,8 +1,8 @@
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
-// Fri Mar 23 16:26:16 2018 by ROOT version 6.06/06
-// from TTree tree/
-// found on file: ../Files/ubxsec_output_mc_bnbcosmic_mcc8.7_test6.root
+// Wed Jun 17 20:03:21 2020 by ROOT version 6.18/04
+// from TTree beamana/beam analysis tree
+// found on file: /dune/data/users/calcuttj/pionana_mc_1GeV_6_15_20.root
 //////////////////////////////////////////////////////////
 
 #ifndef UBXSecEvent_h
@@ -12,10 +12,10 @@
 #include <TChain.h>
 #include <TFile.h>
 
-using namespace std;
-
 // Header file for the classes stored in the TTree if any.
-
+#include "string"
+#include "vector"
+using namespace std;
 class UBXSecEvent {
 public :
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain
@@ -24,318 +24,668 @@ public :
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
    // Declaration of leaf types
- //UBXSecEvent     *ubxsec_event_split;
    Int_t           run;
    Int_t           subrun;
    Int_t           event;
-   TString         file_type;
-   Bool_t          muon_is_reco;
-   Double_t        muon_reco_pur;
-   Double_t        muon_reco_eff;
-   Double_t        true_muon_mom;
-   Double_t        true_muon_mom_matched;
-   Int_t           n_pfp;
-   Int_t           n_pfp_primary;
-   Int_t           n_primary_cosmic_pfp;
-   Int_t           nPFPtagged;
-   Int_t           muon_is_flash_tagged;
-   Double_t        muon_tag_score;
-   Double_t        fm_score;
-   Int_t           fv;
-   Int_t           ccnc;
-   Int_t           mode;
-   Int_t           nupdg;
-   Bool_t          is_signal;
-   Double_t        nu_e;
-   Double_t        lep_costheta;
-   Double_t        lep_phi;
-   Int_t           genie_mult;
-   Int_t           genie_mult_ch;
-   Double_t        bnb_weight;
-   Bool_t          is_selected;
-
-   // std::vector<Int_t> truth_nupdg;
-   // std::vector<Int_t> truth_mode;
-   // std::vector<Int_t> truth_ccnc;
-   // std::vector<Bool_t> truth_fv;
-   // std::vector<Double_t> truth_nu_e;
-   // std::vector<Double_t> truth_lep_costheta;
-   // std::vector<Double_t> truth_lep_phi;
-   // std::vector<Double_t> truth_lep_p;
-
-
-   Int_t           mc_muon_contained;
-   Int_t           is_swtriggered;
-   Double_t        vtx_resolution;
-   Int_t           n_tpcobj_nu_origin;
-   Int_t           n_tpcobj_cosmic_origin;
-   Int_t           nslices;
-   vector<double>  slc_flsmatch_score;
-   vector<double>  slc_flsmatch_qllx;
-   vector<double>  slc_flsmatch_tpcx;
-   vector<double>  slc_flsmatch_t0;
-   vector<double>  slc_flsmatch_hypoz;
-   vector<double>  slc_flsmatch_xfixed_chi2;
-   vector<double>  slc_flsmatch_xfixed_ll;
-   vector<double>  slc_flsmatch_cosmic_score;
-   vector<double>  slc_flsmatch_cosmic_t0;
-   vector<double>  slc_nuvtx_x;
-   vector<double>  slc_nuvtx_y;
-   vector<double>  slc_nuvtx_z;
-   vector<int>     slc_nuvtx_fv;
-   vector<double>  slc_vtxcheck_angle;
-   vector<int>     slc_origin;
-   vector<int>     slc_origin_extra;
-   vector<int>     slc_nhits_u;
-   vector<int>     slc_nhits_v;
-   vector<int>     slc_nhits_w;
-   vector<double>  slc_longesttrack_length;
-   vector<double>  slc_longesttrack_phi;
-   vector<double>  slc_longesttrack_theta;
-   vector<bool>    slc_longesttrack_iscontained;
-   vector<double>  slc_longestshower_length;
-   vector<double>  slc_longestshower_phi;
-   vector<double>  slc_longestshower_theta;
-   vector<double>  slc_longestshower_openangle;
-   vector<double>  slc_longestshower_startx;
-   vector<double>  slc_longestshower_starty;
-   vector<double>  slc_longestshower_startz;
-   vector<int>     slc_acpt_outoftime;
-   vector<int>     slc_crosses_top_boundary;
-   vector<int>     slc_nuvtx_closetodeadregion_u;
-   vector<int>     slc_nuvtx_closetodeadregion_v;
-   vector<int>     slc_nuvtx_closetodeadregion_w;
-   vector<double>  slc_kalman_chi2;
-   vector<int>     slc_kalman_ndof;
-   vector<bool>    slc_passed_min_track_quality;
-   vector<bool>    slc_passed_min_vertex_quality;
-   vector<double>  slc_n_intime_pe_closestpmt;
-   vector<double>  slc_maxdistance_vtxtrack;
-   vector<bool>    slc_geocosmictag;
-   vector<bool>    slc_consistency;
-   vector<double>  slc_consistency_score;
-   vector<int>     slc_npfp;
-   vector<int>     slc_ntrack;
-   vector<int>     slc_nshower;
-   vector<bool>    slc_iscontained;
-   vector<int>     slc_mult_pfp;
-   vector<int>     slc_mult_track;
-   vector<int>     slc_mult_shower;
-   vector<int>     slc_mult_track_tolerance;
-   vector<bool>    slc_muoncandidate_exists;
-   vector<double>  slc_muoncandidate_length;
-   vector<double>  slc_muoncandidate_phi;
-   vector<double>  slc_muoncandidate_theta;
-   vector<double>  slc_muoncandidate_mom_range;
-   vector<double>  slc_muoncandidate_mom_mcs;
-   vector<double>  slc_muoncandidate_mom_mcs_pi;
-   vector<double>  slc_muoncandidate_mcs_ll;
-   vector<bool>    slc_muoncandidate_contained;
-   vector<double>  slc_muoncandidate_dqdx_trunc;
-   vector<double>  slc_muoncandidate_dqdx_u_trunc;
-   vector<double>  slc_muoncandidate_dqdx_v_trunc;
-   vector<vector<double> > slc_muoncandidate_dqdx_v;
-   vector<bool>    slc_muoncandidate_mip_consistency;
-   vector<bool>    slc_muoncandidate_mip_consistency2;
-   vector<int>     slc_muoncandidate_truepdg;
-   vector<int>     slc_muoncandidate_trueorigin;
-   vector<double>  slc_muoncandidate_mcs_delta_ll;
-   vector<double>  slc_muoncandidate_residuals_mean;
-   vector<double>  slc_muoncandidate_residuals_std;
-   vector<int>     slc_muoncandidate_wiregap;
-   vector<int>     slc_muoncandidate_wiregap_dead;
-   vector<double>  slc_muoncandidate_linearity;
-   vector<double>  slc_muoncandidate_perc_used_hits_in_cluster;
-   vector<double>  slc_muoncandidate_maxscatteringangle;
-   Int_t           nbeamfls;
-   vector<double>  beamfls_time;
-   vector<double>  beamfls_pe;
-   vector<double>  beamfls_z;
-   Int_t           candidate_flash_time;
-   Double_t        candidate_flash_z;
-   Bool_t          no_mcflash_but_op_activity;
-   vector<vector<double> > beamfls_spec;
-   vector<double>  numc_flash_spec;
-   vector<vector<double> > slc_flshypo_xfixed_spec;
-   vector<vector<double> > slc_flshypo_spec;
-   Int_t           nsignal;
-   vector<double>  tvtx_x;
-   vector<double>  tvtx_y;
-   vector<double>  tvtx_z;
-   Double_t        pot;
-   Int_t           evtwgt_genie_pm1_nfunc;
-   vector<string>  evtwgt_genie_pm1_funcname;
-   vector<int>     evtwgt_genie_pm1_nweight;
-   vector<vector<double> > evtwgt_genie_pm1_weight;
-   Int_t           evtwgt_genie_multisim_nfunc;
-   vector<string>  evtwgt_genie_multisim_funcname;
-   vector<int>     evtwgt_genie_multisim_nweight;
-   vector<vector<double> > evtwgt_genie_multisim_weight;
-   Int_t           evtwgt_extra_syst_multisim_nfunc;
-   vector<string>  evtwgt_extra_syst_multisim_funcname;
-   vector<int>     evtwgt_extra_syst_multisim_nweight;
-   vector<vector<double> > evtwgt_extra_syst_multisim_weight;
-   Int_t           evtwgt_flux_multisim_nfunc;
-   vector<string>  evtwgt_flux_multisim_funcname;
-   vector<int>     evtwgt_flux_multisim_nweight;
-   vector<vector<double> > evtwgt_flux_multisim_weight;
-   Int_t           _default_value;
+   Int_t           MC;
+   Int_t           reco_beam_type;
+   Double_t        reco_beam_startX;
+   Double_t        reco_beam_startY;
+   Double_t        reco_beam_startZ;
+   Double_t        reco_beam_endX;
+   Double_t        reco_beam_endY;
+   Double_t        reco_beam_endZ;
+   Double_t        reco_beam_len;
+   Double_t        reco_beam_trackDirX;
+   Double_t        reco_beam_trackDirY;
+   Double_t        reco_beam_trackDirZ;
+   Double_t        reco_beam_trackEndDirX;
+   Double_t        reco_beam_trackEndDirY;
+   Double_t        reco_beam_trackEndDirZ;
+   Double_t        reco_beam_vtxX;
+   Double_t        reco_beam_vtxY;
+   Double_t        reco_beam_vtxZ;
+   Int_t           reco_beam_trackID;
+   vector<double>  *reco_beam_dQdX;
+   vector<double>  *reco_beam_dEdX;
+   vector<double>  *reco_beam_calibrated_dEdX;
+   vector<double>  *reco_beam_resRange;
+   vector<double>  *reco_beam_TrkPitch;
+   vector<double>  *reco_beam_calo_wire;
+   vector<double>  *reco_beam_calo_wire_z;
+   vector<double>  *reco_beam_calo_tick;
+   vector<int>     *reco_beam_hit_true_ID;
+   vector<int>     *reco_beam_hit_true_slice;
+   vector<int>     *reco_beam_hit_true_origin;
+   Int_t           reco_beam_nTrackDaughters;
+   Int_t           reco_beam_nShowerDaughters;
+   Bool_t          reco_beam_flipped;
+   Bool_t          reco_beam_passes_beam_cuts;
+   Int_t           reco_beam_PFP_ID;
+   Int_t           reco_beam_PFP_nHits;
+   Double_t        reco_beam_PFP_trackScore;
+   Double_t        reco_beam_PFP_emScore;
+   Double_t        reco_beam_PFP_michelScore;
+   Double_t        reco_beam_PFP_trackScore_collection;
+   Double_t        reco_beam_PFP_emScore_collection;
+   Double_t        reco_beam_PFP_michelScore_collection;
+   Int_t           reco_beam_allTrack_ID;
+   Bool_t          reco_beam_allTrack_beam_cuts;
+   Bool_t          reco_beam_allTrack_flipped;
+   Double_t        reco_beam_allTrack_len;
+   Double_t        reco_beam_allTrack_startX;
+   Double_t        reco_beam_allTrack_startY;
+   Double_t        reco_beam_allTrack_startZ;
+   Double_t        reco_beam_allTrack_endX;
+   Double_t        reco_beam_allTrack_endY;
+   Double_t        reco_beam_allTrack_endZ;
+   Double_t        reco_beam_allTrack_trackDirX;
+   Double_t        reco_beam_allTrack_trackDirY;
+   Double_t        reco_beam_allTrack_trackDirZ;
+   Double_t        reco_beam_allTrack_trackEndDirX;
+   Double_t        reco_beam_allTrack_trackEndDirY;
+   Double_t        reco_beam_allTrack_trackEndDirZ;
+   vector<double>  *reco_beam_allTrack_resRange;
+   vector<double>  *reco_beam_allTrack_calibrated_dEdX;
+   Double_t        reco_beam_allTrack_Chi2_proton;
+   Int_t           reco_beam_allTrack_Chi2_ndof;
+   vector<int>     *reco_daughter_PFP_true_byHits_PDG;
+   vector<int>     *reco_daughter_PFP_true_byHits_ID;
+   vector<int>     *reco_daughter_PFP_true_byHits_origin;
+   vector<int>     *reco_daughter_PFP_true_byHits_parID;
+   vector<int>     *reco_daughter_PFP_true_byHits_parPDG;
+   vector<string>  *reco_daughter_PFP_true_byHits_process;
+   vector<unsigned long> *reco_daughter_PFP_true_byHits_sharedHits;
+   vector<unsigned long> *reco_daughter_PFP_true_byHits_emHits;
+   vector<double>  *reco_daughter_PFP_true_byHits_len;
+   vector<double>  *reco_daughter_PFP_true_byHits_startX;
+   vector<double>  *reco_daughter_PFP_true_byHits_startY;
+   vector<double>  *reco_daughter_PFP_true_byHits_startZ;
+   vector<double>  *reco_daughter_PFP_true_byHits_endX;
+   vector<double>  *reco_daughter_PFP_true_byHits_endY;
+   vector<double>  *reco_daughter_PFP_true_byHits_endZ;
+   vector<double>  *reco_daughter_PFP_true_byHits_startPx;
+   vector<double>  *reco_daughter_PFP_true_byHits_startPy;
+   vector<double>  *reco_daughter_PFP_true_byHits_startPz;
+   vector<double>  *reco_daughter_PFP_true_byHits_startP;
+   vector<double>  *reco_daughter_PFP_true_byHits_startE;
+   vector<string>  *reco_daughter_PFP_true_byHits_endProcess;
+   vector<double>  *reco_daughter_PFP_true_byHits_purity;
+   vector<int>     *reco_daughter_allTrack_ID;
+   vector<vector<double> > *reco_daughter_allTrack_dEdX;
+   vector<vector<double> > *reco_daughter_allTrack_dQdX;
+   vector<vector<double> > *reco_daughter_allTrack_resRange;
+   vector<vector<double> > *reco_daughter_allTrack_dQdX_SCE;
+   vector<vector<double> > *reco_daughter_allTrack_dEdX_SCE;
+   vector<vector<double> > *reco_daughter_allTrack_resRange_SCE;
+   vector<vector<double> > *reco_daughter_allTrack_calibrated_dEdX;
+   vector<vector<double> > *reco_daughter_allTrack_calibrated_dEdX_SCE;
+   vector<double>  *reco_daughter_allTrack_Chi2_proton;
+   vector<int>     *reco_daughter_allTrack_Chi2_ndof;
+   vector<double>  *reco_daughter_allTrack_Chi2_proton_plane0;
+   vector<double>  *reco_daughter_allTrack_Chi2_proton_plane1;
+   vector<int>     *reco_daughter_allTrack_Chi2_ndof_plane0;
+   vector<int>     *reco_daughter_allTrack_Chi2_ndof_plane1;
+   vector<vector<double> > *reco_daughter_allTrack_calibrated_dEdX_SCE_plane0;
+   vector<vector<double> > *reco_daughter_allTrack_calibrated_dEdX_SCE_plane1;
+   vector<vector<double> > *reco_daughter_allTrack_resRange_plane0;
+   vector<vector<double> > *reco_daughter_allTrack_resRange_plane1;
+   vector<double>  *reco_daughter_allTrack_Theta;
+   vector<double>  *reco_daughter_allTrack_Phi;
+   vector<double>  *reco_daughter_allTrack_len;
+   vector<double>  *reco_daughter_allTrack_startX;
+   vector<double>  *reco_daughter_allTrack_startY;
+   vector<double>  *reco_daughter_allTrack_startZ;
+   vector<double>  *reco_daughter_allTrack_endX;
+   vector<double>  *reco_daughter_allTrack_endY;
+   vector<double>  *reco_daughter_allTrack_endZ;
+   vector<double>  *reco_daughter_allTrack_dR;
+   vector<double>  *reco_daughter_allTrack_to_vertex;
+   vector<int>     *reco_daughter_allShower_ID;
+   vector<double>  *reco_daughter_allShower_len;
+   vector<double>  *reco_daughter_allShower_startX;
+   vector<double>  *reco_daughter_allShower_startY;
+   vector<double>  *reco_daughter_allShower_startZ;
+   vector<double>  *reco_daughter_allShower_dirX;
+   vector<double>  *reco_daughter_allShower_dirY;
+   vector<double>  *reco_daughter_allShower_dirZ;
+   vector<double>  *reco_daughter_allShower_energy;
+   vector<int>     *reco_daughter_PFP_ID;
+   vector<int>     *reco_daughter_PFP_nHits;
+   vector<double>  *reco_daughter_PFP_trackScore;
+   vector<double>  *reco_daughter_PFP_emScore;
+   vector<double>  *reco_daughter_PFP_michelScore;
+   vector<double>  *reco_daughter_PFP_trackScore_collection;
+   vector<double>  *reco_daughter_PFP_emScore_collection;
+   vector<double>  *reco_daughter_PFP_michelScore_collection;
+   Int_t           true_beam_PDG;
+   Int_t           true_beam_ID;
+   string          *true_beam_endProcess;
+   Double_t        true_beam_endX;
+   Double_t        true_beam_endY;
+   Double_t        true_beam_endZ;
+   Double_t        true_beam_startX;
+   Double_t        true_beam_startY;
+   Double_t        true_beam_startZ;
+   Double_t        true_beam_startPx;
+   Double_t        true_beam_startPy;
+   Double_t        true_beam_startPz;
+   Double_t        true_beam_startP;
+   Double_t        true_beam_endPx;
+   Double_t        true_beam_endPy;
+   Double_t        true_beam_endPz;
+   Double_t        true_beam_endP;
+   Double_t        true_beam_startDirX;
+   Double_t        true_beam_startDirY;
+   Double_t        true_beam_startDirZ;
+   Int_t           true_beam_nElasticScatters;
+   vector<double>  *true_beam_elastic_costheta;
+   vector<double>  *true_beam_elastic_X;
+   vector<double>  *true_beam_elastic_Y;
+   vector<double>  *true_beam_elastic_Z;
+   vector<double>  *true_beam_elastic_deltaE;
+   vector<double>  *true_beam_elastic_IDE_edep;
+   Double_t        true_beam_IDE_totalDep;
+   Bool_t          true_beam_IDE_found_in_recoVtx;
+   Int_t           true_beam_nHits;
+   vector<vector<int> > *true_beam_reco_byHits_PFP_ID;
+   vector<vector<int> > *true_beam_reco_byHits_PFP_nHits;
+   vector<vector<int> > *true_beam_reco_byHits_allTrack_ID;
+   Int_t           true_daughter_nPi0;
+   Int_t           true_daughter_nPiPlus;
+   Int_t           true_daughter_nProton;
+   Int_t           true_daughter_nNeutron;
+   Int_t           true_daughter_nPiMinus;
+   Int_t           true_daughter_nNucleus;
+   Int_t           reco_beam_vertex_slice;
+   vector<vector<double> > *reco_beam_vertex_dRs;
+   vector<int>     *reco_beam_vertex_hits_slices;
+   vector<int>     *true_beam_daughter_PDG;
+   vector<int>     *true_beam_daughter_ID;
+   vector<double>  *true_beam_daughter_len;
+   vector<double>  *true_beam_daughter_startX;
+   vector<double>  *true_beam_daughter_startY;
+   vector<double>  *true_beam_daughter_startZ;
+   vector<double>  *true_beam_daughter_startPx;
+   vector<double>  *true_beam_daughter_startPy;
+   vector<double>  *true_beam_daughter_startPz;
+   vector<double>  *true_beam_daughter_startP;
+   vector<double>  *true_beam_daughter_endX;
+   vector<double>  *true_beam_daughter_endY;
+   vector<double>  *true_beam_daughter_endZ;
+   vector<string>  *true_beam_daughter_Process;
+   vector<string>  *true_beam_daughter_endProcess;
+   vector<int>     *true_beam_daughter_nHits;
+   vector<vector<int> > *true_beam_daughter_reco_byHits_PFP_ID;
+   vector<vector<int> > *true_beam_daughter_reco_byHits_PFP_nHits;
+   vector<vector<double> > *true_beam_daughter_reco_byHits_PFP_trackScore;
+   vector<vector<int> > *true_beam_daughter_reco_byHits_allTrack_ID;
+   vector<vector<double> > *true_beam_daughter_reco_byHits_allTrack_startX;
+   vector<vector<double> > *true_beam_daughter_reco_byHits_allTrack_startY;
+   vector<vector<double> > *true_beam_daughter_reco_byHits_allTrack_startZ;
+   vector<vector<double> > *true_beam_daughter_reco_byHits_allTrack_endX;
+   vector<vector<double> > *true_beam_daughter_reco_byHits_allTrack_endY;
+   vector<vector<double> > *true_beam_daughter_reco_byHits_allTrack_endZ;
+   vector<vector<double> > *true_beam_daughter_reco_byHits_allTrack_len;
+   vector<vector<int> > *true_beam_daughter_reco_byHits_allShower_ID;
+   vector<vector<double> > *true_beam_daughter_reco_byHits_allShower_startX;
+   vector<vector<double> > *true_beam_daughter_reco_byHits_allShower_startY;
+   vector<vector<double> > *true_beam_daughter_reco_byHits_allShower_startZ;
+   vector<vector<double> > *true_beam_daughter_reco_byHits_allShower_len;
+   vector<int>     *true_beam_Pi0_decay_ID;
+   vector<int>     *true_beam_Pi0_decay_parID;
+   vector<int>     *true_beam_Pi0_decay_PDG;
+   vector<double>  *true_beam_Pi0_decay_startP;
+   vector<double>  *true_beam_Pi0_decay_len;
+   vector<int>     *true_beam_Pi0_decay_nHits;
+   vector<vector<int> > *true_beam_Pi0_decay_reco_byHits_PFP_ID;
+   vector<vector<int> > *true_beam_Pi0_decay_reco_byHits_PFP_nHits;
+   vector<vector<double> > *true_beam_Pi0_decay_reco_byHits_PFP_trackScore;
+   vector<vector<int> > *true_beam_Pi0_decay_reco_byHits_allTrack_ID;
+   vector<vector<double> > *true_beam_Pi0_decay_reco_byHits_allTrack_startX;
+   vector<vector<double> > *true_beam_Pi0_decay_reco_byHits_allTrack_startY;
+   vector<vector<double> > *true_beam_Pi0_decay_reco_byHits_allTrack_startZ;
+   vector<vector<double> > *true_beam_Pi0_decay_reco_byHits_allTrack_endX;
+   vector<vector<double> > *true_beam_Pi0_decay_reco_byHits_allTrack_endY;
+   vector<vector<double> > *true_beam_Pi0_decay_reco_byHits_allTrack_endZ;
+   vector<vector<double> > *true_beam_Pi0_decay_reco_byHits_allTrack_len;
+   vector<vector<int> > *true_beam_Pi0_decay_reco_byHits_allShower_ID;
+   vector<vector<double> > *true_beam_Pi0_decay_reco_byHits_allShower_startX;
+   vector<vector<double> > *true_beam_Pi0_decay_reco_byHits_allShower_startY;
+   vector<vector<double> > *true_beam_Pi0_decay_reco_byHits_allShower_startZ;
+   vector<vector<double> > *true_beam_Pi0_decay_reco_byHits_allShower_len;
+   vector<int>     *true_beam_grand_daughter_ID;
+   vector<int>     *true_beam_grand_daughter_parID;
+   vector<int>     *true_beam_grand_daughter_PDG;
+   vector<int>     *true_beam_grand_daughter_nHits;
+   vector<string>  *true_beam_grand_daughter_Process;
+   vector<string>  *true_beam_grand_daughter_endProcess;
+   string          *reco_beam_true_byE_endProcess;
+   string          *reco_beam_true_byE_process;
+   Int_t           reco_beam_true_byE_origin;
+   Int_t           reco_beam_true_byE_PDG;
+   Int_t           reco_beam_true_byE_ID;
+   string          *reco_beam_true_byHits_endProcess;
+   string          *reco_beam_true_byHits_process;
+   Int_t           reco_beam_true_byHits_origin;
+   Int_t           reco_beam_true_byHits_PDG;
+   Int_t           reco_beam_true_byHits_ID;
+   Bool_t          reco_beam_true_byE_matched;
+   Bool_t          reco_beam_true_byHits_matched;
+   Double_t        reco_beam_true_byHits_purity;
+   vector<string>  *true_beam_processes;
+   vector<int>     *true_beam_process_slice;
+   vector<int>     *true_beam_process_dSlice;
+   vector<int>     *true_beam_process_matched;
+   Double_t        data_BI_P;
+   Double_t        data_BI_X;
+   Double_t        data_BI_Y;
+   Double_t        data_BI_Z;
+   Double_t        data_BI_dirX;
+   Double_t        data_BI_dirY;
+   Double_t        data_BI_dirZ;
+   Int_t           data_BI_nFibersP1;
+   Int_t           data_BI_nFibersP2;
+   Int_t           data_BI_nFibersP3;
+   vector<int>     *data_BI_PDG_candidates;
+   Int_t           data_BI_nTracks;
+   Int_t           data_BI_nMomenta;
+   Bool_t          quality_reco_view_0_hits_in_TPC5;
+   Bool_t          quality_reco_view_1_hits_in_TPC5;
+   Bool_t          quality_reco_view_2_hits_in_TPC5;
+   Double_t        quality_reco_max_lateral;
+   Double_t        quality_reco_max_segment;
+   Double_t        quality_reco_view_0_max_segment;
+   Double_t        quality_reco_view_1_max_segment;
+   Double_t        quality_reco_view_2_max_segment;
+   Double_t        quality_reco_view_0_wire_backtrack;
+   Double_t        quality_reco_view_1_wire_backtrack;
+   Double_t        quality_reco_view_2_wire_backtrack;
+   vector<double>  *quality_reco_view_0_wire;
+   vector<double>  *quality_reco_view_1_wire;
+   vector<double>  *quality_reco_view_2_wire;
+   vector<double>  *quality_reco_view_2_z;
+   vector<double>  *quality_reco_view_0_tick;
+   vector<double>  *quality_reco_view_1_tick;
+   vector<double>  *quality_reco_view_2_tick;
+   Double_t        reco_beam_Chi2_proton;
+   Int_t           reco_beam_Chi2_ndof;
+   vector<double>  *reco_beam_cosmic_candidate_lower_hits;
+   vector<double>  *reco_beam_cosmic_candidate_upper_hits;
+   vector<int>     *reco_beam_cosmic_candidate_ID;
+   Bool_t          beam_has_cosmic_IDE;
+   vector<int>     *cosmic_has_beam_IDE;
+   Int_t           n_cosmics_with_beam_IDE;
+   vector<double>  *reco_daughter_allTrack_momByRange_proton;
+   vector<double>  *reco_daughter_allTrack_momByRange_muon;
+   Double_t        reco_beam_momByRange_proton;
+   Double_t        reco_beam_momByRange_muon;
+   Double_t        reco_beam_true_byE_endPx;
+   Double_t        reco_beam_true_byE_endPy;
+   Double_t        reco_beam_true_byE_endPz;
+   Double_t        reco_beam_true_byE_endE;
+   Double_t        reco_beam_true_byE_endP;
+   Double_t        reco_beam_true_byE_startPx;
+   Double_t        reco_beam_true_byE_startPy;
+   Double_t        reco_beam_true_byE_startPz;
+   Double_t        reco_beam_true_byE_startE;
+   Double_t        reco_beam_true_byE_startP;
+   Double_t        reco_beam_true_byHits_endPx;
+   Double_t        reco_beam_true_byHits_endPy;
+   Double_t        reco_beam_true_byHits_endPz;
+   Double_t        reco_beam_true_byHits_endE;
+   Double_t        reco_beam_true_byHits_endP;
+   Double_t        reco_beam_true_byHits_startPx;
+   Double_t        reco_beam_true_byHits_startPy;
+   Double_t        reco_beam_true_byHits_startPz;
+   Double_t        reco_beam_true_byHits_startE;
+   Double_t        reco_beam_true_byHits_startP;
+   vector<double>  *reco_beam_incidentEnergies;
+   Double_t        reco_beam_interactingEnergy;
+   vector<double>  *true_beam_incidentEnergies;
+   Double_t        true_beam_interactingEnergy;
+   vector<int>     *true_beam_slices;
+   vector<int>     *true_beam_slices_found;
+   vector<int>     *true_beam_slices_nIDEs;
+   vector<double>  *true_beam_slices_deltaE;
+   vector<double>  *new_true_beam_incidentEnergies;
+   Double_t        new_true_beam_interactingEnergy;
+   vector<double>  *g4rw_primary_weights;
+   vector<double>  *g4rw_primary_plus_sigma_weight;
+   vector<double>  *g4rw_primary_minus_sigma_weight;
+   vector<string>  *g4rw_primary_var;
 
    // List of branches
-   TBranch        *b_ubxsec_event_split_run;   //!
-   TBranch        *b_ubxsec_event_split_subrun;   //!
-   TBranch        *b_ubxsec_event_split_event;   //!
-   TBranch        *b_ubxsec_event_split_file_type;   //!
-   TBranch        *b_ubxsec_event_split_muon_is_reco;   //!
-   TBranch        *b_ubxsec_event_split_muon_reco_pur;   //!
-   TBranch        *b_ubxsec_event_split_muon_reco_eff;   //!
-   TBranch        *b_ubxsec_event_split_true_muon_mom;   //!
-   TBranch        *b_ubxsec_event_split_true_muon_mom_matched;   //!
-   TBranch        *b_ubxsec_event_split_n_pfp;   //!
-   TBranch        *b_ubxsec_event_split_n_pfp_primary;   //!
-   TBranch        *b_ubxsec_event_split_n_primary_cosmic_pfp;   //!
-   TBranch        *b_ubxsec_event_split_nPFPtagged;   //!
-   TBranch        *b_ubxsec_event_split_muon_is_flash_tagged;   //!
-   TBranch        *b_ubxsec_event_split_muon_tag_score;   //!
-   TBranch        *b_ubxsec_event_split_fm_score;   //!
-   TBranch        *b_ubxsec_event_split_fv;   //!
-   TBranch        *b_ubxsec_event_split_ccnc;   //!
-   TBranch        *b_ubxsec_event_split_mode;   //!
-   TBranch        *b_ubxsec_event_split_nupdg;   //!
-   TBranch        *b_ubxsec_event_split_is_signal;   //!
-   TBranch        *b_ubxsec_event_split_nu_e;   //!
-   TBranch        *b_ubxsec_event_split_lep_costheta;   //!
-   TBranch        *b_ubxsec_event_split_lep_phi;   //!
-   TBranch        *b_ubxsec_event_split_genie_mult;   //!
-   TBranch        *b_ubxsec_event_split_genie_mult_ch;   //!
-   TBranch        *b_ubxsec_event_split_bnb_weight;   //!
-   TBranch        *b_ubxsec_event_split_is_selected;   //!
-
-   // TBranch        *b_ubxsec_event_split_truth_nupdg;   //!
-   // TBranch        *b_ubxsec_event_split_truth_mode;   //!
-   // TBranch        *b_ubxsec_event_split_truth_ccnc;   //!
-   // TBranch        *b_ubxsec_event_split_truth_fv;   //!
-   // TBranch        *b_ubxsec_event_split_truth_nu_e;   //!
-   // TBranch        *b_ubxsec_event_split_truth_lep_costheta;   //!
-   // TBranch        *b_ubxsec_event_split_truth_lep_phi;   //!
-   // TBranch        *b_ubxsec_event_split_truth_lep_p;   //!
-
-   TBranch        *b_ubxsec_event_split_mc_muon_contained;   //!
-   TBranch        *b_ubxsec_event_split_is_swtriggered;   //!
-   TBranch        *b_ubxsec_event_split_vtx_resolution;   //!
-   TBranch        *b_ubxsec_event_split_n_tpcobj_nu_origin;   //!
-   TBranch        *b_ubxsec_event_split_n_tpcobj_cosmic_origin;   //!
-   TBranch        *b_ubxsec_event_split_nslices;   //!
-   TBranch        *b_ubxsec_event_split_slc_flsmatch_score;   //!
-   TBranch        *b_ubxsec_event_split_slc_flsmatch_qllx;   //!
-   TBranch        *b_ubxsec_event_split_slc_flsmatch_tpcx;   //!
-   TBranch        *b_ubxsec_event_split_slc_flsmatch_t0;   //!
-   TBranch        *b_ubxsec_event_split_slc_flsmatch_hypoz;   //!
-   TBranch        *b_ubxsec_event_split_slc_flsmatch_xfixed_chi2;   //!
-   TBranch        *b_ubxsec_event_split_slc_flsmatch_xfixed_ll;   //!
-   TBranch        *b_ubxsec_event_split_slc_flsmatch_cosmic_score;   //!
-   TBranch        *b_ubxsec_event_split_slc_flsmatch_cosmic_t0;   //!
-   TBranch        *b_ubxsec_event_split_slc_nuvtx_x;   //!
-   TBranch        *b_ubxsec_event_split_slc_nuvtx_y;   //!
-   TBranch        *b_ubxsec_event_split_slc_nuvtx_z;   //!
-   TBranch        *b_ubxsec_event_split_slc_nuvtx_fv;   //!
-   TBranch        *b_ubxsec_event_split_slc_vtxcheck_angle;   //!
-   TBranch        *b_ubxsec_event_split_slc_origin;   //!
-   TBranch        *b_ubxsec_event_split_slc_origin_extra;   //!
-   TBranch        *b_ubxsec_event_split_slc_nhits_u;   //!
-   TBranch        *b_ubxsec_event_split_slc_nhits_v;   //!
-   TBranch        *b_ubxsec_event_split_slc_nhits_w;   //!
-   TBranch        *b_ubxsec_event_split_slc_longesttrack_length;   //!
-   TBranch        *b_ubxsec_event_split_slc_longesttrack_phi;   //!
-   TBranch        *b_ubxsec_event_split_slc_longesttrack_theta;   //!
-   TBranch        *b_ubxsec_event_split_slc_longesttrack_iscontained;   //!
-   TBranch        *b_ubxsec_event_split_slc_longestshower_length;   //!
-   TBranch        *b_ubxsec_event_split_slc_longestshower_phi;   //!
-   TBranch        *b_ubxsec_event_split_slc_longestshower_theta;   //!
-   TBranch        *b_ubxsec_event_split_slc_longestshower_openangle;   //!
-   TBranch        *b_ubxsec_event_split_slc_longestshower_startx;   //!
-   TBranch        *b_ubxsec_event_split_slc_longestshower_starty;   //!
-   TBranch        *b_ubxsec_event_split_slc_longestshower_startz;   //!
-   TBranch        *b_ubxsec_event_split_slc_acpt_outoftime;   //!
-   TBranch        *b_ubxsec_event_split_slc_crosses_top_boundary;   //!
-   TBranch        *b_ubxsec_event_split_slc_nuvtx_closetodeadregion_u;   //!
-   TBranch        *b_ubxsec_event_split_slc_nuvtx_closetodeadregion_v;   //!
-   TBranch        *b_ubxsec_event_split_slc_nuvtx_closetodeadregion_w;   //!
-   TBranch        *b_ubxsec_event_split_slc_kalman_chi2;   //!
-   TBranch        *b_ubxsec_event_split_slc_kalman_ndof;   //!
-   TBranch        *b_ubxsec_event_split_slc_passed_min_track_quality;   //!
-   TBranch        *b_ubxsec_event_split_slc_passed_min_vertex_quality;   //!
-   TBranch        *b_ubxsec_event_split_slc_n_intime_pe_closestpmt;   //!
-   TBranch        *b_ubxsec_event_split_slc_maxdistance_vtxtrack;   //!
-   TBranch        *b_ubxsec_event_split_slc_geocosmictag;   //!
-   TBranch        *b_ubxsec_event_split_slc_consistency;   //!
-   TBranch        *b_ubxsec_event_split_slc_consistency_score;   //!
-   TBranch        *b_ubxsec_event_split_slc_npfp;   //!
-   TBranch        *b_ubxsec_event_split_slc_ntrack;   //!
-   TBranch        *b_ubxsec_event_split_slc_nshower;   //!
-   TBranch        *b_ubxsec_event_split_slc_iscontained;   //!
-   TBranch        *b_ubxsec_event_split_slc_mult_pfp;   //!
-   TBranch        *b_ubxsec_event_split_slc_mult_track;   //!
-   TBranch        *b_ubxsec_event_split_slc_mult_shower;   //!
-   TBranch        *b_ubxsec_event_split_slc_mult_track_tolerance;   //!
-   TBranch        *b_ubxsec_event_split_slc_muoncandidate_exists;   //!
-   TBranch        *b_ubxsec_event_split_slc_muoncandidate_length;   //!
-   TBranch        *b_ubxsec_event_split_slc_muoncandidate_phi;   //!
-   TBranch        *b_ubxsec_event_split_slc_muoncandidate_theta;   //!
-   TBranch        *b_ubxsec_event_split_slc_muoncandidate_mom_range;   //!
-   TBranch        *b_ubxsec_event_split_slc_muoncandidate_mom_mcs;   //!
-   TBranch        *b_ubxsec_event_split_slc_muoncandidate_mom_mcs_pi;   //!
-   TBranch        *b_ubxsec_event_split_slc_muoncandidate_mcs_ll;   //!
-   TBranch        *b_ubxsec_event_split_slc_muoncandidate_contained;   //!
-   TBranch        *b_ubxsec_event_split_slc_muoncandidate_dqdx_trunc;   //!
-   TBranch        *b_ubxsec_event_split_slc_muoncandidate_dqdx_u_trunc;   //!
-   TBranch        *b_ubxsec_event_split_slc_muoncandidate_dqdx_v_trunc;   //!
-   TBranch        *b_ubxsec_event_split_slc_muoncandidate_dqdx_v;   //!
-   TBranch        *b_ubxsec_event_split_slc_muoncandidate_mip_consistency;   //!
-   TBranch        *b_ubxsec_event_split_slc_muoncandidate_mip_consistency2;   //!
-   TBranch        *b_ubxsec_event_split_slc_muoncandidate_truepdg;   //!
-   TBranch        *b_ubxsec_event_split_slc_muoncandidate_trueorigin;   //!
-   TBranch        *b_ubxsec_event_split_slc_muoncandidate_mcs_delta_ll;   //!
-   TBranch        *b_ubxsec_event_split_slc_muoncandidate_residuals_mean;   //!
-   TBranch        *b_ubxsec_event_split_slc_muoncandidate_residuals_std;   //!
-   TBranch        *b_ubxsec_event_split_slc_muoncandidate_wiregap;   //!
-   TBranch        *b_ubxsec_event_split_slc_muoncandidate_wiregap_dead;   //!
-   TBranch        *b_ubxsec_event_split_slc_muoncandidate_linearity;   //!
-   TBranch        *b_ubxsec_event_split_slc_muoncandidate_perc_used_hits_in_cluster;   //!
-   TBranch        *b_ubxsec_event_split_slc_muoncandidate_maxscatteringangle;   //!
-   TBranch        *b_ubxsec_event_split_nbeamfls;   //!
-   TBranch        *b_ubxsec_event_split_beamfls_time;   //!
-   TBranch        *b_ubxsec_event_split_beamfls_pe;   //!
-   TBranch        *b_ubxsec_event_split_beamfls_z;   //!
-   TBranch        *b_ubxsec_event_split_candidate_flash_time;   //!
-   TBranch        *b_ubxsec_event_split_candidate_flash_z;   //!
-   TBranch        *b_ubxsec_event_split_no_mcflash_but_op_activity;   //!
-   TBranch        *b_ubxsec_event_split_beamfls_spec;   //!
-   TBranch        *b_ubxsec_event_split_numc_flash_spec;   //!
-   TBranch        *b_ubxsec_event_split_slc_flshypo_xfixed_spec;   //!
-   TBranch        *b_ubxsec_event_split_slc_flshypo_spec;   //!
-   TBranch        *b_ubxsec_event_split_nsignal;   //!
-   TBranch        *b_ubxsec_event_split_tvtx_x;   //!
-   TBranch        *b_ubxsec_event_split_tvtx_y;   //!
-   TBranch        *b_ubxsec_event_split_tvtx_z;   //!
-   TBranch        *b_ubxsec_event_split_pot;   //!
-   TBranch        *b_ubxsec_event_split_evtwgt_genie_pm1_nfunc;   //!
-   TBranch        *b_ubxsec_event_split_evtwgt_genie_pm1_funcname;   //!
-   TBranch        *b_ubxsec_event_split_evtwgt_genie_pm1_nweight;   //!
-   TBranch        *b_ubxsec_event_split_evtwgt_genie_pm1_weight;   //!
-   TBranch        *b_ubxsec_event_split_evtwgt_genie_multisim_nfunc;   //!
-   TBranch        *b_ubxsec_event_split_evtwgt_genie_multisim_funcname;   //!
-   TBranch        *b_ubxsec_event_split_evtwgt_genie_multisim_nweight;   //!
-   TBranch        *b_ubxsec_event_split_evtwgt_genie_multisim_weight;   //!
-   TBranch        *b_ubxsec_event_split_evtwgt_extra_syst_multisim_nfunc;   //!
-   TBranch        *b_ubxsec_event_split_evtwgt_extra_syst_multisim_funcname;   //!
-   TBranch        *b_ubxsec_event_split_evtwgt_extra_syst_multisim_nweight;   //!
-   TBranch        *b_ubxsec_event_split_evtwgt_extra_syst_multisim_weight;   //!
-   TBranch        *b_ubxsec_event_split_evtwgt_flux_multisim_nfunc;   //!
-   TBranch        *b_ubxsec_event_split_evtwgt_flux_multisim_funcname;   //!
-   TBranch        *b_ubxsec_event_split_evtwgt_flux_multisim_nweight;   //!
-   TBranch        *b_ubxsec_event_split_evtwgt_flux_multisim_weight;   //!
-   TBranch        *b_ubxsec_event_split__default_value;   //!
+   TBranch        *b_run;   //!
+   TBranch        *b_subrun;   //!
+   TBranch        *b_event;   //!
+   TBranch        *b_MC;   //!
+   TBranch        *b_reco_beam_type;   //!
+   TBranch        *b_reco_beam_startX;   //!
+   TBranch        *b_reco_beam_startY;   //!
+   TBranch        *b_reco_beam_startZ;   //!
+   TBranch        *b_reco_beam_endX;   //!
+   TBranch        *b_reco_beam_endY;   //!
+   TBranch        *b_reco_beam_endZ;   //!
+   TBranch        *b_reco_beam_len;   //!
+   TBranch        *b_reco_beam_trackDirX;   //!
+   TBranch        *b_reco_beam_trackDirY;   //!
+   TBranch        *b_reco_beam_trackDirZ;   //!
+   TBranch        *b_reco_beam_trackEndDirX;   //!
+   TBranch        *b_reco_beam_trackEndDirY;   //!
+   TBranch        *b_reco_beam_trackEndDirZ;   //!
+   TBranch        *b_reco_beam_vtxX;   //!
+   TBranch        *b_reco_beam_vtxY;   //!
+   TBranch        *b_reco_beam_vtxZ;   //!
+   TBranch        *b_reco_beam_trackID;   //!
+   TBranch        *b_reco_beam_dQdX;   //!
+   TBranch        *b_reco_beam_dEdX;   //!
+   TBranch        *b_reco_beam_calibrated_dEdX;   //!
+   TBranch        *b_reco_beam_resRange;   //!
+   TBranch        *b_reco_beam_TrkPitch;   //!
+   TBranch        *b_reco_beam_calo_wire;   //!
+   TBranch        *b_reco_beam_calo_wire_z;   //!
+   TBranch        *b_reco_beam_calo_tick;   //!
+   TBranch        *b_reco_beam_hit_true_ID;   //!
+   TBranch        *b_reco_beam_hit_true_slice;   //!
+   TBranch        *b_reco_beam_hit_true_origin;   //!
+   TBranch        *b_reco_beam_nTrackDaughters;   //!
+   TBranch        *b_reco_beam_nShowerDaughters;   //!
+   TBranch        *b_reco_beam_flipped;   //!
+   TBranch        *b_reco_beam_passes_beam_cuts;   //!
+   TBranch        *b_reco_beam_PFP_ID;   //!
+   TBranch        *b_reco_beam_PFP_nHits;   //!
+   TBranch        *b_reco_beam_PFP_trackScore;   //!
+   TBranch        *b_reco_beam_PFP_emScore;   //!
+   TBranch        *b_reco_beam_PFP_michelScore;   //!
+   TBranch        *b_reco_beam_PFP_trackScore_collection;   //!
+   TBranch        *b_reco_beam_PFP_emScore_collection;   //!
+   TBranch        *b_reco_beam_PFP_michelScore_collection;   //!
+   TBranch        *b_reco_beam_allTrack_ID;   //!
+   TBranch        *b_reco_beam_allTrack_beam_cuts;   //!
+   TBranch        *b_reco_beam_allTrack_flipped;   //!
+   TBranch        *b_reco_beam_allTrack_len;   //!
+   TBranch        *b_reco_beam_allTrack_startX;   //!
+   TBranch        *b_reco_beam_allTrack_startY;   //!
+   TBranch        *b_reco_beam_allTrack_startZ;   //!
+   TBranch        *b_reco_beam_allTrack_endX;   //!
+   TBranch        *b_reco_beam_allTrack_endY;   //!
+   TBranch        *b_reco_beam_allTrack_endZ;   //!
+   TBranch        *b_reco_beam_allTrack_trackDirX;   //!
+   TBranch        *b_reco_beam_allTrack_trackDirY;   //!
+   TBranch        *b_reco_beam_allTrack_trackDirZ;   //!
+   TBranch        *b_reco_beam_allTrack_trackEndDirX;   //!
+   TBranch        *b_reco_beam_allTrack_trackEndDirY;   //!
+   TBranch        *b_reco_beam_allTrack_trackEndDirZ;   //!
+   TBranch        *b_reco_beam_allTrack_resRange;   //!
+   TBranch        *b_reco_beam_allTrack_calibrated_dEdX;   //!
+   TBranch        *b_reco_beam_allTrack_Chi2_proton;   //!
+   TBranch        *b_reco_beam_allTrack_Chi2_ndof;   //!
+   TBranch        *b_reco_daughter_PFP_true_byHits_PDG;   //!
+   TBranch        *b_reco_daughter_PFP_true_byHits_ID;   //!
+   TBranch        *b_reco_daughter_PFP_true_byHits_origin;   //!
+   TBranch        *b_reco_daughter_PFP_true_byHits_parID;   //!
+   TBranch        *b_reco_daughter_PFP_true_byHits_parPDG;   //!
+   TBranch        *b_reco_daughter_PFP_true_byHits_process;   //!
+   TBranch        *b_reco_daughter_PFP_true_byHits_sharedHits;   //!
+   TBranch        *b_reco_daughter_PFP_true_byHits_emHits;   //!
+   TBranch        *b_reco_daughter_PFP_true_byHits_len;   //!
+   TBranch        *b_reco_daughter_PFP_true_byHits_startX;   //!
+   TBranch        *b_reco_daughter_PFP_true_byHits_startY;   //!
+   TBranch        *b_reco_daughter_PFP_true_byHits_startZ;   //!
+   TBranch        *b_reco_daughter_PFP_true_byHits_endX;   //!
+   TBranch        *b_reco_daughter_PFP_true_byHits_endY;   //!
+   TBranch        *b_reco_daughter_PFP_true_byHits_endZ;   //!
+   TBranch        *b_reco_daughter_PFP_true_byHits_startPx;   //!
+   TBranch        *b_reco_daughter_PFP_true_byHits_startPy;   //!
+   TBranch        *b_reco_daughter_PFP_true_byHits_startPz;   //!
+   TBranch        *b_reco_daughter_PFP_true_byHits_startP;   //!
+   TBranch        *b_reco_daughter_PFP_true_byHits_startE;   //!
+   TBranch        *b_reco_daughter_PFP_true_byHits_endProcess;   //!
+   TBranch        *b_reco_daughter_PFP_true_byHits_purity;   //!
+   TBranch        *b_reco_daughter_allTrack_ID;   //!
+   TBranch        *b_reco_daughter_allTrack_dEdX;   //!
+   TBranch        *b_reco_daughter_allTrack_dQdX;   //!
+   TBranch        *b_reco_daughter_allTrack_resRange;   //!
+   TBranch        *b_reco_daughter_allTrack_dQdX_SCE;   //!
+   TBranch        *b_reco_daughter_allTrack_dEdX_SCE;   //!
+   TBranch        *b_reco_daughter_allTrack_resRange_SCE;   //!
+   TBranch        *b_reco_daughter_allTrack_calibrated_dEdX;   //!
+   TBranch        *b_reco_daughter_allTrack_calibrated_dEdX_SCE;   //!
+   TBranch        *b_reco_daughter_allTrack_Chi2_proton;   //!
+   TBranch        *b_reco_daughter_allTrack_Chi2_ndof;   //!
+   TBranch        *b_reco_daughter_allTrack_Chi2_proton_plane0;   //!
+   TBranch        *b_reco_daughter_allTrack_Chi2_proton_plane1;   //!
+   TBranch        *b_reco_daughter_allTrack_Chi2_ndof_plane0;   //!
+   TBranch        *b_reco_daughter_allTrack_Chi2_ndof_plane1;   //!
+   TBranch        *b_reco_daughter_allTrack_calibrated_dEdX_SCE_plane0;   //!
+   TBranch        *b_reco_daughter_allTrack_calibrated_dEdX_SCE_plane1;   //!
+   TBranch        *b_reco_daughter_allTrack_resRange_plane0;   //!
+   TBranch        *b_reco_daughter_allTrack_resRange_plane1;   //!
+   TBranch        *b_reco_daughter_allTrack_Theta;   //!
+   TBranch        *b_reco_daughter_allTrack_Phi;   //!
+   TBranch        *b_reco_daughter_allTrack_len;   //!
+   TBranch        *b_reco_daughter_allTrack_startX;   //!
+   TBranch        *b_reco_daughter_allTrack_startY;   //!
+   TBranch        *b_reco_daughter_allTrack_startZ;   //!
+   TBranch        *b_reco_daughter_allTrack_endX;   //!
+   TBranch        *b_reco_daughter_allTrack_endY;   //!
+   TBranch        *b_reco_daughter_allTrack_endZ;   //!
+   TBranch        *b_reco_daughter_allTrack_dR;   //!
+   TBranch        *b_reco_daughter_allTrack_to_vertex;   //!
+   TBranch        *b_reco_daughter_allShower_ID;   //!
+   TBranch        *b_reco_daughter_allShower_len;   //!
+   TBranch        *b_reco_daughter_allShower_startX;   //!
+   TBranch        *b_reco_daughter_allShower_startY;   //!
+   TBranch        *b_reco_daughter_allShower_startZ;   //!
+   TBranch        *b_reco_daughter_allShower_dirX;   //!
+   TBranch        *b_reco_daughter_allShower_dirY;   //!
+   TBranch        *b_reco_daughter_allShower_dirZ;   //!
+   TBranch        *b_reco_daughter_allShower_energy;   //!
+   TBranch        *b_reco_daughter_PFP_ID;   //!
+   TBranch        *b_reco_daughter_PFP_nHits;   //!
+   TBranch        *b_reco_daughter_PFP_trackScore;   //!
+   TBranch        *b_reco_daughter_PFP_emScore;   //!
+   TBranch        *b_reco_daughter_PFP_michelScore;   //!
+   TBranch        *b_reco_daughter_PFP_trackScore_collection;   //!
+   TBranch        *b_reco_daughter_PFP_emScore_collection;   //!
+   TBranch        *b_reco_daughter_PFP_michelScore_collection;   //!
+   TBranch        *b_true_beam_PDG;   //!
+   TBranch        *b_true_beam_ID;   //!
+   TBranch        *b_true_beam_endProcess;   //!
+   TBranch        *b_true_beam_endX;   //!
+   TBranch        *b_true_beam_endY;   //!
+   TBranch        *b_true_beam_endZ;   //!
+   TBranch        *b_true_beam_startX;   //!
+   TBranch        *b_true_beam_startY;   //!
+   TBranch        *b_true_beam_startZ;   //!
+   TBranch        *b_true_beam_startPx;   //!
+   TBranch        *b_true_beam_startPy;   //!
+   TBranch        *b_true_beam_startPz;   //!
+   TBranch        *b_true_beam_startP;   //!
+   TBranch        *b_true_beam_endPx;   //!
+   TBranch        *b_true_beam_endPy;   //!
+   TBranch        *b_true_beam_endPz;   //!
+   TBranch        *b_true_beam_endP;   //!
+   TBranch        *b_true_beam_startDirX;   //!
+   TBranch        *b_true_beam_startDirY;   //!
+   TBranch        *b_true_beam_startDirZ;   //!
+   TBranch        *b_true_beam_nElasticScatters;   //!
+   TBranch        *b_true_beam_elastic_costheta;   //!
+   TBranch        *b_true_beam_elastic_X;   //!
+   TBranch        *b_true_beam_elastic_Y;   //!
+   TBranch        *b_true_beam_elastic_Z;   //!
+   TBranch        *b_true_beam_elastic_deltaE;   //!
+   TBranch        *b_true_beam_elastic_IDE_edep;   //!
+   TBranch        *b_true_beam_IDE_totalDep;   //!
+   TBranch        *b_true_beam_IDE_found_in_recoVtx;   //!
+   TBranch        *b_true_beam_nHits;   //!
+   TBranch        *b_true_beam_reco_byHits_PFP_ID;   //!
+   TBranch        *b_true_beam_reco_byHits_PFP_nHits;   //!
+   TBranch        *b_true_beam_reco_byHits_allTrack_ID;   //!
+   TBranch        *b_true_daughter_nPi0;   //!
+   TBranch        *b_true_daughter_nPiPlus;   //!
+   TBranch        *b_true_daughter_nProton;   //!
+   TBranch        *b_true_daughter_nNeutron;   //!
+   TBranch        *b_true_daughter_nPiMinus;   //!
+   TBranch        *b_true_daughter_nNucleus;   //!
+   TBranch        *b_reco_beam_vertex_slice;   //!
+   TBranch        *b_reco_beam_vertex_dRs;   //!
+   TBranch        *b_reco_beam_vertex_hits_slices;   //!
+   TBranch        *b_true_beam_daughter_PDG;   //!
+   TBranch        *b_true_beam_daughter_ID;   //!
+   TBranch        *b_true_beam_daughter_len;   //!
+   TBranch        *b_true_beam_daughter_startX;   //!
+   TBranch        *b_true_beam_daughter_startY;   //!
+   TBranch        *b_true_beam_daughter_startZ;   //!
+   TBranch        *b_true_beam_daughter_startPx;   //!
+   TBranch        *b_true_beam_daughter_startPy;   //!
+   TBranch        *b_true_beam_daughter_startPz;   //!
+   TBranch        *b_true_beam_daughter_startP;   //!
+   TBranch        *b_true_beam_daughter_endX;   //!
+   TBranch        *b_true_beam_daughter_endY;   //!
+   TBranch        *b_true_beam_daughter_endZ;   //!
+   TBranch        *b_true_beam_daughter_Process;   //!
+   TBranch        *b_true_beam_daughter_endProcess;   //!
+   TBranch        *b_true_beam_daughter_nHits;   //!
+   TBranch        *b_true_beam_daughter_reco_byHits_PFP_ID;   //!
+   TBranch        *b_true_beam_daughter_reco_byHits_PFP_nHits;   //!
+   TBranch        *b_true_beam_daughter_reco_byHits_PFP_trackScore;   //!
+   TBranch        *b_true_beam_daughter_reco_byHits_allTrack_ID;   //!
+   TBranch        *b_true_beam_daughter_reco_byHits_allTrack_startX;   //!
+   TBranch        *b_true_beam_daughter_reco_byHits_allTrack_startY;   //!
+   TBranch        *b_true_beam_daughter_reco_byHits_allTrack_startZ;   //!
+   TBranch        *b_true_beam_daughter_reco_byHits_allTrack_endX;   //!
+   TBranch        *b_true_beam_daughter_reco_byHits_allTrack_endY;   //!
+   TBranch        *b_true_beam_daughter_reco_byHits_allTrack_endZ;   //!
+   TBranch        *b_true_beam_daughter_reco_byHits_allTrack_len;   //!
+   TBranch        *b_true_beam_daughter_reco_byHits_allShower_ID;   //!
+   TBranch        *b_true_beam_daughter_reco_byHits_allShower_startX;   //!
+   TBranch        *b_true_beam_daughter_reco_byHits_allShower_startY;   //!
+   TBranch        *b_true_beam_daughter_reco_byHits_allShower_startZ;   //!
+   TBranch        *b_true_beam_daughter_reco_byHits_allShower_len;   //!
+   TBranch        *b_true_beam_Pi0_decay_ID;   //!
+   TBranch        *b_true_beam_Pi0_decay_parID;   //!
+   TBranch        *b_true_beam_Pi0_decay_PDG;   //!
+   TBranch        *b_true_beam_Pi0_decay_startP;   //!
+   TBranch        *b_true_beam_Pi0_decay_len;   //!
+   TBranch        *b_true_beam_Pi0_decay_nHits;   //!
+   TBranch        *b_true_beam_Pi0_decay_reco_byHits_PFP_ID;   //!
+   TBranch        *b_true_beam_Pi0_decay_reco_byHits_PFP_nHits;   //!
+   TBranch        *b_true_beam_Pi0_decay_reco_byHits_PFP_trackScore;   //!
+   TBranch        *b_true_beam_Pi0_decay_reco_byHits_allTrack_ID;   //!
+   TBranch        *b_true_beam_Pi0_decay_reco_byHits_allTrack_startX;   //!
+   TBranch        *b_true_beam_Pi0_decay_reco_byHits_allTrack_startY;   //!
+   TBranch        *b_true_beam_Pi0_decay_reco_byHits_allTrack_startZ;   //!
+   TBranch        *b_true_beam_Pi0_decay_reco_byHits_allTrack_endX;   //!
+   TBranch        *b_true_beam_Pi0_decay_reco_byHits_allTrack_endY;   //!
+   TBranch        *b_true_beam_Pi0_decay_reco_byHits_allTrack_endZ;   //!
+   TBranch        *b_true_beam_Pi0_decay_reco_byHits_allTrack_len;   //!
+   TBranch        *b_true_beam_Pi0_decay_reco_byHits_allShower_ID;   //!
+   TBranch        *b_true_beam_Pi0_decay_reco_byHits_allShower_startX;   //!
+   TBranch        *b_true_beam_Pi0_decay_reco_byHits_allShower_startY;   //!
+   TBranch        *b_true_beam_Pi0_decay_reco_byHits_allShower_startZ;   //!
+   TBranch        *b_true_beam_Pi0_decay_reco_byHits_allShower_len;   //!
+   TBranch        *b_true_beam_grand_daughter_ID;   //!
+   TBranch        *b_true_beam_grand_daughter_parID;   //!
+   TBranch        *b_true_beam_grand_daughter_PDG;   //!
+   TBranch        *b_true_beam_grand_daughter_nHits;   //!
+   TBranch        *b_true_beam_grand_daughter_Process;   //!
+   TBranch        *b_true_beam_grand_daughter_endProcess;   //!
+   TBranch        *b_reco_beam_true_byE_endProcess;   //!
+   TBranch        *b_reco_beam_true_byE_process;   //!
+   TBranch        *b_reco_beam_true_byE_origin;   //!
+   TBranch        *b_reco_beam_true_byE_PDG;   //!
+   TBranch        *b_reco_beam_true_byE_ID;   //!
+   TBranch        *b_reco_beam_true_byHits_endProcess;   //!
+   TBranch        *b_reco_beam_true_byHits_process;   //!
+   TBranch        *b_reco_beam_true_byHits_origin;   //!
+   TBranch        *b_reco_beam_true_byHits_PDG;   //!
+   TBranch        *b_reco_beam_true_byHits_ID;   //!
+   TBranch        *b_reco_beam_true_byE_matched;   //!
+   TBranch        *b_reco_beam_true_byHits_matched;   //!
+   TBranch        *b_reco_beam_true_byHits_purity;   //!
+   TBranch        *b_true_beam_processes;   //!
+   TBranch        *b_true_beam_process_slice;   //!
+   TBranch        *b_true_beam_process_dSlice;   //!
+   TBranch        *b_true_beam_process_matched;   //!
+   TBranch        *b_data_BI_P;   //!
+   TBranch        *b_data_BI_X;   //!
+   TBranch        *b_data_BI_Y;   //!
+   TBranch        *b_data_BI_Z;   //!
+   TBranch        *b_data_BI_dirX;   //!
+   TBranch        *b_data_BI_dirY;   //!
+   TBranch        *b_data_BI_dirZ;   //!
+   TBranch        *b_data_BI_nFibersP1;   //!
+   TBranch        *b_data_BI_nFibersP2;   //!
+   TBranch        *b_data_BI_nFibersP3;   //!
+   TBranch        *b_data_BI_PDG_candidates;   //!
+   TBranch        *b_data_BI_nTracks;   //!
+   TBranch        *b_data_BI_nMomenta;   //!
+   TBranch        *b_quality_reco_view_0_hits_in_TPC5;   //!
+   TBranch        *b_quality_reco_view_1_hits_in_TPC5;   //!
+   TBranch        *b_quality_reco_view_2_hits_in_TPC5;   //!
+   TBranch        *b_quality_reco_max_lateral;   //!
+   TBranch        *b_quality_reco_max_segment;   //!
+   TBranch        *b_quality_reco_view_0_max_segment;   //!
+   TBranch        *b_quality_reco_view_1_max_segment;   //!
+   TBranch        *b_quality_reco_view_2_max_segment;   //!
+   TBranch        *b_quality_reco_view_0_wire_backtrack;   //!
+   TBranch        *b_quality_reco_view_1_wire_backtrack;   //!
+   TBranch        *b_quality_reco_view_2_wire_backtrack;   //!
+   TBranch        *b_quality_reco_view_0_wire;   //!
+   TBranch        *b_quality_reco_view_1_wire;   //!
+   TBranch        *b_quality_reco_view_2_wire;   //!
+   TBranch        *b_quality_reco_view_2_z;   //!
+   TBranch        *b_quality_reco_view_0_tick;   //!
+   TBranch        *b_quality_reco_view_1_tick;   //!
+   TBranch        *b_quality_reco_view_2_tick;   //!
+   TBranch        *b_reco_beam_Chi2_proton;   //!
+   TBranch        *b_reco_beam_Chi2_ndof;   //!
+   TBranch        *b_reco_beam_cosmic_candidate_lower_hits;   //!
+   TBranch        *b_reco_beam_cosmic_candidate_upper_hits;   //!
+   TBranch        *b_reco_beam_cosmic_candidate_ID;   //!
+   TBranch        *b_beam_has_cosmic_IDE;   //!
+   TBranch        *b_cosmic_has_beam_IDE;   //!
+   TBranch        *b_n_cosmics_with_beam_IDE;   //!
+   TBranch        *b_reco_daughter_allTrack_momByRange_proton;   //!
+   TBranch        *b_reco_daughter_allTrack_momByRange_muon;   //!
+   TBranch        *b_reco_beam_momByRange_proton;   //!
+   TBranch        *b_reco_beam_momByRange_muon;   //!
+   TBranch        *b_reco_beam_true_byE_endPx;   //!
+   TBranch        *b_reco_beam_true_byE_endPy;   //!
+   TBranch        *b_reco_beam_true_byE_endPz;   //!
+   TBranch        *b_reco_beam_true_byE_endE;   //!
+   TBranch        *b_reco_beam_true_byE_endP;   //!
+   TBranch        *b_reco_beam_true_byE_startPx;   //!
+   TBranch        *b_reco_beam_true_byE_startPy;   //!
+   TBranch        *b_reco_beam_true_byE_startPz;   //!
+   TBranch        *b_reco_beam_true_byE_startE;   //!
+   TBranch        *b_reco_beam_true_byE_startP;   //!
+   TBranch        *b_reco_beam_true_byHits_endPx;   //!
+   TBranch        *b_reco_beam_true_byHits_endPy;   //!
+   TBranch        *b_reco_beam_true_byHits_endPz;   //!
+   TBranch        *b_reco_beam_true_byHits_endE;   //!
+   TBranch        *b_reco_beam_true_byHits_endP;   //!
+   TBranch        *b_reco_beam_true_byHits_startPx;   //!
+   TBranch        *b_reco_beam_true_byHits_startPy;   //!
+   TBranch        *b_reco_beam_true_byHits_startPz;   //!
+   TBranch        *b_reco_beam_true_byHits_startE;   //!
+   TBranch        *b_reco_beam_true_byHits_startP;   //!
+   TBranch        *b_reco_beam_incidentEnergies;   //!
+   TBranch        *b_reco_beam_interactingEnergy;   //!
+   TBranch        *b_true_beam_incidentEnergies;   //!
+   TBranch        *b_true_beam_interactingEnergy;   //!
+   TBranch        *b_true_beam_slices;   //!
+   TBranch        *b_true_beam_slices_found;   //!
+   TBranch        *b_true_beam_slices_nIDEs;   //!
+   TBranch        *b_true_beam_slices_deltaE;   //!
+   TBranch        *b_new_true_beam_incidentEnergies;   //!
+   TBranch        *b_new_true_beam_interactingEnergy;   //!
+   TBranch        *b_g4rw_primary_weights;   //!
+   TBranch        *b_g4rw_primary_plus_sigma_weight;   //!
+   TBranch        *b_g4rw_primary_minus_sigma_weight;   //!
+   TBranch        *b_g4rw_primary_var;   //!
 
    UBXSecEvent(TTree *tree=0);
    virtual ~UBXSecEvent();
@@ -356,12 +706,12 @@ UBXSecEvent::UBXSecEvent(TTree *tree) : fChain(0)
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("../Files/ubxsec_output_mc_bnbcosmic_mcc8.7_test6.root");
+      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/dune/data/users/calcuttj/pionana_mc_1GeV_6_15_20.root");
       if (!f || !f->IsOpen()) {
-         f = new TFile("../Files/ubxsec_output_mc_bnbcosmic_mcc8.7_test6.root");
+         f = new TFile("/dune/data/users/calcuttj/pionana_mc_1GeV_6_15_20.root");
       }
-      TDirectory * dir = (TDirectory*)f->Get("../Files/ubxsec_output_mc_bnbcosmic_mcc8.7_test6.root:/UBXSec");
-      dir->GetObject("tree",tree);
+      TDirectory * dir = (TDirectory*)f->Get("/dune/data/users/calcuttj/pionana_mc_1GeV_6_15_20.root:/pionana");
+      dir->GetObject("beamana",tree);
 
    }
    Init(tree);
@@ -402,166 +752,530 @@ void UBXSecEvent::Init(TTree *tree)
    // Init() will be called many times when running on PROOF
    // (once per file to be processed).
 
+   // Set object pointer
+   reco_beam_dQdX = 0;
+   reco_beam_dEdX = 0;
+   reco_beam_calibrated_dEdX = 0;
+   reco_beam_resRange = 0;
+   reco_beam_TrkPitch = 0;
+   reco_beam_calo_wire = 0;
+   reco_beam_calo_wire_z = 0;
+   reco_beam_calo_tick = 0;
+   reco_beam_hit_true_ID = 0;
+   reco_beam_hit_true_slice = 0;
+   reco_beam_hit_true_origin = 0;
+   reco_beam_allTrack_resRange = 0;
+   reco_beam_allTrack_calibrated_dEdX = 0;
+   reco_daughter_PFP_true_byHits_PDG = 0;
+   reco_daughter_PFP_true_byHits_ID = 0;
+   reco_daughter_PFP_true_byHits_origin = 0;
+   reco_daughter_PFP_true_byHits_parID = 0;
+   reco_daughter_PFP_true_byHits_parPDG = 0;
+   reco_daughter_PFP_true_byHits_process = 0;
+   reco_daughter_PFP_true_byHits_sharedHits = 0;
+   reco_daughter_PFP_true_byHits_emHits = 0;
+   reco_daughter_PFP_true_byHits_len = 0;
+   reco_daughter_PFP_true_byHits_startX = 0;
+   reco_daughter_PFP_true_byHits_startY = 0;
+   reco_daughter_PFP_true_byHits_startZ = 0;
+   reco_daughter_PFP_true_byHits_endX = 0;
+   reco_daughter_PFP_true_byHits_endY = 0;
+   reco_daughter_PFP_true_byHits_endZ = 0;
+   reco_daughter_PFP_true_byHits_startPx = 0;
+   reco_daughter_PFP_true_byHits_startPy = 0;
+   reco_daughter_PFP_true_byHits_startPz = 0;
+   reco_daughter_PFP_true_byHits_startP = 0;
+   reco_daughter_PFP_true_byHits_startE = 0;
+   reco_daughter_PFP_true_byHits_endProcess = 0;
+   reco_daughter_PFP_true_byHits_purity = 0;
+   reco_daughter_allTrack_ID = 0;
+   reco_daughter_allTrack_dEdX = 0;
+   reco_daughter_allTrack_dQdX = 0;
+   reco_daughter_allTrack_resRange = 0;
+   reco_daughter_allTrack_dQdX_SCE = 0;
+   reco_daughter_allTrack_dEdX_SCE = 0;
+   reco_daughter_allTrack_resRange_SCE = 0;
+   reco_daughter_allTrack_calibrated_dEdX = 0;
+   reco_daughter_allTrack_calibrated_dEdX_SCE = 0;
+   reco_daughter_allTrack_Chi2_proton = 0;
+   reco_daughter_allTrack_Chi2_ndof = 0;
+   reco_daughter_allTrack_Chi2_proton_plane0 = 0;
+   reco_daughter_allTrack_Chi2_proton_plane1 = 0;
+   reco_daughter_allTrack_Chi2_ndof_plane0 = 0;
+   reco_daughter_allTrack_Chi2_ndof_plane1 = 0;
+   reco_daughter_allTrack_calibrated_dEdX_SCE_plane0 = 0;
+   reco_daughter_allTrack_calibrated_dEdX_SCE_plane1 = 0;
+   reco_daughter_allTrack_resRange_plane0 = 0;
+   reco_daughter_allTrack_resRange_plane1 = 0;
+   reco_daughter_allTrack_Theta = 0;
+   reco_daughter_allTrack_Phi = 0;
+   reco_daughter_allTrack_len = 0;
+   reco_daughter_allTrack_startX = 0;
+   reco_daughter_allTrack_startY = 0;
+   reco_daughter_allTrack_startZ = 0;
+   reco_daughter_allTrack_endX = 0;
+   reco_daughter_allTrack_endY = 0;
+   reco_daughter_allTrack_endZ = 0;
+   reco_daughter_allTrack_dR = 0;
+   reco_daughter_allTrack_to_vertex = 0;
+   reco_daughter_allShower_ID = 0;
+   reco_daughter_allShower_len = 0;
+   reco_daughter_allShower_startX = 0;
+   reco_daughter_allShower_startY = 0;
+   reco_daughter_allShower_startZ = 0;
+   reco_daughter_allShower_dirX = 0;
+   reco_daughter_allShower_dirY = 0;
+   reco_daughter_allShower_dirZ = 0;
+   reco_daughter_allShower_energy = 0;
+   reco_daughter_PFP_ID = 0;
+   reco_daughter_PFP_nHits = 0;
+   reco_daughter_PFP_trackScore = 0;
+   reco_daughter_PFP_emScore = 0;
+   reco_daughter_PFP_michelScore = 0;
+   reco_daughter_PFP_trackScore_collection = 0;
+   reco_daughter_PFP_emScore_collection = 0;
+   reco_daughter_PFP_michelScore_collection = 0;
+   true_beam_endProcess = 0;
+   true_beam_elastic_costheta = 0;
+   true_beam_elastic_X = 0;
+   true_beam_elastic_Y = 0;
+   true_beam_elastic_Z = 0;
+   true_beam_elastic_deltaE = 0;
+   true_beam_elastic_IDE_edep = 0;
+   true_beam_reco_byHits_PFP_ID = 0;
+   true_beam_reco_byHits_PFP_nHits = 0;
+   true_beam_reco_byHits_allTrack_ID = 0;
+   reco_beam_vertex_dRs = 0;
+   reco_beam_vertex_hits_slices = 0;
+   true_beam_daughter_PDG = 0;
+   true_beam_daughter_ID = 0;
+   true_beam_daughter_len = 0;
+   true_beam_daughter_startX = 0;
+   true_beam_daughter_startY = 0;
+   true_beam_daughter_startZ = 0;
+   true_beam_daughter_startPx = 0;
+   true_beam_daughter_startPy = 0;
+   true_beam_daughter_startPz = 0;
+   true_beam_daughter_startP = 0;
+   true_beam_daughter_endX = 0;
+   true_beam_daughter_endY = 0;
+   true_beam_daughter_endZ = 0;
+   true_beam_daughter_Process = 0;
+   true_beam_daughter_endProcess = 0;
+   true_beam_daughter_nHits = 0;
+   true_beam_daughter_reco_byHits_PFP_ID = 0;
+   true_beam_daughter_reco_byHits_PFP_nHits = 0;
+   true_beam_daughter_reco_byHits_PFP_trackScore = 0;
+   true_beam_daughter_reco_byHits_allTrack_ID = 0;
+   true_beam_daughter_reco_byHits_allTrack_startX = 0;
+   true_beam_daughter_reco_byHits_allTrack_startY = 0;
+   true_beam_daughter_reco_byHits_allTrack_startZ = 0;
+   true_beam_daughter_reco_byHits_allTrack_endX = 0;
+   true_beam_daughter_reco_byHits_allTrack_endY = 0;
+   true_beam_daughter_reco_byHits_allTrack_endZ = 0;
+   true_beam_daughter_reco_byHits_allTrack_len = 0;
+   true_beam_daughter_reco_byHits_allShower_ID = 0;
+   true_beam_daughter_reco_byHits_allShower_startX = 0;
+   true_beam_daughter_reco_byHits_allShower_startY = 0;
+   true_beam_daughter_reco_byHits_allShower_startZ = 0;
+   true_beam_daughter_reco_byHits_allShower_len = 0;
+   true_beam_Pi0_decay_ID = 0;
+   true_beam_Pi0_decay_parID = 0;
+   true_beam_Pi0_decay_PDG = 0;
+   true_beam_Pi0_decay_startP = 0;
+   true_beam_Pi0_decay_len = 0;
+   true_beam_Pi0_decay_nHits = 0;
+   true_beam_Pi0_decay_reco_byHits_PFP_ID = 0;
+   true_beam_Pi0_decay_reco_byHits_PFP_nHits = 0;
+   true_beam_Pi0_decay_reco_byHits_PFP_trackScore = 0;
+   true_beam_Pi0_decay_reco_byHits_allTrack_ID = 0;
+   true_beam_Pi0_decay_reco_byHits_allTrack_startX = 0;
+   true_beam_Pi0_decay_reco_byHits_allTrack_startY = 0;
+   true_beam_Pi0_decay_reco_byHits_allTrack_startZ = 0;
+   true_beam_Pi0_decay_reco_byHits_allTrack_endX = 0;
+   true_beam_Pi0_decay_reco_byHits_allTrack_endY = 0;
+   true_beam_Pi0_decay_reco_byHits_allTrack_endZ = 0;
+   true_beam_Pi0_decay_reco_byHits_allTrack_len = 0;
+   true_beam_Pi0_decay_reco_byHits_allShower_ID = 0;
+   true_beam_Pi0_decay_reco_byHits_allShower_startX = 0;
+   true_beam_Pi0_decay_reco_byHits_allShower_startY = 0;
+   true_beam_Pi0_decay_reco_byHits_allShower_startZ = 0;
+   true_beam_Pi0_decay_reco_byHits_allShower_len = 0;
+   true_beam_grand_daughter_ID = 0;
+   true_beam_grand_daughter_parID = 0;
+   true_beam_grand_daughter_PDG = 0;
+   true_beam_grand_daughter_nHits = 0;
+   true_beam_grand_daughter_Process = 0;
+   true_beam_grand_daughter_endProcess = 0;
+   reco_beam_true_byE_endProcess = 0;
+   reco_beam_true_byE_process = 0;
+   reco_beam_true_byHits_endProcess = 0;
+   reco_beam_true_byHits_process = 0;
+   true_beam_processes = 0;
+   true_beam_process_slice = 0;
+   true_beam_process_dSlice = 0;
+   true_beam_process_matched = 0;
+   data_BI_PDG_candidates = 0;
+   quality_reco_view_0_wire = 0;
+   quality_reco_view_1_wire = 0;
+   quality_reco_view_2_wire = 0;
+   quality_reco_view_2_z = 0;
+   quality_reco_view_0_tick = 0;
+   quality_reco_view_1_tick = 0;
+   quality_reco_view_2_tick = 0;
+   reco_beam_cosmic_candidate_lower_hits = 0;
+   reco_beam_cosmic_candidate_upper_hits = 0;
+   reco_beam_cosmic_candidate_ID = 0;
+   cosmic_has_beam_IDE = 0;
+   reco_daughter_allTrack_momByRange_proton = 0;
+   reco_daughter_allTrack_momByRange_muon = 0;
+   reco_beam_incidentEnergies = 0;
+   true_beam_incidentEnergies = 0;
+   true_beam_slices = 0;
+   true_beam_slices_found = 0;
+   true_beam_slices_nIDEs = 0;
+   true_beam_slices_deltaE = 0;
+   new_true_beam_incidentEnergies = 0;
+   g4rw_primary_weights = 0;
+   g4rw_primary_plus_sigma_weight = 0;
+   g4rw_primary_minus_sigma_weight = 0;
+   g4rw_primary_var = 0;
    // Set branch addresses and branch pointers
    if (!tree) return;
    fChain = tree;
    fCurrent = -1;
    fChain->SetMakeClass(1);
 
-   fChain->SetBranchAddress("run", &run, &b_ubxsec_event_split_run);
-   fChain->SetBranchAddress("subrun", &subrun, &b_ubxsec_event_split_subrun);
-   fChain->SetBranchAddress("event", &event, &b_ubxsec_event_split_event);
-   fChain->SetBranchAddress("file_type", &file_type, &b_ubxsec_event_split_file_type);
-   fChain->SetBranchAddress("muon_is_reco", &muon_is_reco, &b_ubxsec_event_split_muon_is_reco);
-   fChain->SetBranchAddress("muon_reco_pur", &muon_reco_pur, &b_ubxsec_event_split_muon_reco_pur);
-   fChain->SetBranchAddress("muon_reco_eff", &muon_reco_eff, &b_ubxsec_event_split_muon_reco_eff);
-   fChain->SetBranchAddress("true_muon_mom", &true_muon_mom, &b_ubxsec_event_split_true_muon_mom);
-   fChain->SetBranchAddress("true_muon_mom_matched", &true_muon_mom_matched, &b_ubxsec_event_split_true_muon_mom_matched);
-   fChain->SetBranchAddress("n_pfp", &n_pfp, &b_ubxsec_event_split_n_pfp);
-   fChain->SetBranchAddress("n_pfp_primary", &n_pfp_primary, &b_ubxsec_event_split_n_pfp_primary);
-   fChain->SetBranchAddress("n_primary_cosmic_pfp", &n_primary_cosmic_pfp, &b_ubxsec_event_split_n_primary_cosmic_pfp);
-   fChain->SetBranchAddress("nPFPtagged", &nPFPtagged, &b_ubxsec_event_split_nPFPtagged);
-   fChain->SetBranchAddress("muon_is_flash_tagged", &muon_is_flash_tagged, &b_ubxsec_event_split_muon_is_flash_tagged);
-   fChain->SetBranchAddress("muon_tag_score", &muon_tag_score, &b_ubxsec_event_split_muon_tag_score);
-   fChain->SetBranchAddress("fm_score", &fm_score, &b_ubxsec_event_split_fm_score);
-   fChain->SetBranchAddress("fv", &fv, &b_ubxsec_event_split_fv);
-   fChain->SetBranchAddress("ccnc", &ccnc, &b_ubxsec_event_split_ccnc);
-   fChain->SetBranchAddress("mode", &mode, &b_ubxsec_event_split_mode);
-   fChain->SetBranchAddress("nupdg", &nupdg, &b_ubxsec_event_split_nupdg);
-   fChain->SetBranchAddress("is_signal", &is_signal, &b_ubxsec_event_split_is_signal);
-   fChain->SetBranchAddress("nu_e", &nu_e, &b_ubxsec_event_split_nu_e);
-   fChain->SetBranchAddress("lep_costheta", &lep_costheta, &b_ubxsec_event_split_lep_costheta);
-   fChain->SetBranchAddress("lep_phi", &lep_phi, &b_ubxsec_event_split_lep_phi);
-   fChain->SetBranchAddress("genie_mult", &genie_mult, &b_ubxsec_event_split_genie_mult);
-   fChain->SetBranchAddress("genie_mult_ch", &genie_mult_ch, &b_ubxsec_event_split_genie_mult_ch);
-   fChain->SetBranchAddress("bnb_weight", &bnb_weight, &b_ubxsec_event_split_bnb_weight);
-   fChain->SetBranchAddress("is_selected", &is_selected, &b_ubxsec_event_split_is_selected);
-
-   // fChain->SetBranchAddress("truth_nupdg", &truth_nupdg, &b_ubxsec_event_split_truth_nupdg);
-   // fChain->SetBranchAddress("truth_mode", &truth_mode, &b_ubxsec_event_split_truth_mode);
-   // fChain->SetBranchAddress("truth_ccnc", &truth_ccnc, &b_ubxsec_event_split_truth_ccnc);
-   // fChain->SetBranchAddress("truth_fv", &truth_fv, &b_ubxsec_event_split_truth_fv);
-   // fChain->SetBranchAddress("truth_nu_e", &truth_nu_e, &b_ubxsec_event_split_truth_nu_e);
-   // fChain->SetBranchAddress("truth_lep_costheta", &truth_lep_costheta, &b_ubxsec_event_split_truth_lep_costheta);
-   // fChain->SetBranchAddress("truth_lep_phi", &truth_lep_phi, &b_ubxsec_event_split_truth_lep_phi);
-   // fChain->SetBranchAddress("truth_lep_p", &truth_lep_p, &b_ubxsec_event_split_truth_lep_p);
-
-   fChain->SetBranchAddress("mc_muon_contained", &mc_muon_contained, &b_ubxsec_event_split_mc_muon_contained);
-   fChain->SetBranchAddress("is_swtriggered", &is_swtriggered, &b_ubxsec_event_split_is_swtriggered);
-   fChain->SetBranchAddress("vtx_resolution", &vtx_resolution, &b_ubxsec_event_split_vtx_resolution);
-   fChain->SetBranchAddress("n_tpcobj_nu_origin", &n_tpcobj_nu_origin, &b_ubxsec_event_split_n_tpcobj_nu_origin);
-   fChain->SetBranchAddress("n_tpcobj_cosmic_origin", &n_tpcobj_cosmic_origin, &b_ubxsec_event_split_n_tpcobj_cosmic_origin);
-   fChain->SetBranchAddress("nslices", &nslices, &b_ubxsec_event_split_nslices);
-   fChain->SetBranchAddress("slc_flsmatch_score", &slc_flsmatch_score, &b_ubxsec_event_split_slc_flsmatch_score);
-   fChain->SetBranchAddress("slc_flsmatch_qllx", &slc_flsmatch_qllx, &b_ubxsec_event_split_slc_flsmatch_qllx);
-   fChain->SetBranchAddress("slc_flsmatch_tpcx", &slc_flsmatch_tpcx, &b_ubxsec_event_split_slc_flsmatch_tpcx);
-   fChain->SetBranchAddress("slc_flsmatch_t0", &slc_flsmatch_t0, &b_ubxsec_event_split_slc_flsmatch_t0);
-   fChain->SetBranchAddress("slc_flsmatch_hypoz", &slc_flsmatch_hypoz, &b_ubxsec_event_split_slc_flsmatch_hypoz);
-   fChain->SetBranchAddress("slc_flsmatch_xfixed_chi2", &slc_flsmatch_xfixed_chi2, &b_ubxsec_event_split_slc_flsmatch_xfixed_chi2);
-   fChain->SetBranchAddress("slc_flsmatch_xfixed_ll", &slc_flsmatch_xfixed_ll, &b_ubxsec_event_split_slc_flsmatch_xfixed_ll);
-   fChain->SetBranchAddress("slc_flsmatch_cosmic_score", &slc_flsmatch_cosmic_score, &b_ubxsec_event_split_slc_flsmatch_cosmic_score);
-   fChain->SetBranchAddress("slc_flsmatch_cosmic_t0", &slc_flsmatch_cosmic_t0, &b_ubxsec_event_split_slc_flsmatch_cosmic_t0);
-   fChain->SetBranchAddress("slc_nuvtx_x", &slc_nuvtx_x, &b_ubxsec_event_split_slc_nuvtx_x);
-   fChain->SetBranchAddress("slc_nuvtx_y", &slc_nuvtx_y, &b_ubxsec_event_split_slc_nuvtx_y);
-   fChain->SetBranchAddress("slc_nuvtx_z", &slc_nuvtx_z, &b_ubxsec_event_split_slc_nuvtx_z);
-   fChain->SetBranchAddress("slc_nuvtx_fv", &slc_nuvtx_fv, &b_ubxsec_event_split_slc_nuvtx_fv);
-   fChain->SetBranchAddress("slc_vtxcheck_angle", &slc_vtxcheck_angle, &b_ubxsec_event_split_slc_vtxcheck_angle);
-   fChain->SetBranchAddress("slc_origin", &slc_origin, &b_ubxsec_event_split_slc_origin);
-   fChain->SetBranchAddress("slc_origin_extra", &slc_origin_extra, &b_ubxsec_event_split_slc_origin_extra);
-   fChain->SetBranchAddress("slc_nhits_u", &slc_nhits_u, &b_ubxsec_event_split_slc_nhits_u);
-   fChain->SetBranchAddress("slc_nhits_v", &slc_nhits_v, &b_ubxsec_event_split_slc_nhits_v);
-   fChain->SetBranchAddress("slc_nhits_w", &slc_nhits_w, &b_ubxsec_event_split_slc_nhits_w);
-   fChain->SetBranchAddress("slc_longesttrack_length", &slc_longesttrack_length, &b_ubxsec_event_split_slc_longesttrack_length);
-   fChain->SetBranchAddress("slc_longesttrack_phi", &slc_longesttrack_phi, &b_ubxsec_event_split_slc_longesttrack_phi);
-   fChain->SetBranchAddress("slc_longesttrack_theta", &slc_longesttrack_theta, &b_ubxsec_event_split_slc_longesttrack_theta);
-   fChain->SetBranchAddress("slc_longesttrack_iscontained", &slc_longesttrack_iscontained, &b_ubxsec_event_split_slc_longesttrack_iscontained);
-   fChain->SetBranchAddress("slc_longestshower_length", &slc_longestshower_length, &b_ubxsec_event_split_slc_longestshower_length);
-   fChain->SetBranchAddress("slc_longestshower_phi", &slc_longestshower_phi, &b_ubxsec_event_split_slc_longestshower_phi);
-   fChain->SetBranchAddress("slc_longestshower_theta", &slc_longestshower_theta, &b_ubxsec_event_split_slc_longestshower_theta);
-   fChain->SetBranchAddress("slc_longestshower_openangle", &slc_longestshower_openangle, &b_ubxsec_event_split_slc_longestshower_openangle);
-   fChain->SetBranchAddress("slc_longestshower_startx", &slc_longestshower_startx, &b_ubxsec_event_split_slc_longestshower_startx);
-   fChain->SetBranchAddress("slc_longestshower_starty", &slc_longestshower_starty, &b_ubxsec_event_split_slc_longestshower_starty);
-   fChain->SetBranchAddress("slc_longestshower_startz", &slc_longestshower_startz, &b_ubxsec_event_split_slc_longestshower_startz);
-   fChain->SetBranchAddress("slc_acpt_outoftime", &slc_acpt_outoftime, &b_ubxsec_event_split_slc_acpt_outoftime);
-   fChain->SetBranchAddress("slc_crosses_top_boundary", &slc_crosses_top_boundary, &b_ubxsec_event_split_slc_crosses_top_boundary);
-   fChain->SetBranchAddress("slc_nuvtx_closetodeadregion_u", &slc_nuvtx_closetodeadregion_u, &b_ubxsec_event_split_slc_nuvtx_closetodeadregion_u);
-   fChain->SetBranchAddress("slc_nuvtx_closetodeadregion_v", &slc_nuvtx_closetodeadregion_v, &b_ubxsec_event_split_slc_nuvtx_closetodeadregion_v);
-   fChain->SetBranchAddress("slc_nuvtx_closetodeadregion_w", &slc_nuvtx_closetodeadregion_w, &b_ubxsec_event_split_slc_nuvtx_closetodeadregion_w);
-   fChain->SetBranchAddress("slc_kalman_chi2", &slc_kalman_chi2, &b_ubxsec_event_split_slc_kalman_chi2);
-   fChain->SetBranchAddress("slc_kalman_ndof", &slc_kalman_ndof, &b_ubxsec_event_split_slc_kalman_ndof);
-   fChain->SetBranchAddress("slc_passed_min_track_quality", &slc_passed_min_track_quality, &b_ubxsec_event_split_slc_passed_min_track_quality);
-   fChain->SetBranchAddress("slc_passed_min_vertex_quality", &slc_passed_min_vertex_quality, &b_ubxsec_event_split_slc_passed_min_vertex_quality);
-   fChain->SetBranchAddress("slc_n_intime_pe_closestpmt", &slc_n_intime_pe_closestpmt, &b_ubxsec_event_split_slc_n_intime_pe_closestpmt);
-   fChain->SetBranchAddress("slc_maxdistance_vtxtrack", &slc_maxdistance_vtxtrack, &b_ubxsec_event_split_slc_maxdistance_vtxtrack);
-   fChain->SetBranchAddress("slc_geocosmictag", &slc_geocosmictag, &b_ubxsec_event_split_slc_geocosmictag);
-   fChain->SetBranchAddress("slc_consistency", &slc_consistency, &b_ubxsec_event_split_slc_consistency);
-   fChain->SetBranchAddress("slc_consistency_score", &slc_consistency_score, &b_ubxsec_event_split_slc_consistency_score);
-   fChain->SetBranchAddress("slc_npfp", &slc_npfp, &b_ubxsec_event_split_slc_npfp);
-   fChain->SetBranchAddress("slc_ntrack", &slc_ntrack, &b_ubxsec_event_split_slc_ntrack);
-   fChain->SetBranchAddress("slc_nshower", &slc_nshower, &b_ubxsec_event_split_slc_nshower);
-   fChain->SetBranchAddress("slc_iscontained", &slc_iscontained, &b_ubxsec_event_split_slc_iscontained);
-   fChain->SetBranchAddress("slc_mult_pfp", &slc_mult_pfp, &b_ubxsec_event_split_slc_mult_pfp);
-   fChain->SetBranchAddress("slc_mult_track", &slc_mult_track, &b_ubxsec_event_split_slc_mult_track);
-   fChain->SetBranchAddress("slc_mult_shower", &slc_mult_shower, &b_ubxsec_event_split_slc_mult_shower);
-   fChain->SetBranchAddress("slc_mult_track_tolerance", &slc_mult_track_tolerance, &b_ubxsec_event_split_slc_mult_track_tolerance);
-   fChain->SetBranchAddress("slc_muoncandidate_exists", &slc_muoncandidate_exists, &b_ubxsec_event_split_slc_muoncandidate_exists);
-   fChain->SetBranchAddress("slc_muoncandidate_length", &slc_muoncandidate_length, &b_ubxsec_event_split_slc_muoncandidate_length);
-   fChain->SetBranchAddress("slc_muoncandidate_phi", &slc_muoncandidate_phi, &b_ubxsec_event_split_slc_muoncandidate_phi);
-   fChain->SetBranchAddress("slc_muoncandidate_theta", &slc_muoncandidate_theta, &b_ubxsec_event_split_slc_muoncandidate_theta);
-   fChain->SetBranchAddress("slc_muoncandidate_mom_range", &slc_muoncandidate_mom_range, &b_ubxsec_event_split_slc_muoncandidate_mom_range);
-   fChain->SetBranchAddress("slc_muoncandidate_mom_mcs", &slc_muoncandidate_mom_mcs, &b_ubxsec_event_split_slc_muoncandidate_mom_mcs);
-   fChain->SetBranchAddress("slc_muoncandidate_mom_mcs_pi", &slc_muoncandidate_mom_mcs_pi, &b_ubxsec_event_split_slc_muoncandidate_mom_mcs_pi);
-   fChain->SetBranchAddress("slc_muoncandidate_mcs_ll", &slc_muoncandidate_mcs_ll, &b_ubxsec_event_split_slc_muoncandidate_mcs_ll);
-   fChain->SetBranchAddress("slc_muoncandidate_contained", &slc_muoncandidate_contained, &b_ubxsec_event_split_slc_muoncandidate_contained);
-   fChain->SetBranchAddress("slc_muoncandidate_dqdx_trunc", &slc_muoncandidate_dqdx_trunc, &b_ubxsec_event_split_slc_muoncandidate_dqdx_trunc);
-   fChain->SetBranchAddress("slc_muoncandidate_dqdx_u_trunc", &slc_muoncandidate_dqdx_u_trunc, &b_ubxsec_event_split_slc_muoncandidate_dqdx_u_trunc);
-   fChain->SetBranchAddress("slc_muoncandidate_dqdx_v_trunc", &slc_muoncandidate_dqdx_v_trunc, &b_ubxsec_event_split_slc_muoncandidate_dqdx_v_trunc);
-   fChain->SetBranchAddress("slc_muoncandidate_dqdx_v", &slc_muoncandidate_dqdx_v, &b_ubxsec_event_split_slc_muoncandidate_dqdx_v);
-   fChain->SetBranchAddress("slc_muoncandidate_mip_consistency", &slc_muoncandidate_mip_consistency, &b_ubxsec_event_split_slc_muoncandidate_mip_consistency);
-   fChain->SetBranchAddress("slc_muoncandidate_mip_consistency2", &slc_muoncandidate_mip_consistency2, &b_ubxsec_event_split_slc_muoncandidate_mip_consistency2);
-   fChain->SetBranchAddress("slc_muoncandidate_truepdg", &slc_muoncandidate_truepdg, &b_ubxsec_event_split_slc_muoncandidate_truepdg);
-   fChain->SetBranchAddress("slc_muoncandidate_trueorigin", &slc_muoncandidate_trueorigin, &b_ubxsec_event_split_slc_muoncandidate_trueorigin);
-   fChain->SetBranchAddress("slc_muoncandidate_mcs_delta_ll", &slc_muoncandidate_mcs_delta_ll, &b_ubxsec_event_split_slc_muoncandidate_mcs_delta_ll);
-   fChain->SetBranchAddress("slc_muoncandidate_residuals_mean", &slc_muoncandidate_residuals_mean, &b_ubxsec_event_split_slc_muoncandidate_residuals_mean);
-   fChain->SetBranchAddress("slc_muoncandidate_residuals_std", &slc_muoncandidate_residuals_std, &b_ubxsec_event_split_slc_muoncandidate_residuals_std);
-   fChain->SetBranchAddress("slc_muoncandidate_wiregap", &slc_muoncandidate_wiregap, &b_ubxsec_event_split_slc_muoncandidate_wiregap);
-   fChain->SetBranchAddress("slc_muoncandidate_wiregap_dead", &slc_muoncandidate_wiregap_dead, &b_ubxsec_event_split_slc_muoncandidate_wiregap_dead);
-   fChain->SetBranchAddress("slc_muoncandidate_linearity", &slc_muoncandidate_linearity, &b_ubxsec_event_split_slc_muoncandidate_linearity);
-   fChain->SetBranchAddress("slc_muoncandidate_perc_used_hits_in_cluster", &slc_muoncandidate_perc_used_hits_in_cluster, &b_ubxsec_event_split_slc_muoncandidate_perc_used_hits_in_cluster);
-   fChain->SetBranchAddress("slc_muoncandidate_maxscatteringangle", &slc_muoncandidate_maxscatteringangle, &b_ubxsec_event_split_slc_muoncandidate_maxscatteringangle);
-   fChain->SetBranchAddress("nbeamfls", &nbeamfls, &b_ubxsec_event_split_nbeamfls);
-   fChain->SetBranchAddress("beamfls_time", &beamfls_time, &b_ubxsec_event_split_beamfls_time);
-   fChain->SetBranchAddress("beamfls_pe", &beamfls_pe, &b_ubxsec_event_split_beamfls_pe);
-   fChain->SetBranchAddress("beamfls_z", &beamfls_z, &b_ubxsec_event_split_beamfls_z);
-   fChain->SetBranchAddress("candidate_flash_time", &candidate_flash_time, &b_ubxsec_event_split_candidate_flash_time);
-   fChain->SetBranchAddress("candidate_flash_z", &candidate_flash_z, &b_ubxsec_event_split_candidate_flash_z);
-   fChain->SetBranchAddress("no_mcflash_but_op_activity", &no_mcflash_but_op_activity, &b_ubxsec_event_split_no_mcflash_but_op_activity);
-   fChain->SetBranchAddress("beamfls_spec", &beamfls_spec, &b_ubxsec_event_split_beamfls_spec);
-   fChain->SetBranchAddress("numc_flash_spec", &numc_flash_spec, &b_ubxsec_event_split_numc_flash_spec);
-   fChain->SetBranchAddress("slc_flshypo_xfixed_spec", &slc_flshypo_xfixed_spec, &b_ubxsec_event_split_slc_flshypo_xfixed_spec);
-   fChain->SetBranchAddress("slc_flshypo_spec", &slc_flshypo_spec, &b_ubxsec_event_split_slc_flshypo_spec);
-   fChain->SetBranchAddress("nsignal", &nsignal, &b_ubxsec_event_split_nsignal);
-   fChain->SetBranchAddress("tvtx_x", &tvtx_x, &b_ubxsec_event_split_tvtx_x);
-   fChain->SetBranchAddress("tvtx_y", &tvtx_y, &b_ubxsec_event_split_tvtx_y);
-   fChain->SetBranchAddress("tvtx_z", &tvtx_z, &b_ubxsec_event_split_tvtx_z);
-   fChain->SetBranchAddress("pot", &pot, &b_ubxsec_event_split_pot);
-   fChain->SetBranchAddress("evtwgt_genie_pm1_nfunc", &evtwgt_genie_pm1_nfunc, &b_ubxsec_event_split_evtwgt_genie_pm1_nfunc);
-   fChain->SetBranchAddress("evtwgt_genie_pm1_funcname", &evtwgt_genie_pm1_funcname, &b_ubxsec_event_split_evtwgt_genie_pm1_funcname);
-   fChain->SetBranchAddress("evtwgt_genie_pm1_nweight", &evtwgt_genie_pm1_nweight, &b_ubxsec_event_split_evtwgt_genie_pm1_nweight);
-   fChain->SetBranchAddress("evtwgt_genie_pm1_weight", &evtwgt_genie_pm1_weight, &b_ubxsec_event_split_evtwgt_genie_pm1_weight);
-   fChain->SetBranchAddress("evtwgt_genie_multisim_nfunc", &evtwgt_genie_multisim_nfunc, &b_ubxsec_event_split_evtwgt_genie_multisim_nfunc);
-   fChain->SetBranchAddress("evtwgt_genie_multisim_funcname", &evtwgt_genie_multisim_funcname, &b_ubxsec_event_split_evtwgt_genie_multisim_funcname);
-   fChain->SetBranchAddress("evtwgt_genie_multisim_nweight", &evtwgt_genie_multisim_nweight, &b_ubxsec_event_split_evtwgt_genie_multisim_nweight);
-   fChain->SetBranchAddress("evtwgt_genie_multisim_weight", &evtwgt_genie_multisim_weight, &b_ubxsec_event_split_evtwgt_genie_multisim_weight);
-   fChain->SetBranchAddress("evtwgt_extra_syst_multisim_nfunc", &evtwgt_extra_syst_multisim_nfunc, &b_ubxsec_event_split_evtwgt_extra_syst_multisim_nfunc);
-   fChain->SetBranchAddress("evtwgt_extra_syst_multisim_funcname", &evtwgt_extra_syst_multisim_funcname, &b_ubxsec_event_split_evtwgt_extra_syst_multisim_funcname);
-   fChain->SetBranchAddress("evtwgt_extra_syst_multisim_nweight", &evtwgt_extra_syst_multisim_nweight, &b_ubxsec_event_split_evtwgt_extra_syst_multisim_nweight);
-   fChain->SetBranchAddress("evtwgt_extra_syst_multisim_weight", &evtwgt_extra_syst_multisim_weight, &b_ubxsec_event_split_evtwgt_extra_syst_multisim_weight);
-   fChain->SetBranchAddress("evtwgt_flux_multisim_nfunc", &evtwgt_flux_multisim_nfunc, &b_ubxsec_event_split_evtwgt_flux_multisim_nfunc);
-   fChain->SetBranchAddress("evtwgt_flux_multisim_funcname", &evtwgt_flux_multisim_funcname, &b_ubxsec_event_split_evtwgt_flux_multisim_funcname);
-   fChain->SetBranchAddress("evtwgt_flux_multisim_nweight", &evtwgt_flux_multisim_nweight, &b_ubxsec_event_split_evtwgt_flux_multisim_nweight);
-   fChain->SetBranchAddress("evtwgt_flux_multisim_weight", &evtwgt_flux_multisim_weight, &b_ubxsec_event_split_evtwgt_flux_multisim_weight);
-   fChain->SetBranchAddress("_default_value", &_default_value, &b_ubxsec_event_split__default_value);
+   fChain->SetBranchAddress("run", &run, &b_run);
+   fChain->SetBranchAddress("subrun", &subrun, &b_subrun);
+   fChain->SetBranchAddress("event", &event, &b_event);
+   fChain->SetBranchAddress("MC", &MC, &b_MC);
+   fChain->SetBranchAddress("reco_beam_type", &reco_beam_type, &b_reco_beam_type);
+   fChain->SetBranchAddress("reco_beam_startX", &reco_beam_startX, &b_reco_beam_startX);
+   fChain->SetBranchAddress("reco_beam_startY", &reco_beam_startY, &b_reco_beam_startY);
+   fChain->SetBranchAddress("reco_beam_startZ", &reco_beam_startZ, &b_reco_beam_startZ);
+   fChain->SetBranchAddress("reco_beam_endX", &reco_beam_endX, &b_reco_beam_endX);
+   fChain->SetBranchAddress("reco_beam_endY", &reco_beam_endY, &b_reco_beam_endY);
+   fChain->SetBranchAddress("reco_beam_endZ", &reco_beam_endZ, &b_reco_beam_endZ);
+   fChain->SetBranchAddress("reco_beam_len", &reco_beam_len, &b_reco_beam_len);
+   fChain->SetBranchAddress("reco_beam_trackDirX", &reco_beam_trackDirX, &b_reco_beam_trackDirX);
+   fChain->SetBranchAddress("reco_beam_trackDirY", &reco_beam_trackDirY, &b_reco_beam_trackDirY);
+   fChain->SetBranchAddress("reco_beam_trackDirZ", &reco_beam_trackDirZ, &b_reco_beam_trackDirZ);
+   fChain->SetBranchAddress("reco_beam_trackEndDirX", &reco_beam_trackEndDirX, &b_reco_beam_trackEndDirX);
+   fChain->SetBranchAddress("reco_beam_trackEndDirY", &reco_beam_trackEndDirY, &b_reco_beam_trackEndDirY);
+   fChain->SetBranchAddress("reco_beam_trackEndDirZ", &reco_beam_trackEndDirZ, &b_reco_beam_trackEndDirZ);
+   fChain->SetBranchAddress("reco_beam_vtxX", &reco_beam_vtxX, &b_reco_beam_vtxX);
+   fChain->SetBranchAddress("reco_beam_vtxY", &reco_beam_vtxY, &b_reco_beam_vtxY);
+   fChain->SetBranchAddress("reco_beam_vtxZ", &reco_beam_vtxZ, &b_reco_beam_vtxZ);
+   fChain->SetBranchAddress("reco_beam_trackID", &reco_beam_trackID, &b_reco_beam_trackID);
+   fChain->SetBranchAddress("reco_beam_dQdX", &reco_beam_dQdX, &b_reco_beam_dQdX);
+   fChain->SetBranchAddress("reco_beam_dEdX", &reco_beam_dEdX, &b_reco_beam_dEdX);
+   fChain->SetBranchAddress("reco_beam_calibrated_dEdX", &reco_beam_calibrated_dEdX, &b_reco_beam_calibrated_dEdX);
+   fChain->SetBranchAddress("reco_beam_resRange", &reco_beam_resRange, &b_reco_beam_resRange);
+   fChain->SetBranchAddress("reco_beam_TrkPitch", &reco_beam_TrkPitch, &b_reco_beam_TrkPitch);
+   fChain->SetBranchAddress("reco_beam_calo_wire", &reco_beam_calo_wire, &b_reco_beam_calo_wire);
+   fChain->SetBranchAddress("reco_beam_calo_wire_z", &reco_beam_calo_wire_z, &b_reco_beam_calo_wire_z);
+   fChain->SetBranchAddress("reco_beam_calo_tick", &reco_beam_calo_tick, &b_reco_beam_calo_tick);
+   fChain->SetBranchAddress("reco_beam_hit_true_ID", &reco_beam_hit_true_ID, &b_reco_beam_hit_true_ID);
+   fChain->SetBranchAddress("reco_beam_hit_true_slice", &reco_beam_hit_true_slice, &b_reco_beam_hit_true_slice);
+   fChain->SetBranchAddress("reco_beam_hit_true_origin", &reco_beam_hit_true_origin, &b_reco_beam_hit_true_origin);
+   fChain->SetBranchAddress("reco_beam_nTrackDaughters", &reco_beam_nTrackDaughters, &b_reco_beam_nTrackDaughters);
+   fChain->SetBranchAddress("reco_beam_nShowerDaughters", &reco_beam_nShowerDaughters, &b_reco_beam_nShowerDaughters);
+   fChain->SetBranchAddress("reco_beam_flipped", &reco_beam_flipped, &b_reco_beam_flipped);
+   fChain->SetBranchAddress("reco_beam_passes_beam_cuts", &reco_beam_passes_beam_cuts, &b_reco_beam_passes_beam_cuts);
+   fChain->SetBranchAddress("reco_beam_PFP_ID", &reco_beam_PFP_ID, &b_reco_beam_PFP_ID);
+   fChain->SetBranchAddress("reco_beam_PFP_nHits", &reco_beam_PFP_nHits, &b_reco_beam_PFP_nHits);
+   fChain->SetBranchAddress("reco_beam_PFP_trackScore", &reco_beam_PFP_trackScore, &b_reco_beam_PFP_trackScore);
+   fChain->SetBranchAddress("reco_beam_PFP_emScore", &reco_beam_PFP_emScore, &b_reco_beam_PFP_emScore);
+   fChain->SetBranchAddress("reco_beam_PFP_michelScore", &reco_beam_PFP_michelScore, &b_reco_beam_PFP_michelScore);
+   fChain->SetBranchAddress("reco_beam_PFP_trackScore_collection", &reco_beam_PFP_trackScore_collection, &b_reco_beam_PFP_trackScore_collection);
+   fChain->SetBranchAddress("reco_beam_PFP_emScore_collection", &reco_beam_PFP_emScore_collection, &b_reco_beam_PFP_emScore_collection);
+   fChain->SetBranchAddress("reco_beam_PFP_michelScore_collection", &reco_beam_PFP_michelScore_collection, &b_reco_beam_PFP_michelScore_collection);
+   fChain->SetBranchAddress("reco_beam_allTrack_ID", &reco_beam_allTrack_ID, &b_reco_beam_allTrack_ID);
+   fChain->SetBranchAddress("reco_beam_allTrack_beam_cuts", &reco_beam_allTrack_beam_cuts, &b_reco_beam_allTrack_beam_cuts);
+   fChain->SetBranchAddress("reco_beam_allTrack_flipped", &reco_beam_allTrack_flipped, &b_reco_beam_allTrack_flipped);
+   fChain->SetBranchAddress("reco_beam_allTrack_len", &reco_beam_allTrack_len, &b_reco_beam_allTrack_len);
+   fChain->SetBranchAddress("reco_beam_allTrack_startX", &reco_beam_allTrack_startX, &b_reco_beam_allTrack_startX);
+   fChain->SetBranchAddress("reco_beam_allTrack_startY", &reco_beam_allTrack_startY, &b_reco_beam_allTrack_startY);
+   fChain->SetBranchAddress("reco_beam_allTrack_startZ", &reco_beam_allTrack_startZ, &b_reco_beam_allTrack_startZ);
+   fChain->SetBranchAddress("reco_beam_allTrack_endX", &reco_beam_allTrack_endX, &b_reco_beam_allTrack_endX);
+   fChain->SetBranchAddress("reco_beam_allTrack_endY", &reco_beam_allTrack_endY, &b_reco_beam_allTrack_endY);
+   fChain->SetBranchAddress("reco_beam_allTrack_endZ", &reco_beam_allTrack_endZ, &b_reco_beam_allTrack_endZ);
+   fChain->SetBranchAddress("reco_beam_allTrack_trackDirX", &reco_beam_allTrack_trackDirX, &b_reco_beam_allTrack_trackDirX);
+   fChain->SetBranchAddress("reco_beam_allTrack_trackDirY", &reco_beam_allTrack_trackDirY, &b_reco_beam_allTrack_trackDirY);
+   fChain->SetBranchAddress("reco_beam_allTrack_trackDirZ", &reco_beam_allTrack_trackDirZ, &b_reco_beam_allTrack_trackDirZ);
+   fChain->SetBranchAddress("reco_beam_allTrack_trackEndDirX", &reco_beam_allTrack_trackEndDirX, &b_reco_beam_allTrack_trackEndDirX);
+   fChain->SetBranchAddress("reco_beam_allTrack_trackEndDirY", &reco_beam_allTrack_trackEndDirY, &b_reco_beam_allTrack_trackEndDirY);
+   fChain->SetBranchAddress("reco_beam_allTrack_trackEndDirZ", &reco_beam_allTrack_trackEndDirZ, &b_reco_beam_allTrack_trackEndDirZ);
+   fChain->SetBranchAddress("reco_beam_allTrack_resRange", &reco_beam_allTrack_resRange, &b_reco_beam_allTrack_resRange);
+   fChain->SetBranchAddress("reco_beam_allTrack_calibrated_dEdX", &reco_beam_allTrack_calibrated_dEdX, &b_reco_beam_allTrack_calibrated_dEdX);
+   fChain->SetBranchAddress("reco_beam_allTrack_Chi2_proton", &reco_beam_allTrack_Chi2_proton, &b_reco_beam_allTrack_Chi2_proton);
+   fChain->SetBranchAddress("reco_beam_allTrack_Chi2_ndof", &reco_beam_allTrack_Chi2_ndof, &b_reco_beam_allTrack_Chi2_ndof);
+   fChain->SetBranchAddress("reco_daughter_PFP_true_byHits_PDG", &reco_daughter_PFP_true_byHits_PDG, &b_reco_daughter_PFP_true_byHits_PDG);
+   fChain->SetBranchAddress("reco_daughter_PFP_true_byHits_ID", &reco_daughter_PFP_true_byHits_ID, &b_reco_daughter_PFP_true_byHits_ID);
+   fChain->SetBranchAddress("reco_daughter_PFP_true_byHits_origin", &reco_daughter_PFP_true_byHits_origin, &b_reco_daughter_PFP_true_byHits_origin);
+   fChain->SetBranchAddress("reco_daughter_PFP_true_byHits_parID", &reco_daughter_PFP_true_byHits_parID, &b_reco_daughter_PFP_true_byHits_parID);
+   fChain->SetBranchAddress("reco_daughter_PFP_true_byHits_parPDG", &reco_daughter_PFP_true_byHits_parPDG, &b_reco_daughter_PFP_true_byHits_parPDG);
+   fChain->SetBranchAddress("reco_daughter_PFP_true_byHits_process", &reco_daughter_PFP_true_byHits_process, &b_reco_daughter_PFP_true_byHits_process);
+   fChain->SetBranchAddress("reco_daughter_PFP_true_byHits_sharedHits", &reco_daughter_PFP_true_byHits_sharedHits, &b_reco_daughter_PFP_true_byHits_sharedHits);
+   fChain->SetBranchAddress("reco_daughter_PFP_true_byHits_emHits", &reco_daughter_PFP_true_byHits_emHits, &b_reco_daughter_PFP_true_byHits_emHits);
+   fChain->SetBranchAddress("reco_daughter_PFP_true_byHits_len", &reco_daughter_PFP_true_byHits_len, &b_reco_daughter_PFP_true_byHits_len);
+   fChain->SetBranchAddress("reco_daughter_PFP_true_byHits_startX", &reco_daughter_PFP_true_byHits_startX, &b_reco_daughter_PFP_true_byHits_startX);
+   fChain->SetBranchAddress("reco_daughter_PFP_true_byHits_startY", &reco_daughter_PFP_true_byHits_startY, &b_reco_daughter_PFP_true_byHits_startY);
+   fChain->SetBranchAddress("reco_daughter_PFP_true_byHits_startZ", &reco_daughter_PFP_true_byHits_startZ, &b_reco_daughter_PFP_true_byHits_startZ);
+   fChain->SetBranchAddress("reco_daughter_PFP_true_byHits_endX", &reco_daughter_PFP_true_byHits_endX, &b_reco_daughter_PFP_true_byHits_endX);
+   fChain->SetBranchAddress("reco_daughter_PFP_true_byHits_endY", &reco_daughter_PFP_true_byHits_endY, &b_reco_daughter_PFP_true_byHits_endY);
+   fChain->SetBranchAddress("reco_daughter_PFP_true_byHits_endZ", &reco_daughter_PFP_true_byHits_endZ, &b_reco_daughter_PFP_true_byHits_endZ);
+   fChain->SetBranchAddress("reco_daughter_PFP_true_byHits_startPx", &reco_daughter_PFP_true_byHits_startPx, &b_reco_daughter_PFP_true_byHits_startPx);
+   fChain->SetBranchAddress("reco_daughter_PFP_true_byHits_startPy", &reco_daughter_PFP_true_byHits_startPy, &b_reco_daughter_PFP_true_byHits_startPy);
+   fChain->SetBranchAddress("reco_daughter_PFP_true_byHits_startPz", &reco_daughter_PFP_true_byHits_startPz, &b_reco_daughter_PFP_true_byHits_startPz);
+   fChain->SetBranchAddress("reco_daughter_PFP_true_byHits_startP", &reco_daughter_PFP_true_byHits_startP, &b_reco_daughter_PFP_true_byHits_startP);
+   fChain->SetBranchAddress("reco_daughter_PFP_true_byHits_startE", &reco_daughter_PFP_true_byHits_startE, &b_reco_daughter_PFP_true_byHits_startE);
+   fChain->SetBranchAddress("reco_daughter_PFP_true_byHits_endProcess", &reco_daughter_PFP_true_byHits_endProcess, &b_reco_daughter_PFP_true_byHits_endProcess);
+   fChain->SetBranchAddress("reco_daughter_PFP_true_byHits_purity", &reco_daughter_PFP_true_byHits_purity, &b_reco_daughter_PFP_true_byHits_purity);
+   fChain->SetBranchAddress("reco_daughter_allTrack_ID", &reco_daughter_allTrack_ID, &b_reco_daughter_allTrack_ID);
+   fChain->SetBranchAddress("reco_daughter_allTrack_dEdX", &reco_daughter_allTrack_dEdX, &b_reco_daughter_allTrack_dEdX);
+   fChain->SetBranchAddress("reco_daughter_allTrack_dQdX", &reco_daughter_allTrack_dQdX, &b_reco_daughter_allTrack_dQdX);
+   fChain->SetBranchAddress("reco_daughter_allTrack_resRange", &reco_daughter_allTrack_resRange, &b_reco_daughter_allTrack_resRange);
+   fChain->SetBranchAddress("reco_daughter_allTrack_dQdX_SCE", &reco_daughter_allTrack_dQdX_SCE, &b_reco_daughter_allTrack_dQdX_SCE);
+   fChain->SetBranchAddress("reco_daughter_allTrack_dEdX_SCE", &reco_daughter_allTrack_dEdX_SCE, &b_reco_daughter_allTrack_dEdX_SCE);
+   fChain->SetBranchAddress("reco_daughter_allTrack_resRange_SCE", &reco_daughter_allTrack_resRange_SCE, &b_reco_daughter_allTrack_resRange_SCE);
+   fChain->SetBranchAddress("reco_daughter_allTrack_calibrated_dEdX", &reco_daughter_allTrack_calibrated_dEdX, &b_reco_daughter_allTrack_calibrated_dEdX);
+   fChain->SetBranchAddress("reco_daughter_allTrack_calibrated_dEdX_SCE", &reco_daughter_allTrack_calibrated_dEdX_SCE, &b_reco_daughter_allTrack_calibrated_dEdX_SCE);
+   fChain->SetBranchAddress("reco_daughter_allTrack_Chi2_proton", &reco_daughter_allTrack_Chi2_proton, &b_reco_daughter_allTrack_Chi2_proton);
+   fChain->SetBranchAddress("reco_daughter_allTrack_Chi2_ndof", &reco_daughter_allTrack_Chi2_ndof, &b_reco_daughter_allTrack_Chi2_ndof);
+   fChain->SetBranchAddress("reco_daughter_allTrack_Chi2_proton_plane0", &reco_daughter_allTrack_Chi2_proton_plane0, &b_reco_daughter_allTrack_Chi2_proton_plane0);
+   fChain->SetBranchAddress("reco_daughter_allTrack_Chi2_proton_plane1", &reco_daughter_allTrack_Chi2_proton_plane1, &b_reco_daughter_allTrack_Chi2_proton_plane1);
+   fChain->SetBranchAddress("reco_daughter_allTrack_Chi2_ndof_plane0", &reco_daughter_allTrack_Chi2_ndof_plane0, &b_reco_daughter_allTrack_Chi2_ndof_plane0);
+   fChain->SetBranchAddress("reco_daughter_allTrack_Chi2_ndof_plane1", &reco_daughter_allTrack_Chi2_ndof_plane1, &b_reco_daughter_allTrack_Chi2_ndof_plane1);
+   fChain->SetBranchAddress("reco_daughter_allTrack_calibrated_dEdX_SCE_plane0", &reco_daughter_allTrack_calibrated_dEdX_SCE_plane0, &b_reco_daughter_allTrack_calibrated_dEdX_SCE_plane0);
+   fChain->SetBranchAddress("reco_daughter_allTrack_calibrated_dEdX_SCE_plane1", &reco_daughter_allTrack_calibrated_dEdX_SCE_plane1, &b_reco_daughter_allTrack_calibrated_dEdX_SCE_plane1);
+   fChain->SetBranchAddress("reco_daughter_allTrack_resRange_plane0", &reco_daughter_allTrack_resRange_plane0, &b_reco_daughter_allTrack_resRange_plane0);
+   fChain->SetBranchAddress("reco_daughter_allTrack_resRange_plane1", &reco_daughter_allTrack_resRange_plane1, &b_reco_daughter_allTrack_resRange_plane1);
+   fChain->SetBranchAddress("reco_daughter_allTrack_Theta", &reco_daughter_allTrack_Theta, &b_reco_daughter_allTrack_Theta);
+   fChain->SetBranchAddress("reco_daughter_allTrack_Phi", &reco_daughter_allTrack_Phi, &b_reco_daughter_allTrack_Phi);
+   fChain->SetBranchAddress("reco_daughter_allTrack_len", &reco_daughter_allTrack_len, &b_reco_daughter_allTrack_len);
+   fChain->SetBranchAddress("reco_daughter_allTrack_startX", &reco_daughter_allTrack_startX, &b_reco_daughter_allTrack_startX);
+   fChain->SetBranchAddress("reco_daughter_allTrack_startY", &reco_daughter_allTrack_startY, &b_reco_daughter_allTrack_startY);
+   fChain->SetBranchAddress("reco_daughter_allTrack_startZ", &reco_daughter_allTrack_startZ, &b_reco_daughter_allTrack_startZ);
+   fChain->SetBranchAddress("reco_daughter_allTrack_endX", &reco_daughter_allTrack_endX, &b_reco_daughter_allTrack_endX);
+   fChain->SetBranchAddress("reco_daughter_allTrack_endY", &reco_daughter_allTrack_endY, &b_reco_daughter_allTrack_endY);
+   fChain->SetBranchAddress("reco_daughter_allTrack_endZ", &reco_daughter_allTrack_endZ, &b_reco_daughter_allTrack_endZ);
+   fChain->SetBranchAddress("reco_daughter_allTrack_dR", &reco_daughter_allTrack_dR, &b_reco_daughter_allTrack_dR);
+   fChain->SetBranchAddress("reco_daughter_allTrack_to_vertex", &reco_daughter_allTrack_to_vertex, &b_reco_daughter_allTrack_to_vertex);
+   fChain->SetBranchAddress("reco_daughter_allShower_ID", &reco_daughter_allShower_ID, &b_reco_daughter_allShower_ID);
+   fChain->SetBranchAddress("reco_daughter_allShower_len", &reco_daughter_allShower_len, &b_reco_daughter_allShower_len);
+   fChain->SetBranchAddress("reco_daughter_allShower_startX", &reco_daughter_allShower_startX, &b_reco_daughter_allShower_startX);
+   fChain->SetBranchAddress("reco_daughter_allShower_startY", &reco_daughter_allShower_startY, &b_reco_daughter_allShower_startY);
+   fChain->SetBranchAddress("reco_daughter_allShower_startZ", &reco_daughter_allShower_startZ, &b_reco_daughter_allShower_startZ);
+   fChain->SetBranchAddress("reco_daughter_allShower_dirX", &reco_daughter_allShower_dirX, &b_reco_daughter_allShower_dirX);
+   fChain->SetBranchAddress("reco_daughter_allShower_dirY", &reco_daughter_allShower_dirY, &b_reco_daughter_allShower_dirY);
+   fChain->SetBranchAddress("reco_daughter_allShower_dirZ", &reco_daughter_allShower_dirZ, &b_reco_daughter_allShower_dirZ);
+   fChain->SetBranchAddress("reco_daughter_allShower_energy", &reco_daughter_allShower_energy, &b_reco_daughter_allShower_energy);
+   fChain->SetBranchAddress("reco_daughter_PFP_ID", &reco_daughter_PFP_ID, &b_reco_daughter_PFP_ID);
+   fChain->SetBranchAddress("reco_daughter_PFP_nHits", &reco_daughter_PFP_nHits, &b_reco_daughter_PFP_nHits);
+   fChain->SetBranchAddress("reco_daughter_PFP_trackScore", &reco_daughter_PFP_trackScore, &b_reco_daughter_PFP_trackScore);
+   fChain->SetBranchAddress("reco_daughter_PFP_emScore", &reco_daughter_PFP_emScore, &b_reco_daughter_PFP_emScore);
+   fChain->SetBranchAddress("reco_daughter_PFP_michelScore", &reco_daughter_PFP_michelScore, &b_reco_daughter_PFP_michelScore);
+   fChain->SetBranchAddress("reco_daughter_PFP_trackScore_collection", &reco_daughter_PFP_trackScore_collection, &b_reco_daughter_PFP_trackScore_collection);
+   fChain->SetBranchAddress("reco_daughter_PFP_emScore_collection", &reco_daughter_PFP_emScore_collection, &b_reco_daughter_PFP_emScore_collection);
+   fChain->SetBranchAddress("reco_daughter_PFP_michelScore_collection", &reco_daughter_PFP_michelScore_collection, &b_reco_daughter_PFP_michelScore_collection);
+   fChain->SetBranchAddress("true_beam_PDG", &true_beam_PDG, &b_true_beam_PDG);
+   fChain->SetBranchAddress("true_beam_ID", &true_beam_ID, &b_true_beam_ID);
+   fChain->SetBranchAddress("true_beam_endProcess", &true_beam_endProcess, &b_true_beam_endProcess);
+   fChain->SetBranchAddress("true_beam_endX", &true_beam_endX, &b_true_beam_endX);
+   fChain->SetBranchAddress("true_beam_endY", &true_beam_endY, &b_true_beam_endY);
+   fChain->SetBranchAddress("true_beam_endZ", &true_beam_endZ, &b_true_beam_endZ);
+   fChain->SetBranchAddress("true_beam_startX", &true_beam_startX, &b_true_beam_startX);
+   fChain->SetBranchAddress("true_beam_startY", &true_beam_startY, &b_true_beam_startY);
+   fChain->SetBranchAddress("true_beam_startZ", &true_beam_startZ, &b_true_beam_startZ);
+   fChain->SetBranchAddress("true_beam_startPx", &true_beam_startPx, &b_true_beam_startPx);
+   fChain->SetBranchAddress("true_beam_startPy", &true_beam_startPy, &b_true_beam_startPy);
+   fChain->SetBranchAddress("true_beam_startPz", &true_beam_startPz, &b_true_beam_startPz);
+   fChain->SetBranchAddress("true_beam_startP", &true_beam_startP, &b_true_beam_startP);
+   fChain->SetBranchAddress("true_beam_endPx", &true_beam_endPx, &b_true_beam_endPx);
+   fChain->SetBranchAddress("true_beam_endPy", &true_beam_endPy, &b_true_beam_endPy);
+   fChain->SetBranchAddress("true_beam_endPz", &true_beam_endPz, &b_true_beam_endPz);
+   fChain->SetBranchAddress("true_beam_endP", &true_beam_endP, &b_true_beam_endP);
+   fChain->SetBranchAddress("true_beam_startDirX", &true_beam_startDirX, &b_true_beam_startDirX);
+   fChain->SetBranchAddress("true_beam_startDirY", &true_beam_startDirY, &b_true_beam_startDirY);
+   fChain->SetBranchAddress("true_beam_startDirZ", &true_beam_startDirZ, &b_true_beam_startDirZ);
+   fChain->SetBranchAddress("true_beam_nElasticScatters", &true_beam_nElasticScatters, &b_true_beam_nElasticScatters);
+   fChain->SetBranchAddress("true_beam_elastic_costheta", &true_beam_elastic_costheta, &b_true_beam_elastic_costheta);
+   fChain->SetBranchAddress("true_beam_elastic_X", &true_beam_elastic_X, &b_true_beam_elastic_X);
+   fChain->SetBranchAddress("true_beam_elastic_Y", &true_beam_elastic_Y, &b_true_beam_elastic_Y);
+   fChain->SetBranchAddress("true_beam_elastic_Z", &true_beam_elastic_Z, &b_true_beam_elastic_Z);
+   fChain->SetBranchAddress("true_beam_elastic_deltaE", &true_beam_elastic_deltaE, &b_true_beam_elastic_deltaE);
+   fChain->SetBranchAddress("true_beam_elastic_IDE_edep", &true_beam_elastic_IDE_edep, &b_true_beam_elastic_IDE_edep);
+   fChain->SetBranchAddress("true_beam_IDE_totalDep", &true_beam_IDE_totalDep, &b_true_beam_IDE_totalDep);
+   fChain->SetBranchAddress("true_beam_IDE_found_in_recoVtx", &true_beam_IDE_found_in_recoVtx, &b_true_beam_IDE_found_in_recoVtx);
+   fChain->SetBranchAddress("true_beam_nHits", &true_beam_nHits, &b_true_beam_nHits);
+   fChain->SetBranchAddress("true_beam_reco_byHits_PFP_ID", &true_beam_reco_byHits_PFP_ID, &b_true_beam_reco_byHits_PFP_ID);
+   fChain->SetBranchAddress("true_beam_reco_byHits_PFP_nHits", &true_beam_reco_byHits_PFP_nHits, &b_true_beam_reco_byHits_PFP_nHits);
+   fChain->SetBranchAddress("true_beam_reco_byHits_allTrack_ID", &true_beam_reco_byHits_allTrack_ID, &b_true_beam_reco_byHits_allTrack_ID);
+   fChain->SetBranchAddress("true_daughter_nPi0", &true_daughter_nPi0, &b_true_daughter_nPi0);
+   fChain->SetBranchAddress("true_daughter_nPiPlus", &true_daughter_nPiPlus, &b_true_daughter_nPiPlus);
+   fChain->SetBranchAddress("true_daughter_nProton", &true_daughter_nProton, &b_true_daughter_nProton);
+   fChain->SetBranchAddress("true_daughter_nNeutron", &true_daughter_nNeutron, &b_true_daughter_nNeutron);
+   fChain->SetBranchAddress("true_daughter_nPiMinus", &true_daughter_nPiMinus, &b_true_daughter_nPiMinus);
+   fChain->SetBranchAddress("true_daughter_nNucleus", &true_daughter_nNucleus, &b_true_daughter_nNucleus);
+   fChain->SetBranchAddress("reco_beam_vertex_slice", &reco_beam_vertex_slice, &b_reco_beam_vertex_slice);
+   fChain->SetBranchAddress("reco_beam_vertex_dRs", &reco_beam_vertex_dRs, &b_reco_beam_vertex_dRs);
+   fChain->SetBranchAddress("reco_beam_vertex_hits_slices", &reco_beam_vertex_hits_slices, &b_reco_beam_vertex_hits_slices);
+   fChain->SetBranchAddress("true_beam_daughter_PDG", &true_beam_daughter_PDG, &b_true_beam_daughter_PDG);
+   fChain->SetBranchAddress("true_beam_daughter_ID", &true_beam_daughter_ID, &b_true_beam_daughter_ID);
+   fChain->SetBranchAddress("true_beam_daughter_len", &true_beam_daughter_len, &b_true_beam_daughter_len);
+   fChain->SetBranchAddress("true_beam_daughter_startX", &true_beam_daughter_startX, &b_true_beam_daughter_startX);
+   fChain->SetBranchAddress("true_beam_daughter_startY", &true_beam_daughter_startY, &b_true_beam_daughter_startY);
+   fChain->SetBranchAddress("true_beam_daughter_startZ", &true_beam_daughter_startZ, &b_true_beam_daughter_startZ);
+   fChain->SetBranchAddress("true_beam_daughter_startPx", &true_beam_daughter_startPx, &b_true_beam_daughter_startPx);
+   fChain->SetBranchAddress("true_beam_daughter_startPy", &true_beam_daughter_startPy, &b_true_beam_daughter_startPy);
+   fChain->SetBranchAddress("true_beam_daughter_startPz", &true_beam_daughter_startPz, &b_true_beam_daughter_startPz);
+   fChain->SetBranchAddress("true_beam_daughter_startP", &true_beam_daughter_startP, &b_true_beam_daughter_startP);
+   fChain->SetBranchAddress("true_beam_daughter_endX", &true_beam_daughter_endX, &b_true_beam_daughter_endX);
+   fChain->SetBranchAddress("true_beam_daughter_endY", &true_beam_daughter_endY, &b_true_beam_daughter_endY);
+   fChain->SetBranchAddress("true_beam_daughter_endZ", &true_beam_daughter_endZ, &b_true_beam_daughter_endZ);
+   fChain->SetBranchAddress("true_beam_daughter_Process", &true_beam_daughter_Process, &b_true_beam_daughter_Process);
+   fChain->SetBranchAddress("true_beam_daughter_endProcess", &true_beam_daughter_endProcess, &b_true_beam_daughter_endProcess);
+   fChain->SetBranchAddress("true_beam_daughter_nHits", &true_beam_daughter_nHits, &b_true_beam_daughter_nHits);
+   fChain->SetBranchAddress("true_beam_daughter_reco_byHits_PFP_ID", &true_beam_daughter_reco_byHits_PFP_ID, &b_true_beam_daughter_reco_byHits_PFP_ID);
+   fChain->SetBranchAddress("true_beam_daughter_reco_byHits_PFP_nHits", &true_beam_daughter_reco_byHits_PFP_nHits, &b_true_beam_daughter_reco_byHits_PFP_nHits);
+   fChain->SetBranchAddress("true_beam_daughter_reco_byHits_PFP_trackScore", &true_beam_daughter_reco_byHits_PFP_trackScore, &b_true_beam_daughter_reco_byHits_PFP_trackScore);
+   fChain->SetBranchAddress("true_beam_daughter_reco_byHits_allTrack_ID", &true_beam_daughter_reco_byHits_allTrack_ID, &b_true_beam_daughter_reco_byHits_allTrack_ID);
+   fChain->SetBranchAddress("true_beam_daughter_reco_byHits_allTrack_startX", &true_beam_daughter_reco_byHits_allTrack_startX, &b_true_beam_daughter_reco_byHits_allTrack_startX);
+   fChain->SetBranchAddress("true_beam_daughter_reco_byHits_allTrack_startY", &true_beam_daughter_reco_byHits_allTrack_startY, &b_true_beam_daughter_reco_byHits_allTrack_startY);
+   fChain->SetBranchAddress("true_beam_daughter_reco_byHits_allTrack_startZ", &true_beam_daughter_reco_byHits_allTrack_startZ, &b_true_beam_daughter_reco_byHits_allTrack_startZ);
+   fChain->SetBranchAddress("true_beam_daughter_reco_byHits_allTrack_endX", &true_beam_daughter_reco_byHits_allTrack_endX, &b_true_beam_daughter_reco_byHits_allTrack_endX);
+   fChain->SetBranchAddress("true_beam_daughter_reco_byHits_allTrack_endY", &true_beam_daughter_reco_byHits_allTrack_endY, &b_true_beam_daughter_reco_byHits_allTrack_endY);
+   fChain->SetBranchAddress("true_beam_daughter_reco_byHits_allTrack_endZ", &true_beam_daughter_reco_byHits_allTrack_endZ, &b_true_beam_daughter_reco_byHits_allTrack_endZ);
+   fChain->SetBranchAddress("true_beam_daughter_reco_byHits_allTrack_len", &true_beam_daughter_reco_byHits_allTrack_len, &b_true_beam_daughter_reco_byHits_allTrack_len);
+   fChain->SetBranchAddress("true_beam_daughter_reco_byHits_allShower_ID", &true_beam_daughter_reco_byHits_allShower_ID, &b_true_beam_daughter_reco_byHits_allShower_ID);
+   fChain->SetBranchAddress("true_beam_daughter_reco_byHits_allShower_startX", &true_beam_daughter_reco_byHits_allShower_startX, &b_true_beam_daughter_reco_byHits_allShower_startX);
+   fChain->SetBranchAddress("true_beam_daughter_reco_byHits_allShower_startY", &true_beam_daughter_reco_byHits_allShower_startY, &b_true_beam_daughter_reco_byHits_allShower_startY);
+   fChain->SetBranchAddress("true_beam_daughter_reco_byHits_allShower_startZ", &true_beam_daughter_reco_byHits_allShower_startZ, &b_true_beam_daughter_reco_byHits_allShower_startZ);
+   fChain->SetBranchAddress("true_beam_daughter_reco_byHits_allShower_len", &true_beam_daughter_reco_byHits_allShower_len, &b_true_beam_daughter_reco_byHits_allShower_len);
+   fChain->SetBranchAddress("true_beam_Pi0_decay_ID", &true_beam_Pi0_decay_ID, &b_true_beam_Pi0_decay_ID);
+   fChain->SetBranchAddress("true_beam_Pi0_decay_parID", &true_beam_Pi0_decay_parID, &b_true_beam_Pi0_decay_parID);
+   fChain->SetBranchAddress("true_beam_Pi0_decay_PDG", &true_beam_Pi0_decay_PDG, &b_true_beam_Pi0_decay_PDG);
+   fChain->SetBranchAddress("true_beam_Pi0_decay_startP", &true_beam_Pi0_decay_startP, &b_true_beam_Pi0_decay_startP);
+   fChain->SetBranchAddress("true_beam_Pi0_decay_len", &true_beam_Pi0_decay_len, &b_true_beam_Pi0_decay_len);
+   fChain->SetBranchAddress("true_beam_Pi0_decay_nHits", &true_beam_Pi0_decay_nHits, &b_true_beam_Pi0_decay_nHits);
+   fChain->SetBranchAddress("true_beam_Pi0_decay_reco_byHits_PFP_ID", &true_beam_Pi0_decay_reco_byHits_PFP_ID, &b_true_beam_Pi0_decay_reco_byHits_PFP_ID);
+   fChain->SetBranchAddress("true_beam_Pi0_decay_reco_byHits_PFP_nHits", &true_beam_Pi0_decay_reco_byHits_PFP_nHits, &b_true_beam_Pi0_decay_reco_byHits_PFP_nHits);
+   fChain->SetBranchAddress("true_beam_Pi0_decay_reco_byHits_PFP_trackScore", &true_beam_Pi0_decay_reco_byHits_PFP_trackScore, &b_true_beam_Pi0_decay_reco_byHits_PFP_trackScore);
+   fChain->SetBranchAddress("true_beam_Pi0_decay_reco_byHits_allTrack_ID", &true_beam_Pi0_decay_reco_byHits_allTrack_ID, &b_true_beam_Pi0_decay_reco_byHits_allTrack_ID);
+   fChain->SetBranchAddress("true_beam_Pi0_decay_reco_byHits_allTrack_startX", &true_beam_Pi0_decay_reco_byHits_allTrack_startX, &b_true_beam_Pi0_decay_reco_byHits_allTrack_startX);
+   fChain->SetBranchAddress("true_beam_Pi0_decay_reco_byHits_allTrack_startY", &true_beam_Pi0_decay_reco_byHits_allTrack_startY, &b_true_beam_Pi0_decay_reco_byHits_allTrack_startY);
+   fChain->SetBranchAddress("true_beam_Pi0_decay_reco_byHits_allTrack_startZ", &true_beam_Pi0_decay_reco_byHits_allTrack_startZ, &b_true_beam_Pi0_decay_reco_byHits_allTrack_startZ);
+   fChain->SetBranchAddress("true_beam_Pi0_decay_reco_byHits_allTrack_endX", &true_beam_Pi0_decay_reco_byHits_allTrack_endX, &b_true_beam_Pi0_decay_reco_byHits_allTrack_endX);
+   fChain->SetBranchAddress("true_beam_Pi0_decay_reco_byHits_allTrack_endY", &true_beam_Pi0_decay_reco_byHits_allTrack_endY, &b_true_beam_Pi0_decay_reco_byHits_allTrack_endY);
+   fChain->SetBranchAddress("true_beam_Pi0_decay_reco_byHits_allTrack_endZ", &true_beam_Pi0_decay_reco_byHits_allTrack_endZ, &b_true_beam_Pi0_decay_reco_byHits_allTrack_endZ);
+   fChain->SetBranchAddress("true_beam_Pi0_decay_reco_byHits_allTrack_len", &true_beam_Pi0_decay_reco_byHits_allTrack_len, &b_true_beam_Pi0_decay_reco_byHits_allTrack_len);
+   fChain->SetBranchAddress("true_beam_Pi0_decay_reco_byHits_allShower_ID", &true_beam_Pi0_decay_reco_byHits_allShower_ID, &b_true_beam_Pi0_decay_reco_byHits_allShower_ID);
+   fChain->SetBranchAddress("true_beam_Pi0_decay_reco_byHits_allShower_startX", &true_beam_Pi0_decay_reco_byHits_allShower_startX, &b_true_beam_Pi0_decay_reco_byHits_allShower_startX);
+   fChain->SetBranchAddress("true_beam_Pi0_decay_reco_byHits_allShower_startY", &true_beam_Pi0_decay_reco_byHits_allShower_startY, &b_true_beam_Pi0_decay_reco_byHits_allShower_startY);
+   fChain->SetBranchAddress("true_beam_Pi0_decay_reco_byHits_allShower_startZ", &true_beam_Pi0_decay_reco_byHits_allShower_startZ, &b_true_beam_Pi0_decay_reco_byHits_allShower_startZ);
+   fChain->SetBranchAddress("true_beam_Pi0_decay_reco_byHits_allShower_len", &true_beam_Pi0_decay_reco_byHits_allShower_len, &b_true_beam_Pi0_decay_reco_byHits_allShower_len);
+   fChain->SetBranchAddress("true_beam_grand_daughter_ID", &true_beam_grand_daughter_ID, &b_true_beam_grand_daughter_ID);
+   fChain->SetBranchAddress("true_beam_grand_daughter_parID", &true_beam_grand_daughter_parID, &b_true_beam_grand_daughter_parID);
+   fChain->SetBranchAddress("true_beam_grand_daughter_PDG", &true_beam_grand_daughter_PDG, &b_true_beam_grand_daughter_PDG);
+   fChain->SetBranchAddress("true_beam_grand_daughter_nHits", &true_beam_grand_daughter_nHits, &b_true_beam_grand_daughter_nHits);
+   fChain->SetBranchAddress("true_beam_grand_daughter_Process", &true_beam_grand_daughter_Process, &b_true_beam_grand_daughter_Process);
+   fChain->SetBranchAddress("true_beam_grand_daughter_endProcess", &true_beam_grand_daughter_endProcess, &b_true_beam_grand_daughter_endProcess);
+   fChain->SetBranchAddress("reco_beam_true_byE_endProcess", &reco_beam_true_byE_endProcess, &b_reco_beam_true_byE_endProcess);
+   fChain->SetBranchAddress("reco_beam_true_byE_process", &reco_beam_true_byE_process, &b_reco_beam_true_byE_process);
+   fChain->SetBranchAddress("reco_beam_true_byE_origin", &reco_beam_true_byE_origin, &b_reco_beam_true_byE_origin);
+   fChain->SetBranchAddress("reco_beam_true_byE_PDG", &reco_beam_true_byE_PDG, &b_reco_beam_true_byE_PDG);
+   fChain->SetBranchAddress("reco_beam_true_byE_ID", &reco_beam_true_byE_ID, &b_reco_beam_true_byE_ID);
+   fChain->SetBranchAddress("reco_beam_true_byHits_endProcess", &reco_beam_true_byHits_endProcess, &b_reco_beam_true_byHits_endProcess);
+   fChain->SetBranchAddress("reco_beam_true_byHits_process", &reco_beam_true_byHits_process, &b_reco_beam_true_byHits_process);
+   fChain->SetBranchAddress("reco_beam_true_byHits_origin", &reco_beam_true_byHits_origin, &b_reco_beam_true_byHits_origin);
+   fChain->SetBranchAddress("reco_beam_true_byHits_PDG", &reco_beam_true_byHits_PDG, &b_reco_beam_true_byHits_PDG);
+   fChain->SetBranchAddress("reco_beam_true_byHits_ID", &reco_beam_true_byHits_ID, &b_reco_beam_true_byHits_ID);
+   fChain->SetBranchAddress("reco_beam_true_byE_matched", &reco_beam_true_byE_matched, &b_reco_beam_true_byE_matched);
+   fChain->SetBranchAddress("reco_beam_true_byHits_matched", &reco_beam_true_byHits_matched, &b_reco_beam_true_byHits_matched);
+   fChain->SetBranchAddress("reco_beam_true_byHits_purity", &reco_beam_true_byHits_purity, &b_reco_beam_true_byHits_purity);
+   fChain->SetBranchAddress("true_beam_processes", &true_beam_processes, &b_true_beam_processes);
+   fChain->SetBranchAddress("true_beam_process_slice", &true_beam_process_slice, &b_true_beam_process_slice);
+   fChain->SetBranchAddress("true_beam_process_dSlice", &true_beam_process_dSlice, &b_true_beam_process_dSlice);
+   fChain->SetBranchAddress("true_beam_process_matched", &true_beam_process_matched, &b_true_beam_process_matched);
+   fChain->SetBranchAddress("data_BI_P", &data_BI_P, &b_data_BI_P);
+   fChain->SetBranchAddress("data_BI_X", &data_BI_X, &b_data_BI_X);
+   fChain->SetBranchAddress("data_BI_Y", &data_BI_Y, &b_data_BI_Y);
+   fChain->SetBranchAddress("data_BI_Z", &data_BI_Z, &b_data_BI_Z);
+   fChain->SetBranchAddress("data_BI_dirX", &data_BI_dirX, &b_data_BI_dirX);
+   fChain->SetBranchAddress("data_BI_dirY", &data_BI_dirY, &b_data_BI_dirY);
+   fChain->SetBranchAddress("data_BI_dirZ", &data_BI_dirZ, &b_data_BI_dirZ);
+   fChain->SetBranchAddress("data_BI_nFibersP1", &data_BI_nFibersP1, &b_data_BI_nFibersP1);
+   fChain->SetBranchAddress("data_BI_nFibersP2", &data_BI_nFibersP2, &b_data_BI_nFibersP2);
+   fChain->SetBranchAddress("data_BI_nFibersP3", &data_BI_nFibersP3, &b_data_BI_nFibersP3);
+   fChain->SetBranchAddress("data_BI_PDG_candidates", &data_BI_PDG_candidates, &b_data_BI_PDG_candidates);
+   fChain->SetBranchAddress("data_BI_nTracks", &data_BI_nTracks, &b_data_BI_nTracks);
+   fChain->SetBranchAddress("data_BI_nMomenta", &data_BI_nMomenta, &b_data_BI_nMomenta);
+   fChain->SetBranchAddress("quality_reco_view_0_hits_in_TPC5", &quality_reco_view_0_hits_in_TPC5, &b_quality_reco_view_0_hits_in_TPC5);
+   fChain->SetBranchAddress("quality_reco_view_1_hits_in_TPC5", &quality_reco_view_1_hits_in_TPC5, &b_quality_reco_view_1_hits_in_TPC5);
+   fChain->SetBranchAddress("quality_reco_view_2_hits_in_TPC5", &quality_reco_view_2_hits_in_TPC5, &b_quality_reco_view_2_hits_in_TPC5);
+   fChain->SetBranchAddress("quality_reco_max_lateral", &quality_reco_max_lateral, &b_quality_reco_max_lateral);
+   fChain->SetBranchAddress("quality_reco_max_segment", &quality_reco_max_segment, &b_quality_reco_max_segment);
+   fChain->SetBranchAddress("quality_reco_view_0_max_segment", &quality_reco_view_0_max_segment, &b_quality_reco_view_0_max_segment);
+   fChain->SetBranchAddress("quality_reco_view_1_max_segment", &quality_reco_view_1_max_segment, &b_quality_reco_view_1_max_segment);
+   fChain->SetBranchAddress("quality_reco_view_2_max_segment", &quality_reco_view_2_max_segment, &b_quality_reco_view_2_max_segment);
+   fChain->SetBranchAddress("quality_reco_view_0_wire_backtrack", &quality_reco_view_0_wire_backtrack, &b_quality_reco_view_0_wire_backtrack);
+   fChain->SetBranchAddress("quality_reco_view_1_wire_backtrack", &quality_reco_view_1_wire_backtrack, &b_quality_reco_view_1_wire_backtrack);
+   fChain->SetBranchAddress("quality_reco_view_2_wire_backtrack", &quality_reco_view_2_wire_backtrack, &b_quality_reco_view_2_wire_backtrack);
+   fChain->SetBranchAddress("quality_reco_view_0_wire", &quality_reco_view_0_wire, &b_quality_reco_view_0_wire);
+   fChain->SetBranchAddress("quality_reco_view_1_wire", &quality_reco_view_1_wire, &b_quality_reco_view_1_wire);
+   fChain->SetBranchAddress("quality_reco_view_2_wire", &quality_reco_view_2_wire, &b_quality_reco_view_2_wire);
+   fChain->SetBranchAddress("quality_reco_view_2_z", &quality_reco_view_2_z, &b_quality_reco_view_2_z);
+   fChain->SetBranchAddress("quality_reco_view_0_tick", &quality_reco_view_0_tick, &b_quality_reco_view_0_tick);
+   fChain->SetBranchAddress("quality_reco_view_1_tick", &quality_reco_view_1_tick, &b_quality_reco_view_1_tick);
+   fChain->SetBranchAddress("quality_reco_view_2_tick", &quality_reco_view_2_tick, &b_quality_reco_view_2_tick);
+   fChain->SetBranchAddress("reco_beam_Chi2_proton", &reco_beam_Chi2_proton, &b_reco_beam_Chi2_proton);
+   fChain->SetBranchAddress("reco_beam_Chi2_ndof", &reco_beam_Chi2_ndof, &b_reco_beam_Chi2_ndof);
+   fChain->SetBranchAddress("reco_beam_cosmic_candidate_lower_hits", &reco_beam_cosmic_candidate_lower_hits, &b_reco_beam_cosmic_candidate_lower_hits);
+   fChain->SetBranchAddress("reco_beam_cosmic_candidate_upper_hits", &reco_beam_cosmic_candidate_upper_hits, &b_reco_beam_cosmic_candidate_upper_hits);
+   fChain->SetBranchAddress("reco_beam_cosmic_candidate_ID", &reco_beam_cosmic_candidate_ID, &b_reco_beam_cosmic_candidate_ID);
+   fChain->SetBranchAddress("beam_has_cosmic_IDE", &beam_has_cosmic_IDE, &b_beam_has_cosmic_IDE);
+   fChain->SetBranchAddress("cosmic_has_beam_IDE", &cosmic_has_beam_IDE, &b_cosmic_has_beam_IDE);
+   fChain->SetBranchAddress("n_cosmics_with_beam_IDE", &n_cosmics_with_beam_IDE, &b_n_cosmics_with_beam_IDE);
+   fChain->SetBranchAddress("reco_daughter_allTrack_momByRange_proton", &reco_daughter_allTrack_momByRange_proton, &b_reco_daughter_allTrack_momByRange_proton);
+   fChain->SetBranchAddress("reco_daughter_allTrack_momByRange_muon", &reco_daughter_allTrack_momByRange_muon, &b_reco_daughter_allTrack_momByRange_muon);
+   fChain->SetBranchAddress("reco_beam_momByRange_proton", &reco_beam_momByRange_proton, &b_reco_beam_momByRange_proton);
+   fChain->SetBranchAddress("reco_beam_momByRange_muon", &reco_beam_momByRange_muon, &b_reco_beam_momByRange_muon);
+   fChain->SetBranchAddress("reco_beam_true_byE_endPx", &reco_beam_true_byE_endPx, &b_reco_beam_true_byE_endPx);
+   fChain->SetBranchAddress("reco_beam_true_byE_endPy", &reco_beam_true_byE_endPy, &b_reco_beam_true_byE_endPy);
+   fChain->SetBranchAddress("reco_beam_true_byE_endPz", &reco_beam_true_byE_endPz, &b_reco_beam_true_byE_endPz);
+   fChain->SetBranchAddress("reco_beam_true_byE_endE", &reco_beam_true_byE_endE, &b_reco_beam_true_byE_endE);
+   fChain->SetBranchAddress("reco_beam_true_byE_endP", &reco_beam_true_byE_endP, &b_reco_beam_true_byE_endP);
+   fChain->SetBranchAddress("reco_beam_true_byE_startPx", &reco_beam_true_byE_startPx, &b_reco_beam_true_byE_startPx);
+   fChain->SetBranchAddress("reco_beam_true_byE_startPy", &reco_beam_true_byE_startPy, &b_reco_beam_true_byE_startPy);
+   fChain->SetBranchAddress("reco_beam_true_byE_startPz", &reco_beam_true_byE_startPz, &b_reco_beam_true_byE_startPz);
+   fChain->SetBranchAddress("reco_beam_true_byE_startE", &reco_beam_true_byE_startE, &b_reco_beam_true_byE_startE);
+   fChain->SetBranchAddress("reco_beam_true_byE_startP", &reco_beam_true_byE_startP, &b_reco_beam_true_byE_startP);
+   fChain->SetBranchAddress("reco_beam_true_byHits_endPx", &reco_beam_true_byHits_endPx, &b_reco_beam_true_byHits_endPx);
+   fChain->SetBranchAddress("reco_beam_true_byHits_endPy", &reco_beam_true_byHits_endPy, &b_reco_beam_true_byHits_endPy);
+   fChain->SetBranchAddress("reco_beam_true_byHits_endPz", &reco_beam_true_byHits_endPz, &b_reco_beam_true_byHits_endPz);
+   fChain->SetBranchAddress("reco_beam_true_byHits_endE", &reco_beam_true_byHits_endE, &b_reco_beam_true_byHits_endE);
+   fChain->SetBranchAddress("reco_beam_true_byHits_endP", &reco_beam_true_byHits_endP, &b_reco_beam_true_byHits_endP);
+   fChain->SetBranchAddress("reco_beam_true_byHits_startPx", &reco_beam_true_byHits_startPx, &b_reco_beam_true_byHits_startPx);
+   fChain->SetBranchAddress("reco_beam_true_byHits_startPy", &reco_beam_true_byHits_startPy, &b_reco_beam_true_byHits_startPy);
+   fChain->SetBranchAddress("reco_beam_true_byHits_startPz", &reco_beam_true_byHits_startPz, &b_reco_beam_true_byHits_startPz);
+   fChain->SetBranchAddress("reco_beam_true_byHits_startE", &reco_beam_true_byHits_startE, &b_reco_beam_true_byHits_startE);
+   fChain->SetBranchAddress("reco_beam_true_byHits_startP", &reco_beam_true_byHits_startP, &b_reco_beam_true_byHits_startP);
+   fChain->SetBranchAddress("reco_beam_incidentEnergies", &reco_beam_incidentEnergies, &b_reco_beam_incidentEnergies);
+   fChain->SetBranchAddress("reco_beam_interactingEnergy", &reco_beam_interactingEnergy, &b_reco_beam_interactingEnergy);
+   fChain->SetBranchAddress("true_beam_incidentEnergies", &true_beam_incidentEnergies, &b_true_beam_incidentEnergies);
+   fChain->SetBranchAddress("true_beam_interactingEnergy", &true_beam_interactingEnergy, &b_true_beam_interactingEnergy);
+   fChain->SetBranchAddress("true_beam_slices", &true_beam_slices, &b_true_beam_slices);
+   fChain->SetBranchAddress("true_beam_slices_found", &true_beam_slices_found, &b_true_beam_slices_found);
+   fChain->SetBranchAddress("true_beam_slices_nIDEs", &true_beam_slices_nIDEs, &b_true_beam_slices_nIDEs);
+   fChain->SetBranchAddress("true_beam_slices_deltaE", &true_beam_slices_deltaE, &b_true_beam_slices_deltaE);
+   fChain->SetBranchAddress("new_true_beam_incidentEnergies", &new_true_beam_incidentEnergies, &b_new_true_beam_incidentEnergies);
+   fChain->SetBranchAddress("new_true_beam_interactingEnergy", &new_true_beam_interactingEnergy, &b_new_true_beam_interactingEnergy);
+   fChain->SetBranchAddress("g4rw_primary_weights", &g4rw_primary_weights, &b_g4rw_primary_weights);
+   fChain->SetBranchAddress("g4rw_primary_plus_sigma_weight", &g4rw_primary_plus_sigma_weight, &b_g4rw_primary_plus_sigma_weight);
+   fChain->SetBranchAddress("g4rw_primary_minus_sigma_weight", &g4rw_primary_minus_sigma_weight, &b_g4rw_primary_minus_sigma_weight);
+   fChain->SetBranchAddress("g4rw_primary_var", &g4rw_primary_var, &b_g4rw_primary_var);
    Notify();
 }
 

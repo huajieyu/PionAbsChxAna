@@ -26,7 +26,7 @@
 #include <fstream>
 #include <math.h>
 #include <algorithm>
-
+#include <numeric>
 #include <TRandom1.h>
 #include <TSystem.h>
 #include <TBrowser.h>
@@ -47,18 +47,18 @@
 #include <TCanvas.h>
 #include "TMath.h"
 #include "TH2Poly.h"
-
-#include "ubana/DataTypes/UBTH2Poly.h"
-#include "ubana/DataTypes/BootstrapTH2DPoly.h"
-#include "ubana/DataTypes/UBXSecEventHisto.h"
-#include "ubana/DataTypes/UBXSecEventHisto1D.h"
+#include "TVector3.h"
+#include "../DataTypes/UBTH2Poly.h"
+#include "../DataTypes/BootstrapTH2DPoly.h"
+#include "../DataTypes/UBXSecEventHisto.h"
+#include "../DataTypes/UBXSecEventHisto1D.h"
 
 #include "UBXSecEvent.h"
-#include "ubana/DataTypes/BootstrapTH1D.h"
-#include "ubana/DataTypes/BootstrapTH2D.h"
-#include "ubana/Base/PlottingTools.h"
+#include "../DataTypes/BootstrapTH1D.h"
+#include "../DataTypes/BootstrapTH2D.h"
+#include "../Base/PlottingTools.h"
 
-#include "ubana/Base/LoggerFeature.h"
+#include "../Base/LoggerFeature.h"
 
 using namespace DataTypes;
 using namespace Base;
@@ -84,8 +84,17 @@ namespace Main{
     /// Produces an output file with the relevant histograms
     void MakeFile();
 
+    void SetMomThreshCut(double);
+    void SetTrkScoreCut(double);
+    void SetFVCut(bool); 
+ 
+
+
     /// Sets the name of the UBXSec input file (the file needs to contain a UBXSec/tree TTree)
     void SetInputFile(std::string);
+
+
+    void SetInputFile_add(std::string);
 
     /// Sets the name of the ouput file
     void SetOutputFile(std::string);
@@ -114,6 +123,11 @@ namespace Main{
     /// Sets if the file is a data one or not
     void SetIsData(bool);
 
+    void SetSignalTypeAbs(bool);
+
+    void SetSignalTypeChx(bool);
+ 
+
     /// If true, MEC events are turned off, and MA is scaled up
     void SetMaUpMECOff(bool option) {_maup_mecoff = option;}
 
@@ -134,6 +148,8 @@ namespace Main{
 
     /// If True is passed, filles all the universes histogram for GENIE
     void FillBootstrapGenie(bool option) {_fill_bootstrap_genie = option;}
+
+    void FillBootstrapGeant(bool option) {_fill_bootstrap_geant = option;}
 
     /// If True is passed, filles all the universes histogram for Extra Syst
     void FillBootstrapExtraSyst(bool option) {_fill_bootstrap_extra_syst = option;}
@@ -251,6 +267,7 @@ namespace Main{
     //const bool _fill_bootstrap = true;
     bool _fill_bootstrap_flux = false;
     bool _fill_bootstrap_genie = false;
+    bool _fill_bootstrap_geant = false;
     bool _fill_bootstrap_extra_syst = false;
 
     std::string _target_flux_syst = "";
@@ -264,11 +281,16 @@ namespace Main{
     double _gainCalib       = 198;  // e-/ADC
 
     std::string filen     = "ubxsec_output.root";
+    std::string filen_add = "";
     std::string fileoutn  = "ubxsecana_output.root";
     bool evalPOT          = false;
     int maxEntries        = -1;
     int _initial_entry    = 0; ///< Entry in Tree to begin with
     bool isdata           = false;
+
+    bool sel_abs          = false;
+ 
+    bool sel_chx          = false;
 
     double _extra_weight = 1.; ///Extra weight to be applied to the events
 
@@ -312,6 +334,123 @@ namespace Main{
     int _mc_stat_n_events = 100; ///< Number of universes uses for poisson weights (mc stat)
 
     TRandom _random_engine; ///< The engine to generate random numbers
+    //=========================================================================
+    bool inFV(double x, double y, double z);
+    double thetax(double theta, double phi);
+    bool FVcuton = false; 
+
+    double Calc_reco_beam_energy(TVector3 momentum, double mass);
+    TVector3 Calc_reco_beam_momentum(vector<double>*dedx, TVector3 *dir3);
+
+    //std::string filen = "";
+    //std::string filen_add = "";
+    //std::string fileoutn = "";
+    //int _initial_entry = 0;
+    //int maxEntries = -1;
+    double momthreshcut = 0.0;
+    double trkscorecut=0.0;
+    double cut_dEdX_high = 2.6;
+    double cut_dEdX_low = 0.0;
+    double libo_low = 0.16;
+    double libo_high = 0.16;
+    //PDEventHisto1D *_event_histo_1d;
+
+    bool isProton = false;
+    double Ecalcmiss(double Esum, double PTmiss, int np); 
+    const double NeutronMass = 0.93956542; 
+    const double ProtonMass = 0.938272;
+    const double PionMass = 0.13957; 
+
+    double cutAPA3_Z = 226.;
+    double cut_trackScore = 0.3;
+    //daughter Distance cut
+    double cut_daughter_track_distance = 10.;
+    double cut_daughter_shower_distance_low = 2.;
+    double cut_daughter_shower_distance_high = 100.;
+    double cut_primary_chi2 = 140.;
+    double cut_secondary_chi2 = 50.;
+    int cut_nHits_shower_low = 40;
+    int cut_nHits_shower_high = 1000;
+    //
+    //For MC from Owen Goodwins studies
+    double xlow = -3.,  xhigh = 7.,  ylow = -8.,  yhigh = 7.;
+    double zlow = 27.5,  zhigh = 32.5,  coslow = 0.93;
+    //
+    //For Data from Owen Goodwin
+    double data_xlow = 0., data_xhigh = 10., data_ylow= -5.;
+    double data_yhigh= 10., data_zlow=30., data_zhigh=35., data_coslow=.93;
+
+    bool isBeamType(int i);
+    bool data_beam_PID(const std::vector<int> *pidCandidates);
+
+    bool manual_beamPos_mc(double beam_startX, double beam_startY,
+                            double beam_startZ, double beam_dirX,
+                            double beam_dirY,   double beam_dirZ, 
+                            double true_dirX,   double true_dirY,
+                            double true_dirZ,   double true_startX,
+                            double true_startY, double true_startZ);
+    
+    bool manual_beamPos_data (int event,            double data_startX,
+                              double data_startY,   double data_startZ,
+                              double data_dirX,     double data_dirY,
+                              double data_dirZ,     double data_BI_X,
+                              double data_BI_Y,     double data_BI_dirX,
+                              double data_BI_dirY,  double data_BI_dirZ,
+                              int data_BI_nMomenta, int data_BI_nTracks); 
+    bool endAPA3(double reco_beam_endZ); 
+    //
+    //Tag PrimaryPion without elastic Scattering
+    bool has_pi0shower(const std::vector<double> &track_score);
+    const std::vector<double> truncatedMean(double truncate_low, double truncate_high, std::vector<std::vector<double>> &vecs_dEdX); 
+    const std::vector<double> truncatedMean_libo(double truncate_low, double truncate_high, std::vector<std::vector<double>> &vecs_dEdX); 
+    const std::vector<double> truncatedMean_xglu(double truncate_low, double truncate_high, std::vector<std::vector<double>> &vecs_dEdX); 
+    double GetTruncatedMean(const vector<double> tmparr, const unsigned int nsample0, const unsigned int nsample1, const double lowerFrac, const double upperFrac);
+    bool has_shower_nHits_distance(const std::vector<double> &track_score,
+                                    const std::vector<int> &nHits,
+                                    const std::vector<double> &distance); 
+
+    bool has_shower_nHits(const std::vector<double> &track_score,
+                                  const std::vector<int> &nHits);
+
+    bool secondary_noPion( const std::vector<double> &track_score, 
+                           const std::vector<int> &trackID,
+                           const std::vector<double> &dEdX);
+
+    bool secondary_noPion_libo( const std::vector<double> &track_score, 
+                           const std::vector<int> &trackID,
+                           const std::vector<double> &dEdX);
+
+
+
+
+
+ 
+    const std::vector<double> compute_distanceVertex( double beam_endX,
+                                 double beam_endY,
+                                 double beam_endZ, 
+                                 const std::vector<double> &d_startX,
+                                 const std::vector<double> &d_startY,
+                                 const std::vector<double> &d_startZ,
+                                 const std::vector<double> &d_endX,
+                                 const std::vector<double> &d_endY,
+                                 const std::vector<double> &d_endZ);
+
+
+    const std::vector<double> compute_angleVertex   ( double beam_endX,
+                                 double beam_endY,
+                                 double beam_endZ,
+                                 const std::vector<double> &d_startX,
+                                 const std::vector<double> &d_startY,
+                                 const std::vector<double> &d_startZ,
+                                 const std::vector<double> &d_endX,
+                                 const std::vector<double> &d_endY,
+                                 const std::vector<double> &d_endZ,
+                                 const std::vector<double> &d_startTheta,
+                                 const std::vector<double> &d_startPhi,
+                                 const std::vector<double> &d_endTheta,
+                                 const std::vector<double> &d_endPhi);
+
+    //=========================================================================
     
   };
 }

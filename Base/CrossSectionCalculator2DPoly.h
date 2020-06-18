@@ -55,7 +55,7 @@
 #include "Math/DistFunc.h" // for quantile
 
 #include "Types.h"
-#include "ubana/DataTypes/UBTH2Poly.h"
+#include "../DataTypes/UBTH2Poly.h"
 #include "PlottingTools.h"
 #include "LoggerFeature.h"
 

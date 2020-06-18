@@ -52,8 +52,8 @@
 #include "TGraphAsymmErrors.h"
 
 
-#include "ubana/DataTypes/BootstrapTH1D.h"
-#include "ubana/DataTypes/BootstrapTH2D.h"
+#include "../DataTypes/BootstrapTH1D.h"
+#include "../DataTypes/BootstrapTH2D.h"
 #include "CrossSectionCalculator1D.h"
 #include "MigrationMatrix2D.h"
 #include "CovarianceCalculator2D.h"

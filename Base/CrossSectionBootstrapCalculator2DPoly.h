@@ -55,8 +55,8 @@
 #include "MigrationMatrix4DPoly.h"
 #include "CovarianceCalculator4D.h"
 
-#include "ubana/DataTypes/UBTH2Poly.h"
-#include "ubana/DataTypes/BootstrapTH2DPoly.h"
+#include "../DataTypes/UBTH2Poly.h"
+#include "../DataTypes/BootstrapTH2DPoly.h"
 
 #include "LoggerFeature.h"
 

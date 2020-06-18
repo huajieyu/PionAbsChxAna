@@ -54,7 +54,7 @@
 #include "TGaxis.h"
 
 #include "Types.h"
-#include "ubana/DataTypes/UBTH2Poly.h"
+#include "../DataTypes/UBTH2Poly.h"
 #include "LoggerFeature.h"
 
 
