@@ -26,12 +26,18 @@ gStyle->SetTitleY(0.7);
 TFile *inputfile = new TFile("output_test.root");
 TFile *inputfile_data = new TFile("output_test_data.root");
 TFile *inputfile_nothresh = new TFile("output_test_nothresh.root");
-TH1D  *h_shwlike_nhits[3];
+
+
+TH1D  *h_shwlike_nhits[4];
 h_shwlike_nhits[0] = (TH1D*)inputfile->Get("h_nhits_shwlike_photon");
 h_shwlike_nhits[1] = (TH1D*)inputfile->Get("h_nhits_shwlike_electron");
 h_shwlike_nhits[2] = (TH1D*)inputfile->Get("h_nhits_shwlike_nonphoton");
+h_shwlike_nhits[3] = (TH1D*)inputfile_data->Get("h_nhits_shwlike_all");
 
-for(int i=0; i<3; i++){
+h_shwlike_nhits[3]->Scale((h_shwlike_nhits[0]->Integral()+h_shwlike_nhits[1]->Integral()+h_shwlike_nhits[2]->Integral())/h_shwlike_nhits[3]->Integral());
+
+
+for(int i=0; i<4; i++){
   h_shwlike_nhits[i]->Rebin(2);
 }
 TCanvas *c_shwlike=new TCanvas("c_shwlike", "c_shwlike", 900,700);
@@ -48,17 +54,152 @@ h_shwlike_nhits[2]->SetFillColor(kMagenta);
 hs_shwlike->Add(h_shwlike_nhits[0]);
 hs_shwlike->Add(h_shwlike_nhits[1]);
 hs_shwlike->Add(h_shwlike_nhits[2]);
+
+
+hs_shwlike->Draw("hist");
+h_shwlike_nhits[3]->SetLineWidth(2);
+h_shwlike_nhits[3]->Draw("same");
+
 TLegend* legshw=new TLegend(0.7, 0.7, 0.85, 0.85);
 legshw->SetBorderSize(0);
 legshw->AddEntry(h_shwlike_nhits[0], "photon");
 legshw->AddEntry(h_shwlike_nhits[1], "electron");
 legshw->AddEntry(h_shwlike_nhits[2], "Other");
+legshw->AddEntry(h_shwlike_nhits[3], "Data");
 
-hs_shwlike->Draw("hist");
+
 legshw->Draw("same");
 c_shwlike->SaveAs("h_nhits_showerlike.png");
+//------------------------------------------------------------------------------------
+TH1D  *h_shweng[4];
+h_shweng[0] = (TH1D*)inputfile->Get("h_shweng_photon");
+h_shweng[1] = (TH1D*)inputfile->Get("h_shweng_electron");
+h_shweng[2] = (TH1D*)inputfile->Get("h_shweng_nonphoton");
+h_shweng[3] = (TH1D*)inputfile_data->Get("h_shweng_all");
+
+h_shweng[3]->Scale((h_shweng[0]->Integral()+h_shweng[1]->Integral()+h_shweng[2]->Integral())/h_shweng[3]->Integral());
+
+for(int i=0; i<4; i++){
+//  h_shweng[i]->Rebin(2);
+}
+TCanvas *c_shweng=new TCanvas("c_shweng", "c_shweng", 900,700);
+
+THStack *hs_shweng = new THStack("hs_shweng", "");
+
+h_shweng[0]->SetLineColor(kGreen+1);
+h_shweng[0]->SetFillColor(kGreen+1);
+h_shweng[1]->SetLineColor(kCyan);
+h_shweng[1]->SetFillColor(kCyan);
+h_shweng[2]->SetLineColor(kMagenta);
+h_shweng[2]->SetFillColor(kMagenta);
 
 
+hs_shweng->Add(h_shweng[0]);
+hs_shweng->Add(h_shweng[1]);
+hs_shweng->Add(h_shweng[2]);
+
+hs_shweng->Draw("hist");
+
+h_shweng[3]->SetLineWidth(2);
+h_shweng[3]->Draw("same");
+
+legshw->Draw("same");
+gPad->Update();
+hs_shweng->GetXaxis()->SetTitle("Shower Reco Energy[MeV]");
+hs_shweng->GetYaxis()->SetTitle("No. of Showers");
+hs_shweng->SetMaximum(200);
+gPad->Update();
+
+c_shweng->SaveAs("h_shweng_showerlike.png");
+//------------------------------------------------------------------------------------
+TH1D  *h_shwang[4];
+h_shwang[0] = (TH1D*)inputfile->Get("h_shwang_photon");
+h_shwang[1] = (TH1D*)inputfile->Get("h_shwang_electron");
+h_shwang[2] = (TH1D*)inputfile->Get("h_shwang_nonphoton");
+h_shwang[3] = (TH1D*)inputfile_data->Get("h_shwang_all");
+
+h_shwang[3]->Scale((h_shwang[0]->Integral()+h_shwang[1]->Integral()+h_shwang[2]->Integral())/h_shwang[3]->Integral());
+
+for(int i=0; i<4; i++){
+  h_shwang[i]->Rebin(2);
+}
+TCanvas *c_shwang=new TCanvas("c_shwang", "c_shwang", 900,700);
+
+THStack *hs_shwang = new THStack("hs_shwang", "");
+
+h_shwang[0]->SetLineColor(kGreen+1);
+h_shwang[0]->SetFillColor(kGreen+1);
+h_shwang[1]->SetLineColor(kCyan);
+h_shwang[1]->SetFillColor(kCyan);
+h_shwang[2]->SetLineColor(kMagenta);
+h_shwang[2]->SetFillColor(kMagenta);
+
+
+hs_shwang->Add(h_shwang[0]);
+hs_shwang->Add(h_shwang[1]);
+hs_shwang->Add(h_shwang[2]);
+
+hs_shwang->Draw("hist");
+
+h_shwang[3]->SetLineWidth(2);
+h_shwang[3]->Draw("same");
+
+legshw->Draw("same");
+gPad->Update();
+hs_shwang->GetXaxis()->SetTitle("Shower Reco Angle[Rad]");
+hs_shwang->GetYaxis()->SetTitle("No. of Showers");
+hs_shwang->SetMaximum(300);
+gPad->Update();
+
+c_shwang->SaveAs("h_shwang_showerlike.png");
+
+//-----------------------------------------------------------------------------
+TH1D  *h_shwdis[4];
+h_shwdis[0] = (TH1D*)inputfile->Get("h_shwdis_photon");
+h_shwdis[1] = (TH1D*)inputfile->Get("h_shwdis_electron");
+h_shwdis[2] = (TH1D*)inputfile->Get("h_shwdis_nonphoton");
+
+h_shwdis[3] = (TH1D*)inputfile_data->Get("h_shwdis_all");
+
+h_shwdis[3]->Scale((h_shwdis[0]->Integral()+h_shwdis[1]->Integral()+h_shwdis[2]->Integral())/h_shwdis[3]->Integral());
+
+for(int i=0; i<4; i++){
+//  h_shwdis[i]->Rebin(2);
+}
+TCanvas *c_shwdis=new TCanvas("c_shwdis", "c_shwdis", 900,700);
+
+THStack *hs_shwdis = new THStack("hs_shwdis", "");
+
+h_shwdis[0]->SetLineColor(kGreen+1);
+h_shwdis[0]->SetFillColor(kGreen+1);
+h_shwdis[1]->SetLineColor(kCyan);
+h_shwdis[1]->SetFillColor(kCyan);
+h_shwdis[2]->SetLineColor(kMagenta);
+h_shwdis[2]->SetFillColor(kMagenta);
+
+
+hs_shwdis->Add(h_shwdis[0]);
+hs_shwdis->Add(h_shwdis[1]);
+hs_shwdis->Add(h_shwdis[2]);
+
+hs_shwdis->Draw("hist");
+
+h_shwdis[3]->SetLineWidth(2);
+h_shwdis[3]->Draw("same");
+
+legshw->Draw("same");
+gPad->Update();
+hs_shwdis->GetXaxis()->SetTitle("Shower Reco Distance[cm]");
+hs_shwdis->GetYaxis()->SetTitle("No. of Showers");
+hs_shwdis->SetMaximum(350);
+gPad->Update();
+
+c_shwdis->SaveAs("h_shwdis_showerlike.png");
+
+
+
+
+//------------------------------------------------------------------------------------
 TH1D* h_track_trackscore[7];
 
 h_track_trackscore[0] = (TH1D*)inputfile->Get("h_trackscore_pionpm");
@@ -104,7 +245,7 @@ TCanvas *cv=new TCanvas("cv","cv", 900,600);
   pEff_nocut0->SetMarkerSize(0.5);
   //pEff_nocut0->GetPaintedGraph()->GetXaxis()->SetTitleSize(1.0);
   pEff_nocut0->SetTitle(";True Momentum [GeV];No. of Tracks");
-  pEff_nocut0->Draw();
+  pEff_nocut0->Draw("AP");
    
 cv->SaveAs("h_beforecut_eff_proton.png");
 TH1D *h_mom_recotruepionpm;
@@ -823,7 +964,7 @@ hs_Emissing->Add(h_other_Emissing);
 hs_Emissing->Draw("hist");
 h_sel_Emissing_data->SetLineWidth(4);
 h_sel_Emissing_data->Draw("same");
-hs_Emissing->SetMaximum(50);
+hs_Emissing->SetMaximum(40);
 hs_Emissing->GetXaxis()->SetTitle("Missing Energy[GeV]");
 hs_Emissing->GetYaxis()->SetTitle("No. of Events");
 gPad->Modified();
@@ -864,7 +1005,7 @@ hs_Pmissing->Add(h_other_Pmissing);
 hs_Pmissing->Draw("hist");
 h_sel_Pmissing_data->SetLineWidth(4);
 h_sel_Pmissing_data->Draw("same");
-hs_Pmissing->SetMaximum(50);
+hs_Pmissing->SetMaximum(40);
 hs_Pmissing->GetXaxis()->SetTitle("Missing Momentum[GeV]");
 hs_Pmissing->GetYaxis()->SetTitle("No. of Events");
 gPad->Modified();
