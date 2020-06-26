@@ -88,6 +88,7 @@ h_shwcut_mult[0]->Draw("same");
 leg->Draw("same");
 hs_new->GetXaxis()->SetTitle("Track Multiplicity");
 hs_new->GetYaxis()->SetTitle("No. of Events");
+hs_new->SetMaximum(400);
 hs_new->SetTitle("");
 gPad->Modified();
 
@@ -104,6 +105,7 @@ h_shwcut_mult[0]->SetTitle("");
 h_shwcut_mult[0]->GetXaxis()->SetTitle("Track Multiplicity");
 h_shwcut_mult[0]->GetYaxis()->SetTitle("No. of Events");
 
+h_shwcut_mult[0]->SetMaximum(800);
 h_shwcut_mult[0]->Draw("hist");
 h_shwcut_mult[4]->Draw("hist,same");
 
@@ -141,6 +143,7 @@ leg->Draw("same");
 hs_new2->GetXaxis()->SetTitle("Track Multiplicity");
 hs_new2->GetYaxis()->SetTitle("No. of Events");
 hs_new2->SetTitle("");
+hs_new2->SetMaximum(400);
 gPad->Modified();
 
 cc2->SaveAs("h_tmdqdxcut_mult.png");
@@ -156,6 +159,7 @@ h_tmdqdxcut_mult[0]->SetTitle("");
 h_tmdqdxcut_mult[0]->GetXaxis()->SetTitle("Track Multiplicity");
 h_tmdqdxcut_mult[0]->GetYaxis()->SetTitle("No. of Events");
 
+h_tmdqdxcut_mult[0]->SetMaximum(800);
 h_tmdqdxcut_mult[0]->Draw("hist");
 h_tmdqdxcut_mult[4]->Draw("hist,same");
 legmd->Draw("same");
@@ -192,6 +196,7 @@ leg->Draw("same");
 hs_new3->GetXaxis()->SetTitle("Track Multiplicity");
 hs_new3->GetYaxis()->SetTitle("No. of Events");
 hs_new3->SetTitle("");
+hs_new3->SetMaximum(400);
 gPad->Modified();
 
 cc3->SaveAs("h_chi2cut_mult.png");
@@ -207,6 +212,7 @@ h_chi2cut_mult[0]->SetTitle("");
 h_chi2cut_mult[0]->GetXaxis()->SetTitle("Track Multiplicity");
 h_chi2cut_mult[0]->GetYaxis()->SetTitle("No. of Events");
 
+h_chi2cut_mult[0]->SetMaximum(800);
 h_chi2cut_mult[0]->Draw("hist");
 h_chi2cut_mult[4]->Draw("hist,same");
 

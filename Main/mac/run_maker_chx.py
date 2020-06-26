@@ -26,8 +26,8 @@ maker.SetGainCalibration(243)
 maker.SetCalculatePOT(False)    
 maker.SetIsData(False)
 
-maker.SetSignalTypeAbs(True)
-maker.SetSignalTypeChx(False)
+maker.SetSignalTypeAbs(False)
+maker.SetSignalTypeChx(True)
 
 maker.SetFVCut(True);
 maker.FillBootstrapGeant(True);
