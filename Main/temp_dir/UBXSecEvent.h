@@ -1,8 +1,8 @@
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
-// Wed Jun 17 20:03:21 2020 by ROOT version 6.18/04
+// Thu Jun 25 18:40:00 2020 by ROOT version 6.18/04
 // from TTree beamana/beam analysis tree
-// found on file: /dune/data/users/calcuttj/pionana_mc_1GeV_6_15_20.root
+// found on file: /dune/data/users/calcuttj/pionana_mc_1GeV_6_19_20.root
 //////////////////////////////////////////////////////////
 
 #ifndef UBXSecEvent_h
@@ -41,6 +41,7 @@ public :
    Double_t        reco_beam_endY;
    Double_t        reco_beam_endZ;
    Double_t        reco_beam_len;
+   Double_t        reco_beam_alt_len;
    Double_t        reco_beam_trackDirX;
    Double_t        reco_beam_trackDirY;
    Double_t        reco_beam_trackDirZ;
@@ -59,6 +60,16 @@ public :
    vector<double>  *reco_beam_calo_wire;
    vector<double>  *reco_beam_calo_wire_z;
    vector<double>  *reco_beam_calo_tick;
+   vector<int>     *reco_beam_calo_TPC;
+   vector<double>  *reco_beam_dQdX_no_SCE;
+   vector<double>  *reco_beam_dEdX_no_SCE;
+   vector<double>  *reco_beam_calibrated_dEdX_no_SCE;
+   vector<double>  *reco_beam_resRange_no_SCE;
+   vector<double>  *reco_beam_TrkPitch_no_SCE;
+   vector<double>  *reco_beam_calo_wire_no_SCE;
+   vector<double>  *reco_beam_calo_wire_z_no_SCE;
+   vector<double>  *reco_beam_calo_tick_no_SCE;
+   vector<int>     *reco_beam_calo_TPC_no_SCE;
    vector<int>     *reco_beam_hit_true_ID;
    vector<int>     *reco_beam_hit_true_slice;
    vector<int>     *reco_beam_hit_true_origin;
@@ -138,6 +149,7 @@ public :
    vector<double>  *reco_daughter_allTrack_Theta;
    vector<double>  *reco_daughter_allTrack_Phi;
    vector<double>  *reco_daughter_allTrack_len;
+   vector<double>  *reco_daughter_allTrack_alt_len;
    vector<double>  *reco_daughter_allTrack_startX;
    vector<double>  *reco_daughter_allTrack_startY;
    vector<double>  *reco_daughter_allTrack_startZ;
@@ -325,6 +337,10 @@ public :
    vector<double>  *reco_daughter_allTrack_momByRange_muon;
    Double_t        reco_beam_momByRange_proton;
    Double_t        reco_beam_momByRange_muon;
+   vector<double>  *reco_daughter_allTrack_momByRange_alt_proton;
+   vector<double>  *reco_daughter_allTrack_momByRange_alt_muon;
+   Double_t        reco_beam_momByRange_alt_proton;
+   Double_t        reco_beam_momByRange_alt_muon;
    Double_t        reco_beam_true_byE_endPx;
    Double_t        reco_beam_true_byE_endPy;
    Double_t        reco_beam_true_byE_endPz;
@@ -373,6 +389,7 @@ public :
    TBranch        *b_reco_beam_endY;   //!
    TBranch        *b_reco_beam_endZ;   //!
    TBranch        *b_reco_beam_len;   //!
+   TBranch        *b_reco_beam_alt_len;   //!
    TBranch        *b_reco_beam_trackDirX;   //!
    TBranch        *b_reco_beam_trackDirY;   //!
    TBranch        *b_reco_beam_trackDirZ;   //!
@@ -391,6 +408,16 @@ public :
    TBranch        *b_reco_beam_calo_wire;   //!
    TBranch        *b_reco_beam_calo_wire_z;   //!
    TBranch        *b_reco_beam_calo_tick;   //!
+   TBranch        *b_reco_beam_calo_TPC;   //!
+   TBranch        *b_reco_beam_dQdX_no_SCE;   //!
+   TBranch        *b_reco_beam_dEdX_no_SCE;   //!
+   TBranch        *b_reco_beam_calibrated_dEdX_no_SCE;   //!
+   TBranch        *b_reco_beam_resRange_no_SCE;   //!
+   TBranch        *b_reco_beam_TrkPitch_no_SCE;   //!
+   TBranch        *b_reco_beam_calo_wire_no_SCE;   //!
+   TBranch        *b_reco_beam_calo_wire_z_no_SCE;   //!
+   TBranch        *b_reco_beam_calo_tick_no_SCE;   //!
+   TBranch        *b_reco_beam_calo_TPC_no_SCE;   //!
    TBranch        *b_reco_beam_hit_true_ID;   //!
    TBranch        *b_reco_beam_hit_true_slice;   //!
    TBranch        *b_reco_beam_hit_true_origin;   //!
@@ -470,6 +497,7 @@ public :
    TBranch        *b_reco_daughter_allTrack_Theta;   //!
    TBranch        *b_reco_daughter_allTrack_Phi;   //!
    TBranch        *b_reco_daughter_allTrack_len;   //!
+   TBranch        *b_reco_daughter_allTrack_alt_len;   //!
    TBranch        *b_reco_daughter_allTrack_startX;   //!
    TBranch        *b_reco_daughter_allTrack_startY;   //!
    TBranch        *b_reco_daughter_allTrack_startZ;   //!
@@ -657,6 +685,10 @@ public :
    TBranch        *b_reco_daughter_allTrack_momByRange_muon;   //!
    TBranch        *b_reco_beam_momByRange_proton;   //!
    TBranch        *b_reco_beam_momByRange_muon;   //!
+   TBranch        *b_reco_daughter_allTrack_momByRange_alt_proton;   //!
+   TBranch        *b_reco_daughter_allTrack_momByRange_alt_muon;   //!
+   TBranch        *b_reco_beam_momByRange_alt_proton;   //!
+   TBranch        *b_reco_beam_momByRange_alt_muon;   //!
    TBranch        *b_reco_beam_true_byE_endPx;   //!
    TBranch        *b_reco_beam_true_byE_endPy;   //!
    TBranch        *b_reco_beam_true_byE_endPz;   //!
@@ -711,11 +743,11 @@ UBXSecEvent::UBXSecEvent(TTree *tree) : fChain(0)
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/dune/data/users/calcuttj/pionana_mc_1GeV_6_15_20.root");
+      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("/dune/data/users/calcuttj/pionana_mc_1GeV_6_19_20.root");
       if (!f || !f->IsOpen()) {
-         f = new TFile("/dune/data/users/calcuttj/pionana_mc_1GeV_6_15_20.root");
+         f = new TFile("/dune/data/users/calcuttj/pionana_mc_1GeV_6_19_20.root");
       }
-      TDirectory * dir = (TDirectory*)f->Get("/dune/data/users/calcuttj/pionana_mc_1GeV_6_15_20.root:/pionana");
+      TDirectory * dir = (TDirectory*)f->Get("/dune/data/users/calcuttj/pionana_mc_1GeV_6_19_20.root:/pionana");
       dir->GetObject("beamana",tree);
 
    }
@@ -766,6 +798,16 @@ void UBXSecEvent::Init(TTree *tree)
    reco_beam_calo_wire = 0;
    reco_beam_calo_wire_z = 0;
    reco_beam_calo_tick = 0;
+   reco_beam_calo_TPC = 0;
+   reco_beam_dQdX_no_SCE = 0;
+   reco_beam_dEdX_no_SCE = 0;
+   reco_beam_calibrated_dEdX_no_SCE = 0;
+   reco_beam_resRange_no_SCE = 0;
+   reco_beam_TrkPitch_no_SCE = 0;
+   reco_beam_calo_wire_no_SCE = 0;
+   reco_beam_calo_wire_z_no_SCE = 0;
+   reco_beam_calo_tick_no_SCE = 0;
+   reco_beam_calo_TPC_no_SCE = 0;
    reco_beam_hit_true_ID = 0;
    reco_beam_hit_true_slice = 0;
    reco_beam_hit_true_origin = 0;
@@ -815,6 +857,7 @@ void UBXSecEvent::Init(TTree *tree)
    reco_daughter_allTrack_Theta = 0;
    reco_daughter_allTrack_Phi = 0;
    reco_daughter_allTrack_len = 0;
+   reco_daughter_allTrack_alt_len = 0;
    reco_daughter_allTrack_startX = 0;
    reco_daughter_allTrack_startY = 0;
    reco_daughter_allTrack_startZ = 0;
@@ -934,6 +977,8 @@ void UBXSecEvent::Init(TTree *tree)
    cosmic_has_beam_IDE = 0;
    reco_daughter_allTrack_momByRange_proton = 0;
    reco_daughter_allTrack_momByRange_muon = 0;
+   reco_daughter_allTrack_momByRange_alt_proton = 0;
+   reco_daughter_allTrack_momByRange_alt_muon = 0;
    reco_beam_incidentEnergies = 0;
    true_beam_incidentEnergies = 0;
    true_beam_slices = 0;
@@ -963,6 +1008,7 @@ void UBXSecEvent::Init(TTree *tree)
    fChain->SetBranchAddress("reco_beam_endY", &reco_beam_endY, &b_reco_beam_endY);
    fChain->SetBranchAddress("reco_beam_endZ", &reco_beam_endZ, &b_reco_beam_endZ);
    fChain->SetBranchAddress("reco_beam_len", &reco_beam_len, &b_reco_beam_len);
+   fChain->SetBranchAddress("reco_beam_alt_len", &reco_beam_alt_len, &b_reco_beam_alt_len);
    fChain->SetBranchAddress("reco_beam_trackDirX", &reco_beam_trackDirX, &b_reco_beam_trackDirX);
    fChain->SetBranchAddress("reco_beam_trackDirY", &reco_beam_trackDirY, &b_reco_beam_trackDirY);
    fChain->SetBranchAddress("reco_beam_trackDirZ", &reco_beam_trackDirZ, &b_reco_beam_trackDirZ);
@@ -981,6 +1027,16 @@ void UBXSecEvent::Init(TTree *tree)
    fChain->SetBranchAddress("reco_beam_calo_wire", &reco_beam_calo_wire, &b_reco_beam_calo_wire);
    fChain->SetBranchAddress("reco_beam_calo_wire_z", &reco_beam_calo_wire_z, &b_reco_beam_calo_wire_z);
    fChain->SetBranchAddress("reco_beam_calo_tick", &reco_beam_calo_tick, &b_reco_beam_calo_tick);
+   fChain->SetBranchAddress("reco_beam_calo_TPC", &reco_beam_calo_TPC, &b_reco_beam_calo_TPC);
+   fChain->SetBranchAddress("reco_beam_dQdX_no_SCE", &reco_beam_dQdX_no_SCE, &b_reco_beam_dQdX_no_SCE);
+   fChain->SetBranchAddress("reco_beam_dEdX_no_SCE", &reco_beam_dEdX_no_SCE, &b_reco_beam_dEdX_no_SCE);
+   fChain->SetBranchAddress("reco_beam_calibrated_dEdX_no_SCE", &reco_beam_calibrated_dEdX_no_SCE, &b_reco_beam_calibrated_dEdX_no_SCE);
+   fChain->SetBranchAddress("reco_beam_resRange_no_SCE", &reco_beam_resRange_no_SCE, &b_reco_beam_resRange_no_SCE);
+   fChain->SetBranchAddress("reco_beam_TrkPitch_no_SCE", &reco_beam_TrkPitch_no_SCE, &b_reco_beam_TrkPitch_no_SCE);
+   fChain->SetBranchAddress("reco_beam_calo_wire_no_SCE", &reco_beam_calo_wire_no_SCE, &b_reco_beam_calo_wire_no_SCE);
+   fChain->SetBranchAddress("reco_beam_calo_wire_z_no_SCE", &reco_beam_calo_wire_z_no_SCE, &b_reco_beam_calo_wire_z_no_SCE);
+   fChain->SetBranchAddress("reco_beam_calo_tick_no_SCE", &reco_beam_calo_tick_no_SCE, &b_reco_beam_calo_tick_no_SCE);
+   fChain->SetBranchAddress("reco_beam_calo_TPC_no_SCE", &reco_beam_calo_TPC_no_SCE, &b_reco_beam_calo_TPC_no_SCE);
    fChain->SetBranchAddress("reco_beam_hit_true_ID", &reco_beam_hit_true_ID, &b_reco_beam_hit_true_ID);
    fChain->SetBranchAddress("reco_beam_hit_true_slice", &reco_beam_hit_true_slice, &b_reco_beam_hit_true_slice);
    fChain->SetBranchAddress("reco_beam_hit_true_origin", &reco_beam_hit_true_origin, &b_reco_beam_hit_true_origin);
@@ -1060,6 +1116,7 @@ void UBXSecEvent::Init(TTree *tree)
    fChain->SetBranchAddress("reco_daughter_allTrack_Theta", &reco_daughter_allTrack_Theta, &b_reco_daughter_allTrack_Theta);
    fChain->SetBranchAddress("reco_daughter_allTrack_Phi", &reco_daughter_allTrack_Phi, &b_reco_daughter_allTrack_Phi);
    fChain->SetBranchAddress("reco_daughter_allTrack_len", &reco_daughter_allTrack_len, &b_reco_daughter_allTrack_len);
+   fChain->SetBranchAddress("reco_daughter_allTrack_alt_len", &reco_daughter_allTrack_alt_len, &b_reco_daughter_allTrack_alt_len);
    fChain->SetBranchAddress("reco_daughter_allTrack_startX", &reco_daughter_allTrack_startX, &b_reco_daughter_allTrack_startX);
    fChain->SetBranchAddress("reco_daughter_allTrack_startY", &reco_daughter_allTrack_startY, &b_reco_daughter_allTrack_startY);
    fChain->SetBranchAddress("reco_daughter_allTrack_startZ", &reco_daughter_allTrack_startZ, &b_reco_daughter_allTrack_startZ);
@@ -1247,6 +1304,10 @@ void UBXSecEvent::Init(TTree *tree)
    fChain->SetBranchAddress("reco_daughter_allTrack_momByRange_muon", &reco_daughter_allTrack_momByRange_muon, &b_reco_daughter_allTrack_momByRange_muon);
    fChain->SetBranchAddress("reco_beam_momByRange_proton", &reco_beam_momByRange_proton, &b_reco_beam_momByRange_proton);
    fChain->SetBranchAddress("reco_beam_momByRange_muon", &reco_beam_momByRange_muon, &b_reco_beam_momByRange_muon);
+   fChain->SetBranchAddress("reco_daughter_allTrack_momByRange_alt_proton", &reco_daughter_allTrack_momByRange_alt_proton, &b_reco_daughter_allTrack_momByRange_alt_proton);
+   fChain->SetBranchAddress("reco_daughter_allTrack_momByRange_alt_muon", &reco_daughter_allTrack_momByRange_alt_muon, &b_reco_daughter_allTrack_momByRange_alt_muon);
+   fChain->SetBranchAddress("reco_beam_momByRange_alt_proton", &reco_beam_momByRange_alt_proton, &b_reco_beam_momByRange_alt_proton);
+   fChain->SetBranchAddress("reco_beam_momByRange_alt_muon", &reco_beam_momByRange_alt_muon, &b_reco_beam_momByRange_alt_muon);
    fChain->SetBranchAddress("reco_beam_true_byE_endPx", &reco_beam_true_byE_endPx, &b_reco_beam_true_byE_endPx);
    fChain->SetBranchAddress("reco_beam_true_byE_endPy", &reco_beam_true_byE_endPy, &b_reco_beam_true_byE_endPy);
    fChain->SetBranchAddress("reco_beam_true_byE_endPz", &reco_beam_true_byE_endPz, &b_reco_beam_true_byE_endPz);
