@@ -349,8 +349,8 @@ namespace Main{
     //int maxEntries = -1;
     double momthreshcut = 0.0;
     double trkscorecut=0.0;
-    double cut_dEdX_high = 2.6;
-    double cut_dEdX_low = 0.0;
+    double cut_dEdX_high = 3.2;
+    double cut_dEdX_low = 1.0;
     double libo_low = 0.16;
     double libo_high = 0.16;
     //PDEventHisto1D *_event_histo_1d;
@@ -365,12 +365,19 @@ namespace Main{
     double cut_trackScore = 0.3;
     //daughter Distance cut
     double cut_daughter_track_distance = 10.;
-    double cut_daughter_shower_distance_low = 2.;
-    double cut_daughter_shower_distance_high = 100.;
+
+    double cut_daughter_shower_distance_low = 5.;
+    double cut_daughter_shower_distance_high = 1000.;
     double cut_primary_chi2 = 140.;
     double cut_secondary_chi2 = 50.;
+
     int cut_nHits_shower_low = 40;
     int cut_nHits_shower_high = 1000;
+
+    int cut_energy_shower_low = 40;
+    int cut_energy_shower_high = 1000; 
+
+
     //
     //For MC from Owen Goodwins studies
     double xlow = -3.,  xhigh = 7.,  ylow = -8.,  yhigh = 7.;
@@ -403,14 +410,25 @@ namespace Main{
     bool has_pi0shower(const std::vector<double> &track_score);
     const std::vector<double> truncatedMean(double truncate_low, double truncate_high, std::vector<std::vector<double>> &vecs_dEdX); 
     const std::vector<double> truncatedMean_libo(double truncate_low, double truncate_high, std::vector<std::vector<double>> &vecs_dEdX); 
-    const std::vector<double> truncatedMean_xglu(double truncate_low, double truncate_high, std::vector<std::vector<double>> &vecs_dEdX); 
+    const std::vector<double> truncatedMean_xglu(int nhits_left, int nhits_right, double truncate_low, double truncate_high, std::vector<std::vector<double>> &vecs_dEdX); 
+
     double GetTruncatedMean(const vector<double> tmparr, const unsigned int nsample0, const unsigned int nsample1, const double lowerFrac, const double upperFrac);
     bool has_shower_nHits_distance(const std::vector<double> &track_score,
                                     const std::vector<int> &nHits,
                                     const std::vector<double> &distance); 
 
-    bool has_shower_nHits(const std::vector<double> &track_score,
+    bool has_shower_energy_distance(const std::vector<double> &track_score,
+                                    const std::vector<double> &energy,
+                                    const std::vector<double> &distance); 
+
+     bool has_shower_nHits(const std::vector<double> &track_score,
                                   const std::vector<int> &nHits);
+
+    bool has_shower_Eng(const std::vector<double> &track_score,
+                                  const std::vector<double> &shweng);
+
+    bool has_shower_Dist(const std::vector<double> &track_score,
+                                  const std::vector<double> &distance);
 
     bool secondary_noPion( const std::vector<double> &track_score, 
                            const std::vector<int> &trackID,
@@ -450,7 +468,20 @@ namespace Main{
                                  const std::vector<double> &d_endTheta,
                                  const std::vector<double> &d_endPhi);
 
-    //=========================================================================
+    const std::vector<double> compute_angleVertex_shower   ( double beam_endX,
+                                 double beam_endY,
+                                 double beam_endZ,
+                                 const std::vector<double> &d_startX,
+                                 const std::vector<double> &d_startY,
+                                 const std::vector<double> &d_startZ,
+                                 const std::vector<double> &d_endX,
+                                 const std::vector<double> &d_endY,
+                                 const std::vector<double> &d_endZ,
+                                 const std::vector<double> &d_dirX,
+                                 const std::vector<double> &d_dirY,
+                                 const std::vector<double> &d_dirZ);
+
+     //=========================================================================
     
   };
 }

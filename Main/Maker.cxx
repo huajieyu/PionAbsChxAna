@@ -654,6 +654,8 @@ const std::vector<double> Main::Maker::truncatedMean_libo(double truncate_low, d
          for(int i = i_low; i <= i_high; i++){
                help_vec.push_back(vec[i]);
          };*/
+
+
 	 double median_par=0;		
 	 double RMS_par=1.0*TMath::RMS(vec.begin(), vec.end());
 	 int N_par=vec.size(); //vec number of hits
@@ -740,6 +742,33 @@ bool Main::Maker::has_shower_nHits_distance(const std::vector<double> &track_sco
 
 
 }
+//--------------------------------------------------------------------------------
+bool Main::Maker::has_shower_energy_distance(const std::vector<double> &track_score,
+                                    const std::vector<double> &energy,
+                                    const std::vector<double> &distance) {
+
+  if(track_score.empty() || energy.empty())
+    return false;
+
+  for(size_t i = 0; i < track_score.size(); ++i){
+     if ((track_score[i] < cut_trackScore) &&
+         (energy[i] > cut_energy_shower_low) &&
+         (energy[i] < cut_energy_shower_high) && (track_score[i] != -999.) &&
+         (distance[i] < cut_daughter_shower_distance_high) &&
+         (distance[i] > cut_daughter_shower_distance_low)) {
+       return true;
+     }
+  }
+
+  return false;
+
+
+}
+
+
+
+//-------------------------------------------------------------------------------------
+
 bool Main::Maker::has_shower_nHits(const std::vector<double> &track_score,
                                   const std::vector<int> &nHits) {
   if(track_score.empty() || nHits.empty())
@@ -755,9 +784,45 @@ bool Main::Maker::has_shower_nHits(const std::vector<double> &track_score,
 
   return false;
 };
+//-----------------------------------------------------------------------
+bool Main::Maker::has_shower_Eng(const std::vector<double> &track_score,
+                                  const std::vector<double> &shweng) {
+  if(track_score.empty() || shweng.empty())
+    return false;
+
+  for(size_t i = 0; i < track_score.size(); ++i){
+     if ((track_score[i] < cut_trackScore) &&
+         (shweng[i] > cut_energy_shower_low) &&
+         (track_score[i] != -999.)) {
+       return true;
+     }
+  }
+
+  return false;
+};
+//------------------------------------------------------------------
+bool Main::Maker::has_shower_Dist(const std::vector<double> &track_score,
+                                  const std::vector<double> &distance) {
+  if(track_score.empty() || distance.empty())
+    return false;
+
+  for(size_t i = 0; i < track_score.size(); ++i){
+     if ((track_score[i] < cut_trackScore) &&
+         (distance[i] > cut_daughter_shower_distance_low) &&
+         (track_score[i] != -999.)) {
+       return true;
+     }
+  }
+
+  return false;
+};
 
 
 
+
+
+
+//--------------------------------------------------------------------
 const std::vector<double> Main::Maker::compute_distanceVertex (double beam_endX,
                                  double beam_endY,
                                  double beam_endZ, 
@@ -1613,10 +1678,8 @@ void Main::Maker::MakeFile()
         }//end of if isdata==0
         //======================================================================== 
 	
-        int nonprotoncand = 0;
         int nshwcand = 0;
 
-	int ntmdqdxcand = 0;
         int ntmdqdxcand_withthresh = 0;
 
         int nonprotoncand_withthresh = 0;
@@ -1634,7 +1697,7 @@ void Main::Maker::MakeFile()
 
         std::vector<std::vector<double>> *trkdedx_test_ptr=t->reco_daughter_allTrack_calibrated_dEdX_SCE;
 
-        const std::vector<double> reco_daughter_allTrack_truncLibo_dEdX_test = truncatedMean(libo_low, libo_high, *trkdedx_test_ptr);
+        const std::vector<double> reco_daughter_allTrack_truncLibo_dEdX_test = truncatedMean_libo(libo_low, libo_high, *trkdedx_test_ptr);
  
 
 
@@ -1694,9 +1757,9 @@ void Main::Maker::MakeFile()
         std::vector<double> *rdshwr_dirY_ptr = t->reco_daughter_allShower_dirY;
         std::vector<double> *rdshwr_dirZ_ptr = t->reco_daughter_allShower_dirZ;
 
-        std::vector<double> newrdshwr_dirX;
-        std::vector<double> newrdshwr_dirY;
-        std::vector<double> newrdshwr_dirZ;
+        std::vector<double> newrdshwr_dirX = *rdshwr_dirX_ptr;
+        std::vector<double> newrdshwr_dirY = *rdshwr_dirY_ptr;
+        std::vector<double> newrdshwr_dirZ = *rdshwr_dirZ_ptr;;
 
         daughter_distance3D_shower =   compute_distanceVertex(t->reco_beam_endX, t->reco_beam_endY, t->reco_beam_endZ,
                                     newrdshwr_startX, newrdshwr_startY, newrdshwr_startZ,      
@@ -1712,31 +1775,38 @@ void Main::Maker::MakeFile()
         
 
 
-
+        Int_t totalrecogamma = 0;
 
 	//for(unsigned int jj=0; jj<t->reco_daughter_PFP_true_byHits_PDG->size(); jj++){
         for(unsigned int jj=0; jj<t->reco_daughter_PFP_trackScore_collection->size(); jj++){
             _event_histo_1d->h_trackscore_all->Fill(t->reco_daughter_PFP_trackScore_collection->at(jj));
             if(t->reco_daughter_PFP_trackScore_collection->at(jj)<trkscorecut){
+               totalrecogamma++;
                _event_histo_1d->h_trackscore_shwlike_all->Fill(t->reco_daughter_PFP_trackScore_collection->at(jj));
                _event_histo_1d->h_shweng_all->Fill(t->reco_daughter_allShower_energy->at(jj));
                _event_histo_1d->h_nhits_shwlike_all->Fill(t->reco_daughter_PFP_nHits->at(jj));
+               _event_histo_1d->h_shwang_all->Fill(daughter_angle3D_shower[jj]);
+               _event_histo_1d->h_shwdis_all->Fill(daughter_distance3D_shower[jj]); 
                if(isdata == 0){
                    if(abs(t->reco_daughter_PFP_true_byHits_PDG->at(jj))==22){
                         _event_histo_1d->h_trackscore_shwlike_photon->Fill(t->reco_daughter_PFP_trackScore_collection->at(jj));
                         _event_histo_1d->h_shweng_photon->Fill(t->reco_daughter_allShower_energy->at(jj));
                         _event_histo_1d->h_nhits_shwlike_photon->Fill(t->reco_daughter_PFP_nHits->at(jj));
+                        _event_histo_1d->h_shwang_photon->Fill(daughter_angle3D_shower[jj]);
+                        _event_histo_1d->h_shwdis_photon->Fill(daughter_distance3D_shower[jj]);
 
                    }else if(abs(t->reco_daughter_PFP_true_byHits_PDG->at(jj))==11){ 
                         _event_histo_1d->h_trackscore_shwlike_electron->Fill(t->reco_daughter_PFP_trackScore_collection->at(jj));
                         _event_histo_1d->h_shweng_electron->Fill(t->reco_daughter_allShower_energy->at(jj));
                         _event_histo_1d->h_nhits_shwlike_electron->Fill(t->reco_daughter_PFP_nHits->at(jj));
-                         
+                        _event_histo_1d->h_shwang_electron->Fill(daughter_angle3D_shower[jj]);
+                        _event_histo_1d->h_shwdis_electron->Fill(daughter_distance3D_shower[jj]);
                    }else {
                         _event_histo_1d->h_trackscore_shwlike_nonphoton->Fill(t->reco_daughter_PFP_trackScore_collection->at(jj));
                         _event_histo_1d->h_shweng_nonphoton->Fill(t->reco_daughter_allShower_energy->at(jj));
                         _event_histo_1d->h_nhits_shwlike_nonphoton->Fill(t->reco_daughter_PFP_nHits->at(jj));
-              
+                        _event_histo_1d->h_shwang_nonphoton->Fill(daughter_angle3D_shower[jj]);
+                        _event_histo_1d->h_shwdis_nonphoton->Fill(daughter_distance3D_shower[jj]);
                    }
                } 
             }
@@ -1763,9 +1833,38 @@ void Main::Maker::MakeFile()
             } //end of if isdata==0
             //---------------------------------------------------------------------
 
-            if(t->reco_daughter_PFP_trackScore_collection->at(jj)<trkscorecut && t->reco_daughter_PFP_nHits->at(jj)>=40) {nshwcand ++; }
+            //if(t->reco_daughter_PFP_trackScore_collection->at(jj)<trkscorecut && t->reco_daughter_PFP_nHits->at(jj)>=40) {nshwcand ++; }
             
-            if(t->reco_daughter_PFP_trackScore_collection->at(jj)<trkscorecut && t->reco_daughter_PFP_nHits->at(jj)>=40) continue;
+            //if(t->reco_daughter_PFP_trackScore_collection->at(jj)<trkscorecut && t->reco_daughter_PFP_nHits->at(jj)>=40) continue;
+
+            if(t->reco_daughter_PFP_trackScore_collection->at(jj)<trkscorecut &&
+               t->reco_daughter_PFP_trackScore_collection->at(jj) !=-999. &&  
+               ((t->reco_daughter_allShower_energy->at(jj)>= cut_energy_shower_low /*&& 
+                 t->reco_daughter_allShower_energy->at(jj)<= cut_energy_shower_high*/) ||
+                 (daughter_distance3D_shower[jj]>=cut_daughter_shower_distance_low /*&& 
+                  daughter_distance3D_shower[jj]<=cut_daughter_shower_distance_high*/)))
+               
+                {nshwcand ++; 
+
+            }
+            
+            /*if(t->reco_daughter_PFP_trackScore_collection->at(jj)<trkscorecut && 
+               t->reco_daughter_allShower_energy->at(jj)>=cut_energy_shower_low &&
+               t->reco_daughter_allShower_energy->at(jj)<=cut_energy_shower_high) continue;
+            if(t->reco_daughter_PFP_trackScore_collection->at(jj)<trkscorecut && 
+               daughter_distance3D_shower[jj]>= cut_daughter_shower_distance_low &&
+               daughter_distance3D_shower[jj]<= cut_daughter_shower_distance_high) continue;
+            */ 
+
+            if(t->reco_daughter_PFP_trackScore_collection->at(jj)<trkscorecut &&
+               t->reco_daughter_PFP_trackScore_collection->at(jj) !=-999. &&  
+               ((t->reco_daughter_allShower_energy->at(jj)>= cut_energy_shower_low /*&& 
+                 t->reco_daughter_allShower_energy->at(jj)<= cut_energy_shower_high*/) ||
+                 (daughter_distance3D_shower[jj]>=cut_daughter_shower_distance_low /*&& 
+                  daughter_distance3D_shower[jj]<=cut_daughter_shower_distance_high*/))) continue;
+ 
+
+
             if(isdata==0){//fill histograms for the momentum distributions of the proton/pion true momentum distribution
                           //after track score cut for proton & pion reco effiency calcuation
             if(t->reco_daughter_PFP_true_byHits_parID->at(jj) == t->true_beam_ID){
@@ -1827,7 +1926,7 @@ void Main::Maker::MakeFile()
             }//end of selecting proton region and transition region
             //================================================================================= 
             if(temp_tmdqdx>=cut_dEdX_low && temp_tmdqdx<=cut_dEdX_high 
-                  && t->reco_daughter_PFP_trackScore_collection->at(jj)>trkscorecut) 
+                  /*&& t->reco_daughter_PFP_trackScore_collection->at(jj)>trkscorecut*/) 
             {ntmdqdxcand_withthresh++;}
             if(temp_tmdqdx>3.8) {
                isPCand = true;
@@ -1844,7 +1943,6 @@ void Main::Maker::MakeFile()
 
             if(temp_tmdqdx>cut_dEdX_low && temp_tmdqdx<cut_dEdX_high) {//pion region
                isPiCand = true;
-                  ntmdqdxcand++;
                if(isdata==0){
                if(t->reco_daughter_PFP_true_byHits_parID->at(jj) == t->true_beam_ID){
                   if(abs(t->reco_daughter_PFP_true_byHits_PDG->at(jj))==211){
@@ -1905,7 +2003,7 @@ void Main::Maker::MakeFile()
                 }
             } //end of performing tmdqdx cut
             //LOG_NORMAL()<<"End of Treat Different Regions of the Truncated Mean dQdx"<<std::endl;
-            if(isPCand == false /*&& t->reco_daughter_allTrack_momByRange_proton->at(jj) > momthreshcut*/){
+            if(isPCand == false /*&& t->reco_daughter_allTrack_momByRange_alt_proton->at(jj) > momthreshcut*/){
               if(t->reco_daughter_allTrack_Chi2_ndof->at(jj)>10){
                 nonprotoncand_withthresh ++;
               }
@@ -1975,17 +2073,17 @@ void Main::Maker::MakeFile()
                 } //     end of this proton id found in the daughter particle ID
                 //-------fill histograms for momentum track range, angular resolution of the selected proton
                 if(abs(t->reco_daughter_PFP_true_byHits_PDG->at(jj))==2212){
-                  _event_histo_1d->h_selproton_momreso->Fill(t->reco_daughter_PFP_true_byHits_startP->at(jj),t->reco_daughter_allTrack_momByRange_proton->at(jj));
-                 _event_histo_1d->h_trklen_reso->Fill((t->reco_daughter_allTrack_len->at(jj)-t->reco_daughter_PFP_true_byHits_len->at(jj))/t->reco_daughter_PFP_true_byHits_len->at(jj));
+                  _event_histo_1d->h_selproton_momreso->Fill(t->reco_daughter_PFP_true_byHits_startP->at(jj),t->reco_daughter_allTrack_momByRange_alt_proton->at(jj));
+                 _event_histo_1d->h_trklen_reso->Fill((t->reco_daughter_allTrack_alt_len->at(jj)-t->reco_daughter_PFP_true_byHits_len->at(jj))/t->reco_daughter_PFP_true_byHits_len->at(jj));
                   _event_histo_1d->h_selproton_costhetareso->Fill(t->reco_daughter_PFP_true_byHits_startPz->at(jj)/t->reco_daughter_PFP_true_byHits_startP->at(jj), TMath::Cos(t->reco_daughter_allTrack_Theta->at(jj)));
 
                   _event_histo_1d->h_totalp_mom->Fill(t->reco_daughter_PFP_true_byHits_startP->at(jj));
 
                   if(t->reco_daughter_PFP_true_byHits_endProcess->at(jj) !="protonInelastic") {
-                  _event_histo_1d->h_selproton_momreso_new->Fill(t->reco_daughter_allTrack_momByRange_proton->at(jj)/t->reco_daughter_PFP_true_byHits_startP->at(jj)-1);
-                  _event_histo_1d->h_selproton_momPxreso_new->Fill(t->reco_daughter_allTrack_momByRange_proton->at(jj)*TMath::Cos(t->reco_daughter_allTrack_Phi->at(jj))*TMath::Sin(t->reco_daughter_allTrack_Theta->at(jj))/t->reco_daughter_PFP_true_byHits_startPx->at(jj)-1);
-                  _event_histo_1d->h_selproton_momPyreso_new->Fill(t->reco_daughter_allTrack_momByRange_proton->at(jj)*TMath::Sin(t->reco_daughter_allTrack_Phi->at(jj))*TMath::Sin(t->reco_daughter_allTrack_Theta->at(jj))/t->reco_daughter_PFP_true_byHits_startPy->at(jj)-1);
-                  _event_histo_1d->h_selproton_momPzreso_new->Fill(t->reco_daughter_allTrack_momByRange_proton->at(jj)*TMath::Cos(t->reco_daughter_allTrack_Theta->at(jj))/t->reco_daughter_PFP_true_byHits_startPz->at(jj)-1);
+                  _event_histo_1d->h_selproton_momreso_new->Fill(t->reco_daughter_allTrack_momByRange_alt_proton->at(jj)/t->reco_daughter_PFP_true_byHits_startP->at(jj)-1);
+                  _event_histo_1d->h_selproton_momPxreso_new->Fill(t->reco_daughter_allTrack_momByRange_alt_proton->at(jj)*TMath::Cos(t->reco_daughter_allTrack_Phi->at(jj))*TMath::Sin(t->reco_daughter_allTrack_Theta->at(jj))/t->reco_daughter_PFP_true_byHits_startPx->at(jj)-1);
+                  _event_histo_1d->h_selproton_momPyreso_new->Fill(t->reco_daughter_allTrack_momByRange_alt_proton->at(jj)*TMath::Sin(t->reco_daughter_allTrack_Phi->at(jj))*TMath::Sin(t->reco_daughter_allTrack_Theta->at(jj))/t->reco_daughter_PFP_true_byHits_startPy->at(jj)-1);
+                  _event_histo_1d->h_selproton_momPzreso_new->Fill(t->reco_daughter_allTrack_momByRange_alt_proton->at(jj)*TMath::Cos(t->reco_daughter_allTrack_Theta->at(jj))/t->reco_daughter_PFP_true_byHits_startPz->at(jj)-1);
                  
                   _event_histo_1d->h_selproton_costhetareso_new->Fill(TMath::Cos(t->reco_daughter_allTrack_Theta->at(jj))/(t->reco_daughter_PFP_true_byHits_startPz->at(jj)/t->reco_daughter_PFP_true_byHits_startP->at(jj))-1);
                   }
@@ -1997,11 +2095,6 @@ void Main::Maker::MakeFile()
                 }//end of if isdata==0 
                 //-----------------------------------------------------------------------------
             } //end of if pcand is true
-            else if(isPCand == false ) {
-              if(t->reco_daughter_allTrack_Chi2_ndof->at(jj)>10){
-                nonprotoncand++;
-              }
-            }
             //check if this is a pion candidate and fill out track range of the selected pion candidate
             if(isdata==0 && !isPCand && isPiCand){
 
@@ -2028,10 +2121,24 @@ void Main::Maker::MakeFile()
          
         Ntotal_beam++;  //total number of events past beam selection
 
+        if(isSignal_withthresh){         _event_histo_1d->hsig_nrecogamma->Fill(totalrecogamma); }
+        if(isChxBKG_withthresh){         _event_histo_1d->hchxbac_nrecogamma->Fill(totalrecogamma);}
+        if(isReaBKG_withthresh){         _event_histo_1d->hreabac_nrecogamma->Fill(totalrecogamma);}
+        if(isOtherBKG_withthresh){          _event_histo_1d->hother_nrecogamma->Fill(totalrecogamma);}
+ 
+
         std::vector<int> *daughter_nhits_ptr=t->reco_daughter_PFP_nHits;
         std::vector<int> nhitsref=*daughter_nhits_ptr;
+
+        std::vector<double> &daughter_shwdis_ptr=daughter_distance3D_shower;
+        //std::vector<double> shwdisref=&daughter_shwdis_ptr;
+
         std::vector<double> *daughter_trkscore_ptr=t->reco_daughter_PFP_trackScore_collection;
         std::vector<double> trkscoreref=*daughter_trkscore_ptr;
+
+        std::vector<double> *daughter_shweng_ptr=t->reco_daughter_allShower_energy;
+        std::vector<double> shwengref= *daughter_shweng_ptr;
+
 
         std::vector<int> *daughter_ID_ptr=t->reco_daughter_allTrack_ID;
         std::vector<int> trkIDref=*daughter_ID_ptr;
@@ -2040,16 +2147,16 @@ void Main::Maker::MakeFile()
         std::vector<std::vector<double>> trkdedxref=*trkdedx_ptr;
 
 
-        const std::vector<double> reco_daughter_allTrack_truncLibo_dEdX = truncatedMean(libo_low, libo_high, *trkdedx_ptr);
+        const std::vector<double> reco_daughter_allTrack_truncLibo_dEdX = truncatedMean_libo(libo_low, libo_high, *trkdedx_ptr);
  
 
-        if(!secondary_noPion_libo(*daughter_trkscore_ptr,
-             *daughter_ID_ptr,
-             reco_daughter_allTrack_truncLibo_dEdX)) continue;
+        //if(!secondary_noPion_libo(*daughter_trkscore_ptr,
+        //     *daughter_ID_ptr,
+        //     reco_daughter_allTrack_truncLibo_dEdX)) continue;
 
 
 
-        //if(ntmdqdxcand_withthresh> 0) continue;
+        if(ntmdqdxcand_withthresh> 0) continue;
 
         Ntotal_tmdqdx++;
         if(isSignal_withthresh) {Ntmcutabs_withthresh++;
@@ -2084,13 +2191,33 @@ void Main::Maker::MakeFile()
         
 
 
-
-        if(sel_abs) if(has_shower_nHits(trkscoreref, nhitsref)) continue;
+        
+        /*if(sel_abs) if(has_shower_nHits(trkscoreref, nhitsref)) continue;
 
 
         if(sel_chx) if(trkscoreref.size()==0) continue;
         if(sel_chx) if(!has_shower_nHits(trkscoreref, nhitsref)) continue;
-        //if(sel_chx) if(nshwcand>0) continue;
+        */
+        //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+        if(sel_abs) if(has_shower_Eng(trkscoreref, shwengref)) continue;
+        if(sel_abs) if(has_shower_Dist(trkscoreref, daughter_shwdis_ptr)) continue;
+        //if(sel_abs) if(nshwcand>0) continue;
+
+        if(sel_chx) if(trkscoreref.size()==0) continue;
+        if(sel_chx) if(!has_shower_Eng(trkscoreref, shwengref)) continue;
+        if(sel_chx) if(!has_shower_Dist(trkscoreref, daughter_shwdis_ptr)) continue;
+        //if(sel_chx) {if(!has_shower_Eng(trkscoreref, shwengref) && !has_shower_Dist(trkscoreref, daughter_shwdis_ptr)) continue;}
+        
+        /*if(sel_abs) if(has_shower_nHits_distance(trkscoreref, nhitsref, daughter_distance3D_shower)) continue;
+        if(sel_chx) if(trkscoreref.size()==0) continue;
+        if(sel_chx) if(!has_shower_nHits_distance(trkscoreref, nhitsref, daughter_distance3D_shower)) continue;
+        */
+        /*if(sel_abs) if(has_shower_energy_distance(trkscoreref, shwengref, daughter_shwdis_ptr)) continue;
+        if(sel_chx) if(trkscoreref.size()==0) continue;
+        if(sel_chx) if(!has_shower_energy_distance(trkscoreref, shwengref, daughter_shwdis_ptr)) continue;
+        */  
+ 
 
  
         Ntotal_shwid++;
@@ -2134,7 +2261,7 @@ void Main::Maker::MakeFile()
 
         for(unsigned int ntrk=0; ntrk<t->reco_daughter_allTrack_len->size(); ntrk++){
  
-             _event_histo_1d->h_PiAbs_sel_pmom->Fill(t->reco_daughter_allTrack_momByRange_proton->at(ntrk));
+             _event_histo_1d->h_PiAbs_sel_pmom->Fill(t->reco_daughter_allTrack_momByRange_alt_proton->at(ntrk));
              _event_histo_1d->h_PiAbs_sel_pcostheta->Fill(TMath::Cos(t->reco_daughter_allTrack_Theta->at(ntrk)));
              _event_histo_1d->h_PiAbs_sel_ptheta->Fill(t->reco_daughter_allTrack_Theta->at(ntrk));
              
@@ -2169,15 +2296,15 @@ void Main::Maker::MakeFile()
                total_truepKE += t->reco_daughter_PFP_true_byHits_startE->at(ntrk) - ProtonMass;
              }
              
-             total_recopKE += TMath::Sqrt(t->reco_daughter_allTrack_momByRange_proton->at(ntrk)*t->reco_daughter_allTrack_momByRange_proton->at(ntrk) + ProtonMass*ProtonMass) - ProtonMass;
-             total_pPx += t->reco_daughter_allTrack_momByRange_proton->at(ntrk)*TMath::Sin(t->reco_daughter_allTrack_Theta->at(ntrk))*TMath::Cos(t->reco_daughter_allTrack_Phi->at(ntrk));
-             total_pPy += t->reco_daughter_allTrack_momByRange_proton->at(ntrk)*TMath::Sin(t->reco_daughter_allTrack_Theta->at(ntrk))*TMath::Sin(t->reco_daughter_allTrack_Phi->at(ntrk));
-             total_pPz += t->reco_daughter_allTrack_momByRange_proton->at(ntrk)*TMath::Cos(t->reco_daughter_allTrack_Theta->at(ntrk));
+             total_recopKE += TMath::Sqrt(t->reco_daughter_allTrack_momByRange_alt_proton->at(ntrk)*t->reco_daughter_allTrack_momByRange_alt_proton->at(ntrk) + ProtonMass*ProtonMass) - ProtonMass;
+             total_pPx += t->reco_daughter_allTrack_momByRange_alt_proton->at(ntrk)*TMath::Sin(t->reco_daughter_allTrack_Theta->at(ntrk))*TMath::Cos(t->reco_daughter_allTrack_Phi->at(ntrk));
+             total_pPy += t->reco_daughter_allTrack_momByRange_alt_proton->at(ntrk)*TMath::Sin(t->reco_daughter_allTrack_Theta->at(ntrk))*TMath::Sin(t->reco_daughter_allTrack_Phi->at(ntrk));
+             total_pPz += t->reco_daughter_allTrack_momByRange_alt_proton->at(ntrk)*TMath::Cos(t->reco_daughter_allTrack_Theta->at(ntrk));
 
              if(t->reco_daughter_allTrack_len->at(ntrk) > temp_plen){
                                 temp_pindex = ntrk;
                                 temp_plen=t->reco_daughter_allTrack_len->at(ntrk);
-                                temp_pmom = t->reco_daughter_allTrack_momByRange_proton->at(ntrk);
+                                temp_pmom = t->reco_daughter_allTrack_momByRange_alt_proton->at(ntrk);
                                 temp_pcostheta=TMath::Cos(t->reco_daughter_allTrack_Theta->at(ntrk));
                                 temp_pphi=t->reco_daughter_allTrack_Phi->at(ntrk);
                                 temp_pcosthetax=TMath::Cos(thetax(t->reco_daughter_allTrack_Theta->at(ntrk), t->reco_daughter_allTrack_Phi->at(ntrk)));
@@ -2257,13 +2384,13 @@ void Main::Maker::MakeFile()
                       _event_histo_1d->h_PiAbs_sig_pcostheta->Fill(TMath::Cos(t->reco_daughter_allTrack_Theta->at(tmk)));
                       _event_histo_1d->h_PiAbs_sig_pphi->Fill(t->reco_daughter_allTrack_Phi->at(tmk));
                       _event_histo_1d->h_PiAbs_sig_ptheta->Fill(t->reco_daughter_allTrack_Theta->at(tmk));
-                      _event_histo_1d->h_PiAbs_sig_pmom->Fill(t->reco_daughter_allTrack_momByRange_proton->at(tmk)); 
+                      _event_histo_1d->h_PiAbs_sig_pmom->Fill(t->reco_daughter_allTrack_momByRange_alt_proton->at(tmk)); 
 
 
                       if(t->reco_daughter_allTrack_len->at(tmk) > temp_plen){
                                 temp_pindex=tmk;
                                 temp_plen=t->reco_daughter_allTrack_len->at(tmk);
-                                temp_pmom=t->reco_daughter_allTrack_momByRange_proton->at(tmk);
+                                temp_pmom=t->reco_daughter_allTrack_momByRange_alt_proton->at(tmk);
                                 temp_pcostheta=TMath::Cos(t->reco_daughter_allTrack_Theta->at(tmk));
                                 temp_pphi=t->reco_daughter_allTrack_Phi->at(tmk);
                        }
@@ -2367,7 +2494,7 @@ void Main::Maker::MakeFile()
                  _event_histo_1d->h_PiAbs_chxbac_pcostheta->Fill(TMath::Cos(t->reco_daughter_allTrack_Theta->at(tmk)));
                  _event_histo_1d->h_PiAbs_chxbac_pphi->Fill(t->reco_daughter_allTrack_Phi->at(tmk));
                  _event_histo_1d->h_PiAbs_chxbac_ptheta->Fill(t->reco_daughter_allTrack_Theta->at(tmk));
-                 _event_histo_1d->h_PiAbs_chxbac_pmom->Fill(t->reco_daughter_allTrack_momByRange_proton->at(tmk)); 
+                 _event_histo_1d->h_PiAbs_chxbac_pmom->Fill(t->reco_daughter_allTrack_momByRange_alt_proton->at(tmk)); 
 
 
 
@@ -2383,7 +2510,7 @@ void Main::Maker::MakeFile()
                  //get the most energetic proton momentum and angle
                  if(t->reco_daughter_allTrack_len->at(tmk) > temp_plen){
                                 temp_plen=t->reco_daughter_allTrack_len->at(tmk);
-                                temp_pmom=t->reco_daughter_allTrack_momByRange_proton->at(tmk);
+                                temp_pmom=t->reco_daughter_allTrack_momByRange_alt_proton->at(tmk);
                                 temp_pcostheta=TMath::Cos(t->reco_daughter_allTrack_Theta->at(tmk));
                                 temp_pphi=t->reco_daughter_allTrack_Phi->at(tmk);
                  }
@@ -2415,7 +2542,7 @@ void Main::Maker::MakeFile()
                  _event_histo_1d->h_PiAbs_reabac_pcostheta->Fill(TMath::Cos(t->reco_daughter_allTrack_Theta->at(tmk)));
                  _event_histo_1d->h_PiAbs_reabac_pphi->Fill(t->reco_daughter_allTrack_Phi->at(tmk));
                  _event_histo_1d->h_PiAbs_reabac_ptheta->Fill(t->reco_daughter_allTrack_Theta->at(tmk));
-                 _event_histo_1d->h_PiAbs_reabac_pmom->Fill(t->reco_daughter_allTrack_momByRange_proton->at(tmk)); 
+                 _event_histo_1d->h_PiAbs_reabac_pmom->Fill(t->reco_daughter_allTrack_momByRange_alt_proton->at(tmk)); 
                  if(abs(t->reco_daughter_PFP_true_byHits_PDG->at(tmk) == 22)){
                      Nreco_pion0_rea++;
                      //std::cout<<"Parent PDG code of this photon is "<<t->reco_daughter_PFP_true_byHits_parPDG->at(tmk)<<std::endl;
@@ -2430,7 +2557,7 @@ void Main::Maker::MakeFile()
  
                  if(t->reco_daughter_allTrack_len->at(tmk) > temp_plen){
                                 temp_plen=t->reco_daughter_allTrack_len->at(tmk);
-                                temp_pmom=t->reco_daughter_allTrack_momByRange_proton->at(tmk);
+                                temp_pmom=t->reco_daughter_allTrack_momByRange_alt_proton->at(tmk);
                                 temp_pcostheta=TMath::Cos(t->reco_daughter_allTrack_Theta->at(tmk));
                                 temp_pphi=t->reco_daughter_allTrack_Phi->at(tmk);
                  }
@@ -2451,7 +2578,7 @@ void Main::Maker::MakeFile()
                  _event_histo_1d->h_PiAbs_other_pcostheta->Fill(TMath::Cos(t->reco_daughter_allTrack_Theta->at(tmk)));
                  _event_histo_1d->h_PiAbs_other_pphi->Fill(t->reco_daughter_allTrack_Phi->at(tmk));
                  _event_histo_1d->h_PiAbs_other_ptheta->Fill(t->reco_daughter_allTrack_Theta->at(tmk));
-                 _event_histo_1d->h_PiAbs_other_pmom->Fill(t->reco_daughter_allTrack_momByRange_proton->at(tmk)); 
+                 _event_histo_1d->h_PiAbs_other_pmom->Fill(t->reco_daughter_allTrack_momByRange_alt_proton->at(tmk)); 
              } 
              if(t->reco_daughter_allTrack_ID->size()>0){
                       _event_histo_1d->h_other_Pmissing->Fill(reco_Pmissing);

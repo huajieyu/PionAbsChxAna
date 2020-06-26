@@ -169,6 +169,22 @@ namespace DataTypes {
     TH1D  *h_nhits_shwlike_nonphoton;
     TH1D  *h_nhits_shwlike_all;
 
+    TH1D  *h_shweng_photon;
+    TH1D  *h_shweng_electron;
+    TH1D  *h_shweng_nonphoton;
+    TH1D  *h_shweng_all;
+
+    TH1D  *h_shwang_photon;
+    TH1D  *h_shwang_electron;
+    TH1D  *h_shwang_nonphoton;
+    TH1D  *h_shwang_all;
+
+    TH1D  *h_shwdis_photon;
+    TH1D  *h_shwdis_electron;
+    TH1D  *h_shwdis_nonphoton;
+    TH1D  *h_shwdis_all;
+
+
 
 
     TH2D  *h_nonrecop_momvsnhits;
@@ -361,6 +377,13 @@ namespace DataTypes {
     TH1D  *hreabac_shwcut_mult;
     TH1D  *hreabac_tmdqdxcut_mult;
     TH1D  *hreabac_chi2cut_mult;
+
+    TH1D  *hsig_nrecogamma;
+    TH1D  *hchxbac_nrecogamma;
+    TH1D  *hreabac_nrecogamma;
+    TH1D  *hother_nrecogamma;
+
+
 
     TH1D  *h_totalp_mom;
     TH1D  *h_reintp_mom;    

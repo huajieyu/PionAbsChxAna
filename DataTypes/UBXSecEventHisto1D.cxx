@@ -116,7 +116,22 @@ namespace DataTypes {
 	    h_nhits_shwlike_photon=new TH1D("h_nhits_shwlike_photon", "h_nhits_shwlike_photon", 600, -0.5, 599.5);
 	    h_nhits_shwlike_electron=new TH1D("h_nhits_shwlike_electron", "h_nhits_shwlike_electron", 600, -0.5, 599.5);
 	    h_nhits_shwlike_nonphoton=new TH1D("h_nhits_shwlike_nonphoton", "h_nhits_shwlike_nonphoton", 600, -0.5, 599.5);
-	    h_nhits_shwlike_all=new TH1D("h_nhits_shwlike_all", "h_nhits_shwlike_all", 600, -0.0, 599.5);
+	    h_nhits_shwlike_all=new TH1D("h_nhits_shwlike_all", "h_nhits_shwlike_all", 600, -0.5, 599.5);
+ 
+	    h_shweng_photon=new TH1D("h_shweng_photon", "h_shweng_photon", 60, -0., 600);
+	    h_shweng_electron=new TH1D("h_shweng_electron", "h_shweng_electron", 60, -0., 600);
+	    h_shweng_nonphoton=new TH1D("h_shweng_nonphoton", "h_shweng_nonphoton", 60, -0., 600);
+	    h_shweng_all=new TH1D("h_shweng_all", "h_shweng_all", 60, -0.0, 600);
+ 
+	    h_shwang_photon=new TH1D("h_shwang_photon", "h_shwang_photon", 60, -0., 3.14);
+	    h_shwang_electron=new TH1D("h_shwang_electron", "h_shwang_electron", 60, -0., 3.14);
+	    h_shwang_nonphoton=new TH1D("h_shwang_nonphoton", "h_shwang_nonphoton", 60, -0., 3.14);
+	    h_shwang_all=new TH1D("h_shwang_all", "h_shwang_all", 60, -0.0, 3.14);
+ 
+	    h_shwdis_photon=new TH1D("h_shwdis_photon", "h_shwdis_photon", 60, -0., 150);
+	    h_shwdis_electron=new TH1D("h_shwdis_electron", "h_shwdis_electron", 60, -0., 150);
+	    h_shwdis_nonphoton=new TH1D("h_shwdis_nonphoton", "h_shwdis_nonphoton", 60, -0., 150);
+	    h_shwdis_all=new TH1D("h_shwdis_all", "h_shwdis_all", 60, -0.0, 150);
  
 
 	    h_trackscore_shwlike_photon=new TH1D("h_trackscore_shwlike_photon", "h_trackscore_shwlike_photon", 100, -0.0, 0.3);
@@ -337,7 +352,7 @@ namespace DataTypes {
 
             h_selproton_momreso = new TH2D("h_selproton_momreso", "h_selproton_momreso", 50, 0.0, 1.0, 50, 0.0, 1.0);
             h_selproton_momreso_new = new TH1D("h_selproton_momreso_new", "h_selproton_momreso_new", 60, -0.3, 0.3);
-            h_selproton_momreso_new->GetXaxis()->SetTitle("(recoP - trueP)/trueP");
+            h_selproton_momreso_new->GetXaxis()->SetTitle("(reco P - true P)/true P");
             h_selproton_momreso_new->GetYaxis()->SetTitle("No. of Tracks");
 
             h_selproton_momPxreso_new = new TH1D("h_selproton_momPxreso_new", "h_selproton_momPxreso_new", 60, -0.3, 0.3);
@@ -389,12 +404,19 @@ namespace DataTypes {
             hreabac_tmdqdxcut_mult=new TH1D("hreabac_tmdqdxcut_mult", "hreabac_tmdqdxcut_mult", 10, -0.5, 9.5);
             hreabac_chi2cut_mult=new TH1D("hreabac_chi2cut_mult", "hreabac_chi2cut_mult", 10, -0.5, 9.5);
 
+            hsig_nrecogamma = new TH1D("hsig_nrecogamma", "hsig_nrecogamma", 5, -0.5, 4.5);
+            hchxbac_nrecogamma = new TH1D("hchxbac_nrecogamma", "hchxbac_nrecogamma", 5, -0.5, 4.5);
+            hreabac_nrecogamma = new TH1D("hreabac_nrecogamma", "hreabac_nrecogamma", 5, -0.5, 4.5);
+            hother_nrecogamma = new TH1D("hother_nrecogamma", "hother_nrecogamma", 5, -0.5, 4.5);
+
 
             h_totalp_mom=new TH1D("h_totalp_mom", "h_totalp_mom", 60, 0.0, 1.2);
             h_reintp_mom=new TH1D("h_reintp_mom", "h_reintp_mom", 60, 0.0, 1.2);
 
           
             h_trklen_reso = new TH1D("h_trklen_reso", "h_trklen_reso", 60, -0.3, 0.3); 
+            h_trklen_reso->GetXaxis()->SetTitle("(Reco L-True L)/True L");
+            h_trklen_reso->GetYaxis()->SetTitle("No. of Tracks");
 
             h_seltrk_ptheta_cosmic = new TH1D("h_seltrk_ptheta_cosmic", "h_seltrk_ptheta_cosmic", 50, 0.0, 3.14);
             h_seltrk_ptheta_beam_daughter = new TH1D("h_seltrk_ptheta_beam_daughter", "h_seltrk_ptheta_beam_daughter", 50, 0.0, 3.14);
