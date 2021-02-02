@@ -2,6 +2,7 @@ void plot_efficiency(){
 
 
 gROOT->ForceStyle();
+gROOT->SetBatch(1);
 gStyle->SetOptStat(0);
 gStyle->SetTitle("");
 //gStyle->SetCanvasColor(-1);
@@ -20,8 +21,22 @@ gStyle->SetStatBorderSize(0);
 gStyle->SetTitleBorderSize(0);
 gStyle->SetTitleX(0.7);
 gStyle->SetTitleY(0.7);
+//gStyle->SetLabelOffset(1.2);
+//gStyle->SetLabelFont(72);
+gStyle->SetTitleSize(0.05, "X");
+gStyle->SetTitleSize(0.05, "Y");
+gStyle->SetTitleOffset(0.85, "X");
+gStyle->SetTitleOffset(0.85, "Y");
 
+/*TLatex* prelim = new TLatex(0.9,0.93, "protoDUNE-SP: Preliminary");
+prelim->SetTextFont(62);
+prelim->SetTextColor(kGray+2);
+prelim->SetNDC();
+prelim->SetTextSize(1/30.);
+prelim->SetTextAlign(32);
+*/
 
+gROOT->SetBatch(1);
 
 TFile *inputfile = new TFile("output_test.root");
 TFile *inputfile_data = new TFile("output_test_data.root");
@@ -43,7 +58,12 @@ TH1D *h_thetax_recotruep_test;
 h_thetax_recotruep_test = (TH1D*)inputfile->Get("h_thetax_recotruep_test");
 
 
-
+TLatex* prelim = new TLatex(0.9,0.93, "protoDUNE-SP: Preliminary");
+prelim->SetTextFont(62);
+prelim->SetTextColor(kGray+2);
+prelim->SetNDC();
+prelim->SetTextSize(1/30.);
+prelim->SetTextAlign(32);
 
 /*
 TCanvas *c_thetax=new TCanvas("c_thetax", "c_thetax", 900, 700);
@@ -149,7 +169,7 @@ TLegend *leg=new TLegend(0.35, 0.65, 0.65, 0.85);
 leg->SetBorderSize(0);
 leg->SetNColumns(2);
 leg->AddEntry(h_track_trackscore[0], "#pi^{#pm}");
-leg->AddEntry(h_track_trackscore[1], "#pi0");
+//leg->AddEntry(h_track_trackscore[1], "#pi0");
 leg->AddEntry(h_track_trackscore[2], "proton");
 leg->AddEntry(h_track_trackscore[3], "electron");
 leg->AddEntry(h_track_trackscore[4], "muon");
@@ -169,6 +189,7 @@ h_track_trackscore_data->SetLineWidth(3);
 h_track_trackscore_data->Draw("same");
 leg->AddEntry(h_track_trackscore_data, "Data");
 leg->Draw("same");
+prelim->Draw("same");
 hs_new->GetXaxis()->SetTitle("Track Score of Track");
 hs_new->GetYaxis()->SetTitle("No. of Tracks");
 hs_new->SetTitle("");
@@ -192,15 +213,16 @@ h6->Rebin(5);
 
 h0->Add(h1);
 h0->Add(h2);
-h0->Add(h3);
+//h0->Add(h3);
 h0->Add(h4);
 h0->Add(h5);
 h0->Add(h6);
+h6->Add(h3);
 h6->Divide(h0);
 h6->SetLineColor(kRed);
 h6->SetLineWidth(3);
 h6->GetXaxis()->SetTitle("Track Score");
-h6->GetYaxis()->SetTitle("Fraction of Photon");
+h6->GetYaxis()->SetTitle("Fraction of #gamma,e");
 h6->SetTitle("");
 h6->SetFillColor(kWhite);
 h6->Draw("hist");
@@ -226,7 +248,7 @@ TLegend *leg_dm=new TLegend(0.7, 0.7, 0.85, 0.85);
 leg_dm->AddEntry(h_tmdqdx, "MC");
 leg_dm->AddEntry(h_tmdqdx_data, "Data");
 leg_dm->Draw("same");
-
+prelim->Draw("same");
 c_tmdqdx->SaveAs("h_tmdqdx_data_vs_MC.png");
 
 
@@ -297,7 +319,7 @@ h_chi2_phypo_data->Scale((h_proton_chi2->Integral()+h_pion_chi2->Integral()+
 h_chi2_phypo_data->SetLineWidth(3);
 h_chi2_phypo_data->Draw("same");
 
-TLegend *leg2=new TLegend(0.55, 0.55, 0.85, 0.85);
+TLegend *leg2=new TLegend(0.55, 0.45, 0.85, 0.85);
 leg2->SetBorderSize(0);
 leg2->SetNColumns(1);
 leg2->AddEntry(h_proton_chi2, "Proton");
@@ -308,7 +330,7 @@ leg2->AddEntry(h_kaon_chi2, "Kaon");
 leg2->AddEntry(h_other_chi2, "Other");
 leg2->AddEntry(h_chi2_phypo_data, "Data");
 leg2->Draw("same");
-
+prelim->Draw("same");
 cchi2->SaveAs("chi2_data_vs_mc.png");
 
 

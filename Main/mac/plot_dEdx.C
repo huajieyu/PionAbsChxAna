@@ -105,6 +105,8 @@ void plot_dEdx(){
     //gStyle->SetPadGridY(kTRUE);
     //gStyle->SetGridStyle();
   //----------------------------------------------------------------------
+
+  gROOT->SetBatch(1);
  TGraph* graph=(TGraph*)f0->Get("proton");
  graph->SetLineColor(2);
  graph->SetLineWidth(2);
@@ -163,10 +165,19 @@ void plot_dEdx(){
   cs->Print("selproton_dEdx_vs_resrange_pcont_MC.png");
   cs->Update();
   
-  
+  TH2D* h_selproton_momreso = (TH2D*)input1->Get("h_selproton_momreso"); 
+  TCanvas *cd = new TCanvas("cd","cd", 900, 700);
+  h_selproton_momreso->GetXaxis()->SetTitle("True Momentum[GeV]");
+  h_selproton_momreso->GetYaxis()->SetTitle("Reco Momentum[GeV]");
+  h_selproton_momreso->Draw("colz");
+  cd->SaveAs("h_true_reco_proton_mom.png");
 
-
-
+  TH2D* h_selproton_costhetareso = (TH2D*)input1->Get("h_selproton_costhetareso"); 
+  TCanvas *cdd = new TCanvas("cdd","cdd", 900, 700);
+  h_selproton_costhetareso->GetXaxis()->SetTitle("True cos#theta");
+  h_selproton_costhetareso->GetYaxis()->SetTitle("Reco cos#thetaGeV]");
+  h_selproton_costhetareso->Draw("colz");
+  cdd->SaveAs("h_true_reco_proton_costheta.png");
 
 
 

@@ -48,17 +48,18 @@
 #include "TMath.h"
 #include "TH2Poly.h"
 #include "TVector3.h"
-#include "../DataTypes/UBTH2Poly.h"
-#include "../DataTypes/BootstrapTH2DPoly.h"
-#include "../DataTypes/UBXSecEventHisto.h"
-#include "../DataTypes/UBXSecEventHisto1D.h"
+#include "TLorentzVector.h"
+#include "ubana/DataTypes/UBTH2Poly.h"
+#include "ubana/DataTypes/BootstrapTH2DPoly.h"
+#include "ubana/DataTypes/UBXSecEventHisto.h"
+#include "ubana/DataTypes/UBXSecEventHisto1D.h"
 
 #include "UBXSecEvent.h"
-#include "../DataTypes/BootstrapTH1D.h"
-#include "../DataTypes/BootstrapTH2D.h"
-#include "../Base/PlottingTools.h"
+#include "ubana/DataTypes/BootstrapTH1D.h"
+#include "ubana/DataTypes/BootstrapTH2D.h"
+#include "ubana/Base/PlottingTools.h"
 
-#include "../Base/LoggerFeature.h"
+#include "ubana/Base/LoggerFeature.h"
 
 using namespace DataTypes;
 using namespace Base;
@@ -165,6 +166,9 @@ namespace Main{
 
     /// Sets the target used for extra systematics
     void SetTargetExtraSystematic(std::string s) { _extra_syst_target_syst = s; }
+
+    //UBXSecEventHisto1D * _event_histo_1d;
+    //UBXSecEventHisto   * _event_histo;
 
 
   private:
@@ -283,7 +287,10 @@ namespace Main{
     std::string filen     = "ubxsec_output.root";
     std::string filen_add = "";
     std::string fileoutn  = "ubxsecana_output.root";
+
     bool evalPOT          = false;
+    double Evttot         = 0.0;
+
     int maxEntries        = -1;
     int _initial_entry    = 0; ///< Entry in Tree to begin with
     bool isdata           = false;
@@ -329,6 +336,18 @@ namespace Main{
     std::vector<std::string> _wgtsnames_flux_multisim;
     std::vector<double> _wgts_flux_multisim;
 
+    double slicebins[26];
+
+
+
+    std::map<int, int> sliceID_incidentN;
+    std::map<int, double> sliceID_incidentthickness;
+    std::map<int, int> sliceID_interactN;
+    std::map<int, double> sliceID_interactthickness;
+    std::map<int, int> sliceID_backgroundN;
+    std::map<int, double> sliceID_backgroundthickness;
+          
+
 
     bool _fill_bootstrap_mc_stat = false; ///< If true, fills bootstrap with poisson weights (mc stat)
     int _mc_stat_n_events = 100; ///< Number of universes uses for poisson weights (mc stat)
@@ -349,8 +368,9 @@ namespace Main{
     //int maxEntries = -1;
     double momthreshcut = 0.0;
     double trkscorecut=0.0;
-    double cut_dEdX_high = 3.2;
-    double cut_dEdX_low = 1.0;
+    double cut_dEdX_high = 2.8;
+    double cut_dEdX_low = 0.6;
+    double cut_for_proton = 3.4;
     double libo_low = 0.16;
     double libo_high = 0.16;
     //PDEventHisto1D *_event_histo_1d;
@@ -362,8 +382,11 @@ namespace Main{
     const double PionMass = 0.13957; 
 
     double cutAPA3_Z = 226.;
-    double cut_trackScore = 0.3;
+    double cut_trackScore = 0.4;
     //daughter Distance cut
+
+    int temp_index_shw= -999;
+
     double cut_daughter_track_distance = 10.;
 
     double cut_daughter_shower_distance_low = 5.;
@@ -374,9 +397,11 @@ namespace Main{
     int cut_nHits_shower_low = 40;
     int cut_nHits_shower_high = 1000;
 
-    int cut_energy_shower_low = 40;
+    int cut_energy_shower_low = 80;
     int cut_energy_shower_high = 1000; 
 
+    double cut_angle_shower_low = 0.1;
+    double cut_angle_shower_high = 0.2;
 
     //
     //For MC from Owen Goodwins studies
@@ -410,7 +435,7 @@ namespace Main{
     bool has_pi0shower(const std::vector<double> &track_score);
     const std::vector<double> truncatedMean(double truncate_low, double truncate_high, std::vector<std::vector<double>> &vecs_dEdX); 
     const std::vector<double> truncatedMean_libo(double truncate_low, double truncate_high, std::vector<std::vector<double>> &vecs_dEdX); 
-    const std::vector<double> truncatedMean_xglu(int nhits_left, int nhits_right, double truncate_low, double truncate_high, std::vector<std::vector<double>> &vecs_dEdX); 
+    const std::vector<double> truncatedMean_xglu(double tmdqdx_test); 
 
     double GetTruncatedMean(const vector<double> tmparr, const unsigned int nsample0, const unsigned int nsample1, const double lowerFrac, const double upperFrac);
     bool has_shower_nHits_distance(const std::vector<double> &track_score,
@@ -426,6 +451,9 @@ namespace Main{
 
     bool has_shower_Eng(const std::vector<double> &track_score,
                                   const std::vector<double> &shweng);
+
+    bool has_shower_Ang(const std::vector<double> &track_score,
+                                  const std::vector<double> &shwang);
 
     bool has_shower_Dist(const std::vector<double> &track_score,
                                   const std::vector<double> &distance);

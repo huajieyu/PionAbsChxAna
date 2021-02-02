@@ -161,8 +161,15 @@ namespace Main {
 
   //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
   // Create a list of the backgrounds that will be subtracted
-  std::vector<std::string> bkg_names = {"chxbac", "reabac"};
+  std::vector<std::string> bkg_names = {"chxbac", "reabac", "other"};
 
+  TH1D *h_Evttot_mc = (TH1D*)mc_bnbcosmic_file->Get("h_Evttot");
+  TH1D *h_Evttot_data = (TH1D*)bnbon_file->Get("h_Evttot");
+
+  Double_t Nevtmc= h_Evttot_mc->GetBinContent(1);
+  Double_t Nevtdata = h_Evttot_data->GetBinContent(1);
+ 
+  double scale_fac = Nevtdata/(Nevtmc*1.0);
 
   LOG_NORMAL()<<"Start to making the plots"<<std::endl;
   // Instantiate the GENIE reweighting plotter
@@ -201,21 +208,258 @@ namespace Main {
     //genie_rw_plotter.MakePlots(2, false, true);
     genie_rw_plotter.MakeBackgroundPlots(1, false, true);  
   }
+    //calculate smeared efficiecy
+    //get the histograms of efficiency
+
+    int n_bins_mumom = 50;
+    int n_bins_mucostheta = 50;
+    int n_bins_muphi=50;
+
+    double bins_mumom[51]; 
+    double bins_mucostheta[51]; 
+    double bins_muphi[51];
+
+    for(int i=0; i<n_bins_mumom+1; i++){
+         bins_mumom[i]=0.0+1.2/n_bins_mumom*i;
+    }
+    for(int i=0; i<n_bins_mucostheta+1; i++){
+         bins_mucostheta[i]=-1.0+2.0/n_bins_mucostheta*i;
+    }
+    for(int i=0; i<n_bins_muphi+1; i++){
+         bins_muphi[i]=-TMath::Pi()+2.0*TMath::Pi()/n_bins_muphi*i;
+    }
+    //Set the map with the signal and background histograms
+    std::map<std::string, TH1D*> hmap_trkmom;
+    hmap_trkmom["total"]= (TH1D*)mc_bnbcosmic_file->Get("h_PiAbs_sel_pmom");
+    hmap_trkmom["signal"]= (TH1D*)mc_bnbcosmic_file->Get("h_PiAbs_sig_pmom");
+    hmap_trkmom["chxbac"]= (TH1D*)mc_bnbcosmic_file->Get("h_PiAbs_chxbac_pmom");
+    hmap_trkmom["reabac"]= (TH1D*)mc_bnbcosmic_file->Get("h_PiAbs_reabac_pmom");
+    hmap_trkmom["other"]= (TH1D*)mc_bnbcosmic_file->Get("h_PiAbs_other_pmom");
+
+    std::map<std::string, TH1D*> hmap_trkmom_data;
+    hmap_trkmom_data["total"]= (TH1D*)bnbon_file->Get("h_PiAbs_sel_pmom");
 
 
+    std::map<std::string, TH1D*> hmap_trkcostheta;
+    hmap_trkcostheta["total"]= (TH1D*)mc_bnbcosmic_file->Get("h_PiAbs_sel_pcostheta");
+    hmap_trkcostheta["signal"]= (TH1D*)mc_bnbcosmic_file->Get("h_PiAbs_sig_pcostheta");
+    hmap_trkcostheta["chxbac"]= (TH1D*)mc_bnbcosmic_file->Get("h_PiAbs_chxbac_pcostheta");
+    hmap_trkcostheta["reabac"]= (TH1D*)mc_bnbcosmic_file->Get("h_PiAbs_reabac_pcostheta");
+    hmap_trkcostheta["other"]= (TH1D*)mc_bnbcosmic_file->Get("h_PiAbs_other_pcostheta");
+
+    std::map<std::string, TH1D*> hmap_trkcostheta_data;
+    hmap_trkcostheta_data["total"]= (TH1D*)bnbon_file->Get("h_PiAbs_sel_pcostheta");
+ 
+
+    std::map<std::string, TH1D*> hmap_trkphi;
+    hmap_trkphi["total"]= (TH1D*)mc_bnbcosmic_file->Get("h_PiAbs_sel_pphi");
+    hmap_trkphi["signal"]= (TH1D*)mc_bnbcosmic_file->Get("h_PiAbs_sig_pphi");
+    hmap_trkphi["chxbac"]= (TH1D*)mc_bnbcosmic_file->Get("h_PiAbs_chxbac_pphi");
+    hmap_trkphi["reabac"]= (TH1D*)mc_bnbcosmic_file->Get("h_PiAbs_reabac_pphi");
+    hmap_trkphi["other"]= (TH1D*)mc_bnbcosmic_file->Get("h_PiAbs_other_pphi");
+
+    std::map<std::string, TH1D*> hmap_trkphi_data;
+    hmap_trkphi_data["total"]= (TH1D*)bnbon_file->Get("h_PiAbs_sel_pphi");
+ 
 
 
+    TH1D* h_eff_pmom_num; TH1D* h_eff_pmom_den;
+    TH1D* h_eff_pcostheta_num; TH1D* h_eff_pcostheta_den;
+    TH1D* h_eff_pphi_num; TH1D* h_eff_pphi_den;
+
+    TH2D* h_true_reco_mom;
+    TH2D* h_true_reco_costheta;
+    TH2D* h_true_reco_phi;
+    h_eff_pmom_den = (TH1D*)mc_bnbcosmic_file->Get("h_eff_pmom_den");
+    h_eff_pmom_num = (TH1D*)mc_bnbcosmic_file->Get("h_eff_pmom_num");
+
+    h_eff_pcostheta_den = (TH1D*)mc_bnbcosmic_file->Get("h_eff_pcostheta_den");
+    h_eff_pcostheta_num = (TH1D*)mc_bnbcosmic_file->Get("h_eff_pcostheta_num");
+
+    h_eff_pphi_den = (TH1D*)mc_bnbcosmic_file->Get("h_eff_pphi_den");
+    h_eff_pphi_num = (TH1D*)mc_bnbcosmic_file->Get("h_eff_pphi_num");
+
+    h_true_reco_mom = (TH2D*)mc_bnbcosmic_file->Get("h_true_reco_mom");
+    h_true_reco_costheta = (TH2D*)mc_bnbcosmic_file->Get("h_true_reco_costheta");
+    h_true_reco_phi = (TH2D*)mc_bnbcosmic_file->Get("h_true_reco_phi");
+
+    std::string varcalc[3] = {"mom", "costheta", "phi"}; 
 
 
+    //
+    // Proton Momentum  Momentum Cross Section
+    //
+    TMatrix _S_mom; _S_mom.Clear(); _S_mom.ResizeTo(n_bins_mumom + 1, n_bins_mumom + 1);
+    MigrationMatrix2D migrationmatrix2d;
+    migrationmatrix2d.SetOutDir("migration_matrix_2d_trkmom");
+    migrationmatrix2d.SetNBins(n_bins_mumom, n_bins_mumom);
+    migrationmatrix2d.SetTrueRecoHistogram(h_true_reco_mom);
+    _S_mom = migrationmatrix2d.CalculateMigrationMatrix();
+    migrationmatrix2d.PlotMatrix();
+    migrationmatrix2d.SetOutputFileName("migration_matrix_2d_trkmom.tex");
+    migrationmatrix2d.PrintSmearingMatrixLatex();
+
+    //Set Migration Matrix and print out
+    TLatex *prelim_Right = new TLatex(0.9, 0.93, "protoDUNE Simulation");
+ 
+    prelim_Right->SetTextFont(62);
+    prelim_Right->SetTextColor(kGray+1); 
+    prelim_Right->SetNDC(); 
+    prelim_Right->SetTextSize(0.05); 
+    prelim_Right->SetTextAlign(32); 
+    //prelim->Draw();
+
+    TLatex* prelim_Left = new TLatex(0.4,0.8, "protoDUNE Simulation");
+    prelim_Left->SetTextFont(62);
+    prelim_Left->SetTextColor(kGray+1); 
+    prelim_Left->SetNDC(); 
+    prelim_Left->SetTextSize(0.05); 
+    prelim_Left->SetTextAlign(32); 
+ 
+    TCanvas *c_mom=new TCanvas("c_mom", "c_mom", 900, 900);
+    h_true_reco_mom->Draw("colz");
 
 
+    int bins_x = h_true_reco_mom->GetNbinsX()+1;
+    int bins_y = h_true_reco_mom->GetNbinsY()+1;
+    int _m = bins_x - 1;
+    int _n = bins_y - 1;
+    TH2D * smearing_matrix_mom= new TH2D("smearing_matrix_mom", "", n_bins_mumom, bins_mumom, n_bins_mumom, bins_mumom);
+    smearing_matrix_mom->GetXaxis()->SetTitle("p_{#mu} (Truth) [GeV/c]");
+    smearing_matrix_mom->GetYaxis()->SetTitle("p_{#mu} (Reco) [GeV/c]");
+    smearing_matrix_mom->GetYaxis()->SetTitleOffset(1.4);
+    for (int i = 0; i < _n; i++) {
+      for (int j = 0; j < _m; j++) {
+
+        smearing_matrix_mom->SetBinContent(j+1, i+1, _S_mom[i][j]);
+
+      }
+    }
+    //smearing_matrix_mom->GetXaxis()->SetRangeUser(0.0,2.5);
+    //smearing_matrix_mom->GetYaxis()->SetRangeUser(0.0,2.5);
+    smearing_matrix_mom->Draw("colz");
+    prelim_Right->Draw("same");
+    c_mom->SaveAs("Fractional_MigrationMatrix_trkmom.png");
+    //------------------------------------------------------------------------------ 
+    //Get the smeared efficiency of proton momentum
+    CrossSectionCalculator1D _xsec_calc_mom;
+    _xsec_calc_mom.Reset();
+    _xsec_calc_mom.SetVerbose(true);
+    _xsec_calc_mom.SetOutDir("output_data_mc");
+    _xsec_calc_mom.SetNameAndLabel("mom", ";P_{proton}[GeV]; Selected Events");
+    _xsec_calc_mom.SetMigrationMatrix(_S_mom);
+    _xsec_calc_mom.SetTruthHistograms(h_eff_pmom_num, h_eff_pmom_den);
+    _xsec_calc_mom.SetHistograms(hmap_trkmom, hmap_trkmom["total"], hmap_trkmom["total"]);
+     _xsec_calc_mom.SetHistograms(hmap_trkmom, hmap_trkmom["total"],  hmap_trkmom["total"], hmap_trkmom, hmap_trkmom["total"]);
+    _xsec_calc_mom.Smear(n_bins_mumom, n_bins_mumom);
+ 
+    TH1D * xsec_mumom = _xsec_calc_mom.ExtractCrossSection_PiAbs(bkg_names, "p_{proton}^{reco} [GeV]", "mb", scale_fac);
+
+ 
+    //-------------------------------------------------------------------------------
+    TMatrix _S_costheta; _S_costheta.Clear(); _S_costheta.ResizeTo(n_bins_mucostheta + 1, n_bins_mucostheta + 1);
+    //MigrationMatrix2D migrationmatrix2d;
+    migrationmatrix2d.SetOutDir("migration_matrix_2d_trkcostheta");
+    migrationmatrix2d.SetNBins(n_bins_mucostheta, n_bins_mucostheta);
+    migrationmatrix2d.SetTrueRecoHistogram(h_true_reco_costheta);
+    _S_costheta = migrationmatrix2d.CalculateMigrationMatrix();
+    migrationmatrix2d.PlotMatrix();
+    migrationmatrix2d.SetOutputFileName("migration_matrix_2d_trkcostheta.tex");
+    migrationmatrix2d.PrintSmearingMatrixLatex();
+    
+ 
+
+    TCanvas *c_costheta=new TCanvas("c_costheta", "c_costheta", 900, 900);
+    h_true_reco_costheta->Draw("colz");
+
+
+    bins_x = h_true_reco_costheta->GetNbinsX()+1;
+    bins_y = h_true_reco_costheta->GetNbinsY()+1;
+    _m = bins_x - 1;
+    _n = bins_y - 1;
+    TH2D * smearing_matrix_costheta= new TH2D("smearing_matrix_costheta", "", n_bins_mucostheta, bins_mucostheta, n_bins_mucostheta, bins_mucostheta);
+    smearing_matrix_costheta->GetXaxis()->SetTitle("cos#theta_{#mu} (Truth)");
+    smearing_matrix_costheta->GetYaxis()->SetTitle("cos#theta_{#mu} (Reco)");
+    smearing_matrix_costheta->GetYaxis()->SetTitleOffset(1.4);
+    for (int i = 0; i < _n; i++) {
+      for (int j = 0; j < _m; j++) {
+
+        smearing_matrix_costheta->SetBinContent(j+1, i+1, _S_costheta[i][j]);
+
+      }
+    }
+    smearing_matrix_costheta->Draw("colz");
+    prelim_Right->Draw("same");
+    c_costheta->SaveAs("Fractional_MigrationMatrix_trkcostheta.png");
+    //------------------------------------------------------------------------------ 
+    //Get the smeared efficiency of proton momentum
+    CrossSectionCalculator1D _xsec_calc_costheta;
+    _xsec_calc_costheta.Reset();
+    _xsec_calc_costheta.SetVerbose(true);
+    _xsec_calc_costheta.SetOutDir("output_data_mc");
+    _xsec_calc_costheta.SetNameAndLabel("costheta", ";cos#theta_{proton}; Selected Events");
+    _xsec_calc_costheta.SetMigrationMatrix(_S_costheta);
+    _xsec_calc_costheta.SetTruthHistograms(h_eff_pcostheta_num, h_eff_pcostheta_den);
+    _xsec_calc_costheta.Smear(n_bins_mucostheta, n_bins_mucostheta);
+ 
+    //_xsec_calc_costheta.SetBkgToSubtract(bkg_names);
+
+    //------------------------------------------------------------
+
+    TMatrix _S_phi; _S_phi.Clear(); _S_phi.ResizeTo(n_bins_muphi + 1, n_bins_muphi + 1);
+    //MigrationMatrix2D migrationmatrix2d;
+    migrationmatrix2d.SetOutDir("migration_matrix_2d_trkphi");
+    migrationmatrix2d.SetNBins(n_bins_muphi, n_bins_muphi);
+    migrationmatrix2d.SetTrueRecoHistogram(h_true_reco_phi);
+    _S_phi = migrationmatrix2d.CalculateMigrationMatrix();
+    migrationmatrix2d.PlotMatrix();
+    migrationmatrix2d.SetOutputFileName("migration_matrix_2d_trkphi.tex");
+    migrationmatrix2d.PrintSmearingMatrixLatex();
+
+
+    TCanvas *c_phi=new TCanvas("c_phi", "c_phi", 900, 900);
+    h_true_reco_phi->Draw("colz");
+
+
+    bins_x = h_true_reco_phi->GetNbinsX()+1;
+    bins_y = h_true_reco_phi->GetNbinsY()+1;
+    _m = bins_x - 1;
+    _n = bins_y - 1;
+    TH2D * smearing_matrix_phi= new TH2D("smearing_matrix_phi", "", n_bins_muphi, bins_muphi, n_bins_muphi, bins_muphi);
+    smearing_matrix_phi->GetXaxis()->SetTitle("#phi_{proton} (Truth)");
+    smearing_matrix_phi->GetYaxis()->SetTitle("#phi_{proton} (Reco)");
+    smearing_matrix_phi->GetYaxis()->SetTitleOffset(1.4);
+    for (int i = 0; i < _n; i++) {
+      for (int j = 0; j < _m; j++) {
+
+        smearing_matrix_phi->SetBinContent(j+1, i+1, _S_phi[i][j]);
+
+      }
+    }
+    smearing_matrix_phi->Draw("colz");
+    prelim_Right->Draw("same");
+    c_phi->SaveAs("Fractional_MigrationMatrix_trkphi.png");
+    //------------------------------------------------------------------------------ 
+    //Get the smeared efficiency of proton momentum
+    CrossSectionCalculator1D _xsec_calc_phi;
+    _xsec_calc_phi.Reset();
+    _xsec_calc_phi.SetVerbose(true);
+    _xsec_calc_phi.SetOutDir("output_data_mc");
+    _xsec_calc_phi.SetNameAndLabel("phi", ";#phi_{proton}; Selected Events");
+    _xsec_calc_phi.SetMigrationMatrix(_S_phi);
+    _xsec_calc_phi.SetTruthHistograms(h_eff_pphi_num, h_eff_pphi_den);
+    _xsec_calc_phi.Smear(n_bins_muphi, n_bins_muphi);
+ 
+    //_xsec_calc_phi.SetBkgToSubtract(bkg_names);
+
+    //------------------------------------------------------------------------------------------
 
 
   LOG_NORMAL() << "Preparing to load Event Histo from BNBCosmic file." << std::endl;
-
+  /*
   UBXSecEventHisto1D * _event_histo_1d_mc = 0;
-  //mc_bnbcosmic_file->GetObject("UBXSecEventHisto1D", _event_histo_1d_mc);
-
+  mc_bnbcosmic_file->GetObject("UBXSecEventHisto1D", _event_histo_1d_mc);
+  LOG_NORMAL() << "Get the object of UBXSecEventHisto1D"<<std::endl;
 
   Bool_t Object_exists;
   Object_exists=mc_bnbcosmic_file->GetListOfKeys()->Contains("UBXSecEventHisto1D");
@@ -224,7 +468,7 @@ namespace Main {
 
 
   LOG_NORMAL() << "Event Histo correclty loaded from BNBCosmic file." << std::endl;
-
+  */
 
 
 

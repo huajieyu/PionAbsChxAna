@@ -8,17 +8,14 @@ from ROOT import Main
 analyser = Main.Analyse()
 
 
-analyser.SetBNBCosmicFile     ("/dune/app/users/jiang/dunetpc_analysis/UBAna/Main/mac/output_test.root") # Tune 1 - full stat - full syst
+analyser.SetBNBCosmicFile     ("/dune/app/users/jiang/dunetpc_analysis/PionAbsChxAna/UBAna/Main/mac/output_test.root") # Tune 1 - full stat - full syst
 
-analyser.SetDirtFile          ("/dune/app/users/jiang/dunetpc_analysis/UBAna/Main/mac/output_test.root")
+analyser.SetDirtFile          ("/dune/app/users/jiang/dunetpc_analysis/PionAbsChxAna/UBAna/Main/mac/output_test.root")
 
-analyser.SetInTimeCosmicFile  ("/dune/app/users/jiang/dunetpc_analysis/UBAna/Main/mac/output_test.root") # Just a placeholder
+analyser.SetInTimeCosmicFile  ("/dune/app/users/jiang/dunetpc_analysis/PionAbsChxAna/UBAna/Main/mac/output_test.root") # Just a placeholder
 
-analyser.SetBNBONFile         ("/dune/app/users/jiang/dunetpc_analysis/UBAna/Main/mac/output_test.root")    
-analyser.SetEXTBNBFile        ("/dune/app/users/jiang/dunetpc_analysis/UBAna/Main/mac/output_test.root")
-#analyser.SetBNBPOT(1.592e+20)    
-#analyser.SetBNBONTriggers(35388924.0)   
-#analyser.SetEXTBNBTriggers(72299264.0)
+analyser.SetBNBONFile         ("/dune/app/users/jiang/dunetpc_analysis/PionAbsChxAna/UBAna/Main/mac/output_test_data.root")    
+analyser.SetEXTBNBFile        ("/dune/app/users/jiang/dunetpc_analysis/PionAbsChxAna/UBAna/Main/mac/output_test_data.root")
 analyser.SetPrefix("cv")
 # analyser.SetPrefix("cv_tune3")
 # analyser.SetPrefix("cv_cosmicscaled_overlay_test")

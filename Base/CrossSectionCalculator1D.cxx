@@ -292,7 +292,7 @@ namespace Base {
 
     TString name = _folder + "_flux";
     c_flux->SaveAs(name + ".pdf");
-    c_flux->SaveAs(name + ".C","C");
+    c_flux->SaveAs(name + ".C");
     
     _flux = h_flux_numu->Integral();
 
@@ -349,7 +349,7 @@ namespace Base {
 
     // Settings for true distributions
     _h_eff_mumom_den->SetTitle("");
-    _h_eff_mumom_den->GetXaxis()->SetTitle("p_{#mu}^{truth} [GeV]"); //->SetTitle("cos(#theta_{#mu}^{truth})");
+    _h_eff_mumom_den->GetXaxis()->SetTitle("p_{proton}^{truth} [GeV]"); //->SetTitle("cos(#theta_{#mu}^{truth})");
     _h_eff_mumom_den->GetYaxis()->SetTitle("Events");
     _h_eff_mumom_den->SetFillColorAlpha(30, 0.35);
     _h_eff_mumom_den->SetLineColor(30);
@@ -367,7 +367,7 @@ namespace Base {
     TEfficiency* teff_true = new TEfficiency(*_h_eff_mumom_num,*_h_eff_mumom_den);
 
     TCanvas * c_eff_true = new TCanvas;
-    teff_true->SetTitle(";p_{#mu}^{truth};Efficiency");//->SetTitle(";cos(#theta_{#mu}^{truth});Efficiency");
+    teff_true->SetTitle(";p_{proton}^{truth};Efficiency");//->SetTitle(";cos(#theta_{#mu}^{truth});Efficiency");
     teff_true->SetLineColor(kGreen+3);
     teff_true->SetMarkerColor(kGreen+3);
     teff_true->SetMarkerStyle(20);
@@ -380,9 +380,9 @@ namespace Base {
     g->SetMaximum(1);
     gPad->Update(); 
 
-    TString name = _folder +_name + "efficiecy_mumon_true";
+    TString name = _folder +_name + "_efficiecy_mumon_true";
     c_eff_true->SaveAs(name + ".pdf");
-
+    c_eff_true->SaveAs(name + ".C");
     // 
     // Do the smearing
     //
@@ -441,13 +441,15 @@ namespace Base {
     _h_eff_mumom_num->Draw("histo same");
 
     TLegend * ll = new TLegend(0.5315186,0.7515789,0.8696275,0.8821053,NULL,"brNDC");
-    ll->AddEntry(_h_eff_mumom_den,"Generated #nu_{#mu} CC in FV","f");
-    ll->AddEntry(_h_eff_mumom_num,"Selected #nu_{#mu} CC in FV","f");
+    //ll->AddEntry(_h_eff_mumom_den,"Generated #nu_{#mu} CC in FV","f");
+    //ll->AddEntry(_h_eff_mumom_num,"Selected #nu_{#mu} CC in FV","f");
+    ll->AddEntry(_h_eff_mumom_den,"Generated Signal","f");
+    ll->AddEntry(_h_eff_mumom_num,"Selected Signal","f");
     ll->Draw();
 
     name = _folder +_name + "all_selected";
     c->SaveAs(name + ".pdf");
-
+    c->SaveAs(name + ".C");
     LOG_INFO() << "_h_eff_mumom_num->Integral(): " << _h_eff_mumom_num->Integral() << std::endl;
     LOG_INFO() << "_h_eff_mumom_den->Integral(): " << _h_eff_mumom_den->Integral() << std::endl;
 
@@ -471,7 +473,7 @@ namespace Base {
 
     name = _folder +_name + "_all_selected_smear";
     c_smear->SaveAs(name + ".pdf");
-
+    c_smear->SaveAs(name + ".C");
     LOG_INFO() << "h_eff_mumom_num_smear->Integral(): " << h_eff_mumom_num_smear->Integral() << std::endl;
     LOG_INFO() << "h_eff_mumom_den_smear->Integral(): " << h_eff_mumom_den_smear->Integral() << std::endl;
 
@@ -498,7 +500,7 @@ namespace Base {
 
     name = _folder +_name + "_efficiecy_reco";
     c_eff_reco->SaveAs(name + ".pdf");
-
+    c_eff_reco->SaveAs(name + ".C");
     // LOG_INFO() << "Statistic option used for efficiency calculation: " << teff_reco->GetStatisticOption() << ", check https://root.cern.ch/doc/v608/classTEfficiency.html#af27fb4e93a1b16ed7a5b593398f86312." << std::endl;
     LOG_INFO() << "Efficiency bin 1: " << teff_reco->GetEfficiency(1) << " - " << teff_reco->GetEfficiencyErrorLow(1) << " + " << teff_reco->GetEfficiencyErrorUp(1) << std::endl;
     LOG_INFO() << "Efficiency bin 2: " << teff_reco->GetEfficiency(2) << " - " << teff_reco->GetEfficiencyErrorLow(2) << " + " << teff_reco->GetEfficiencyErrorUp(2) << std::endl;
@@ -683,6 +685,108 @@ namespace Base {
                  << " & " << _h_bnbon->Integral() << "\\\\" << std::endl;
   }  
 
+  TH1D* CrossSectionCalculator1D::ExtractCrossSection_PiAbs(std::vector<std::string> bkg_names, std::string xaxis_label, std::string yaxis_label, double scale_fac){
+     std::cout<<"start extracting xsec for pion absorptions scale factor is "<<scale_fac<<std::endl;
+     _hmap_bnbcosmic["signal"]->Scale(scale_fac);
+     _h_mc = _hmap_bnbcosmic["signal"];   
+     _h_data = (TH1D*)_h_bnbon->Clone("h_data");
+     _h_mc->SetTitle(_label.c_str());
+     _h_data->Sumw2();
+
+     //subtract background
+    for (auto name : bkg_names) 
+    { LOG_NORMAL()<<"Subtracting bkg from "<<name<<std::endl;
+      _hmap_bnbcosmic[name]->Scale(scale_fac);
+      _h_data->Add(_hmap_bnbcosmic[name], -1.);
+      if (_hmap_bnbcosmic[name]->GetSumw2N() == 0) {
+        LOG_WARNING() << "Bkg " << name << " does not have Sum2w active." << std::endl;
+      }
+    }
+    
+    TH1D * h_eff = (TH1D*)_h_mc->Clone("h_eff");
+    h_eff->Sumw2();
+    for (int b = 1; b < _h_mc->GetNbinsX() + 1; b++)
+    {
+      h_eff->SetBinContent(b, _eff->GetEfficiency(_eff->GetGlobalBin(b)));
+      double unc = 0.;
+      unc += _eff->GetEfficiencyErrorLow(_eff->GetGlobalBin(b));
+      unc += _eff->GetEfficiencyErrorUp(_eff->GetGlobalBin(b));
+      unc /= 2.;
+      h_eff->SetBinError(b, unc);
+
+    }
+    //
+    // Divide by efficiency
+    //
+    //std::cout<<"before (Ndata-Nbkg)/efficiency"<<std::endl;
+    _h_mc->Divide(h_eff);
+    _h_data->Divide(h_eff);
+    //std::cout<<"after (Ndata-Nbkg)/efficiency"<<std::endl;
+    for(int i=0; i<h_eff->GetNbinsX(); i++){   
+       std::cout<<"i= "<<i<<"  "<<h_eff->GetBinContent(i+1)<<std::endl;
+    }
+    //get the flux
+
+    // Plot the cross section
+
+    TCanvas * c;
+
+    if (_name.find("onebin") != std::string::npos) c = new TCanvas("c", "c", 0, 45, 500, 888);
+    else c = new TCanvas();
+
+    c->SetBottomMargin(0.15);
+
+    _h_mc->GetXaxis()->SetTitle(xaxis_label.c_str());
+    _h_mc->GetYaxis()->SetTitle(yaxis_label.c_str());
+    _h_mc->GetXaxis()->SetTitleOffset(0.95);
+    _h_mc->GetYaxis()->SetTitleOffset(0.77);
+
+    _h_mc->SetLineColor(kGreen+2);
+    _h_mc->SetFillColor(29);
+
+    if (_name.find("mom") != std::string::npos) {
+      _h_mc->SetMinimum(-0.05);
+      //_h_mc->SetMaximum(1.6);
+    } else if (_name.find("onebin") != std::string::npos) {
+      c->SetLeftMargin(0.2438017);
+      c->SetRightMargin(0.1239669);
+      c->SetBottomMargin(0.1515789);
+      _h_mc->SetMinimum(0.2);
+      //_h_mc->SetMaximum(1.2);
+      _h_mc->GetXaxis()->SetTitle("");
+      _h_mc->GetYaxis()->CenterTitle(true);
+      _h_mc->GetXaxis()->SetLabelSize(0);
+      _h_mc->GetXaxis()->SetTitleSize(0.055);
+      _h_mc->GetXaxis()->SetTickLength(0);
+      _h_mc->GetYaxis()->SetNdivisions(506);
+      _h_mc->GetYaxis()->SetLabelFont(42);
+      _h_mc->GetYaxis()->SetLabelSize(0.05);
+      _h_mc->GetYaxis()->SetTitleSize(0.07);
+      _h_mc->GetYaxis()->SetTitleOffset(1.24);
+      _h_mc->GetYaxis()->SetTitleFont(42);
+      _h_mc->GetYaxis()->SetTickLength(0.05);
+      _h_mc->GetYaxis()->SetDecimals();
+    } else {
+      _h_mc->SetMinimum(0.);
+      //_h_mc->SetMaximum(2.8);
+    }
+    _h_mc->Draw("E2");
+
+    TH1D* h_mc_main = (TH1D*) _h_mc->Clone("h_mc_main");
+    h_mc_main->SetLineColor(kGreen+2);
+    h_mc_main->SetFillColor(0); // fully transparent
+    h_mc_main->Draw("histo same");
+    
+    if (_fake_data_mode) _truth_xsec_smeared->SetLineColor(kOrange);
+    if (_fake_data_mode) _truth_xsec_smeared->Draw("hist same");
+    
+    //std::string picfilename;
+    //picfilename  = "h_cxsec_mom.png";
+    //picfilename += xaxis_label;
+    //c->SaveAs(picfilename.c_str());  
+    return _h_data; 
+
+  };
 
   TH1D* CrossSectionCalculator1D::ExtractCrossSection(std::vector<std::string> bkg_names, std::string xaxis_label, std::string yaxis_label) 
   {

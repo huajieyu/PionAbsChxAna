@@ -143,12 +143,22 @@ namespace DataTypes {
     TH1D *h_mom_chi2truepipm;
 
  
+    TH1D *h_tmdqdx_new;
+    TH1D *h_tmdqdx_proton_new;
+    TH1D *h_tmdqdx_pionpm_new;
+    TH1D *h_tmdqdx_photon_new;
+    TH1D *h_tmdqdx_other_new;
+
     TH1D *h_tmdqdx;
     TH1D *h_tmdqdx_proton;
     TH1D *h_tmdqdx_pionpm;
+    TH1D *h_tmdqdx_photon;
+    TH1D *h_tmdqdx_other;
 
     TH2D *h_tmdqdxvsrange_proton;
     TH2D *h_tmdqdxvsrange_pionpm;
+    TH2D *h_tmdqdxvsrange_photon;
+    TH2D *h_tmdqdxvsrange_other;
 
     TH1D  *h_trackscore_all;
     TH1D  *h_trackscore_proton;
@@ -411,6 +421,32 @@ namespace DataTypes {
     TH1D  *h_true_beam_endE_den;
     TH1D  *h_true_beam_endE_num;
     TH2D  *h_sel_gdvsd;
+
+    TH1D  *h_michele_trackscore;
+    TH1D  *h_gammae_trackscore;
+    TH1D  *h_pione_trackscore;
+    TH1D  *h_othere_trackscore;
+
+    TH1D  *h_energetic_shower_eng_all;
+    TH1D  *h_energetic_shower_eng_abs;
+    TH1D  *h_energetic_shower_eng_chx;
+    TH1D  *h_energetic_shower_eng_rea;
+    TH1D  *h_energetic_shower_eng_other;
+
+    TH1D  *h_energetic_shower_ang_all;
+    TH1D  *h_energetic_shower_ang_abs;
+    TH1D  *h_energetic_shower_ang_chx;
+    TH1D  *h_energetic_shower_ang_rea;
+    TH1D  *h_energetic_shower_ang_other;
+
+    TH1D  *h_energetic_shower_dist_all;
+    TH1D  *h_energetic_shower_dist_abs;
+    TH1D  *h_energetic_shower_dist_chx;
+    TH1D  *h_energetic_shower_dist_rea;
+    TH1D  *h_energetic_shower_dist_other;
+
+    TH2D  *h_pcostheta1st2nd_ptmissing;
+
   protected:
 
 

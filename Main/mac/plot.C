@@ -20,6 +20,21 @@ gStyle->SetStatBorderSize(0);
 gStyle->SetTitleBorderSize(0);
 gStyle->SetTitleX(0.7);
 gStyle->SetTitleY(0.7);
+//gStyle->SetLabelOffset(1.2);
+//gStyle->SetLabelFont(72);
+gStyle->SetTitleSize(0.05, "X");
+gStyle->SetTitleSize(0.05, "Y");
+gStyle->SetTitleOffset(0.85, "X");
+gStyle->SetTitleOffset(0.85, "Y");
+
+
+
+TLatex* prelim = new TLatex(0.9,0.93, "protoDUNE-SP: Preliminary");
+prelim->SetTextFont(62);
+prelim->SetTextColor(kGray+2);
+prelim->SetNDC();
+prelim->SetTextSize(1/30.);
+prelim->SetTextAlign(32);
 
 
 
@@ -27,6 +42,14 @@ TFile *inputfile = new TFile("output_test.root");
 TFile *inputfile_data = new TFile("output_test_data.root");
 TFile *inputfile_nothresh = new TFile("output_test_nothresh.root");
 
+TH1D *h_Evttot_mc = (TH1D*)inputfile->Get("h_Evttot");
+TH1D *h_Evttot_data = (TH1D*)inputfile_data->Get("h_Evttot");
+
+Double_t Nevtmc= h_Evttot_mc->GetBinContent(1);
+Double_t Nevtdata = h_Evttot_data->GetBinContent(1);
+ 
+std::cout<<"total  number of MC is "<<Nevtmc<<std::endl;
+std::cout<<"total  number of DATA is "<<Nevtdata<<std::endl;
 
 TH1D  *h_shwlike_nhits[4];
 h_shwlike_nhits[0] = (TH1D*)inputfile->Get("h_nhits_shwlike_photon");
@@ -34,7 +57,10 @@ h_shwlike_nhits[1] = (TH1D*)inputfile->Get("h_nhits_shwlike_electron");
 h_shwlike_nhits[2] = (TH1D*)inputfile->Get("h_nhits_shwlike_nonphoton");
 h_shwlike_nhits[3] = (TH1D*)inputfile_data->Get("h_nhits_shwlike_all");
 
-h_shwlike_nhits[3]->Scale((h_shwlike_nhits[0]->Integral()+h_shwlike_nhits[1]->Integral()+h_shwlike_nhits[2]->Integral())/h_shwlike_nhits[3]->Integral());
+for(int i=0; i<3; i++){
+  h_shwlike_nhits[i]->Scale(Nevtdata/(Nevtmc*1.0));
+}
+//h_shwlike_nhits[3]->Scale((h_shwlike_nhits[0]->Integral()+h_shwlike_nhits[1]->Integral()+h_shwlike_nhits[2]->Integral())/h_shwlike_nhits[3]->Integral());
 
 
 for(int i=0; i<4; i++){
@@ -60,7 +86,7 @@ hs_shwlike->Draw("hist");
 h_shwlike_nhits[3]->SetLineWidth(2);
 h_shwlike_nhits[3]->Draw("same");
 
-TLegend* legshw=new TLegend(0.7, 0.7, 0.85, 0.85);
+TLegend* legshw=new TLegend(0.6, 0.6, 0.85, 0.85);
 legshw->SetBorderSize(0);
 legshw->AddEntry(h_shwlike_nhits[0], "photon");
 legshw->AddEntry(h_shwlike_nhits[1], "electron");
@@ -107,7 +133,8 @@ legshw->Draw("same");
 gPad->Update();
 hs_shweng->GetXaxis()->SetTitle("Shower Reco Energy[MeV]");
 hs_shweng->GetYaxis()->SetTitle("No. of Showers");
-hs_shweng->SetMaximum(200);
+int binmax=h_shweng[3]->GetMaximumBin();
+hs_shweng->SetMaximum(1.2*h_shweng[3]->GetBinContent(binmax));
 gPad->Update();
 
 c_shweng->SaveAs("h_shweng_showerlike.png");
@@ -148,16 +175,34 @@ legshw->Draw("same");
 gPad->Update();
 hs_shwang->GetXaxis()->SetTitle("Shower Reco Angle[Rad]");
 hs_shwang->GetYaxis()->SetTitle("No. of Showers");
-hs_shwang->SetMaximum(300);
+binmax=h_shwang[3]->GetMaximumBin();
+hs_shwang->SetMaximum(1.2*h_shwang[3]->GetBinContent(binmax));
 gPad->Update();
 
 c_shwang->SaveAs("h_shwang_showerlike.png");
 
 //-----------------------------------------------------------------------------
 TH1D  *h_shwdis[4];
+TH1D  *h_shwdis_ratio[3];
+TH1D  *h_shwdis_num[3];
 h_shwdis[0] = (TH1D*)inputfile->Get("h_shwdis_photon");
 h_shwdis[1] = (TH1D*)inputfile->Get("h_shwdis_electron");
 h_shwdis[2] = (TH1D*)inputfile->Get("h_shwdis_nonphoton");
+
+h_shwdis_ratio[0] = (TH1D*)inputfile->Get("h_shwdis_photon");
+h_shwdis_ratio[1] = (TH1D*)inputfile->Get("h_shwdis_electron");
+h_shwdis_ratio[2] = (TH1D*)inputfile->Get("h_shwdis_nonphoton");
+
+h_shwdis_num[0] = (TH1D*)inputfile->Get("h_shwdis_photon");
+h_shwdis_num[1] = (TH1D*)inputfile->Get("h_shwdis_electron");
+h_shwdis_num[2] = (TH1D*)inputfile->Get("h_shwdis_electron");
+//for(int i=0; i<3; i++){
+//  h_shwdis_ratio[i]->Rebin(2);
+//  h_shwdis_num[i]->Rebin(2);
+//}
+
+
+
 
 h_shwdis[3] = (TH1D*)inputfile_data->Get("h_shwdis_all");
 
@@ -188,17 +233,37 @@ h_shwdis[3]->SetLineWidth(2);
 h_shwdis[3]->Draw("same");
 
 legshw->Draw("same");
+prelim->Draw("same");
 gPad->Update();
 hs_shwdis->GetXaxis()->SetTitle("Shower Reco Distance[cm]");
 hs_shwdis->GetYaxis()->SetTitle("No. of Showers");
-hs_shwdis->SetMaximum(350);
+
+//hs_shwdis->SetMaximum(200);
+
 gPad->Update();
 
 c_shwdis->SaveAs("h_shwdis_showerlike.png");
 
+//=======================================================================
+TCanvas *c_shwdis_ratio = new TCanvas("c_shwdis_ratio", "c_shwdis_ratio", 900, 700);
+h_shwdis_ratio[2]->Add(h_shwdis_ratio[1]);
+h_shwdis_ratio[2]->Add(h_shwdis_ratio[0]);
 
+h_shwdis_num[1]->Add(h_shwdis_num[0]);
 
+h_shwdis_ratio[2]->Rebin(2);
+h_shwdis_num[1]->Rebin(2);
+h_shwdis_num[1]->Divide(h_shwdis_ratio[2]);
 
+h_shwdis_num[1]->SetLineColor(kRed);
+h_shwdis_num[1]->SetLineWidth(2);
+h_shwdis_num[1]->SetFillColor(0);
+h_shwdis_num[1]->GetXaxis()->SetTitle("Shower Reco Distance [cm]");
+h_shwdis_num[1]->GetYaxis()->SetTitle("Fraction of #gamma/e");
+h_shwdis_num[1]->Draw("hist");
+
+//h_shwdis_num[1]->Rebin(2);
+c_shwdis_ratio->SaveAs("h_Frac_photon.png");
 //------------------------------------------------------------------------------------
 TH1D* h_track_trackscore[7];
 
@@ -209,6 +274,61 @@ h_track_trackscore[3] = (TH1D*)inputfile->Get("h_trackscore_electron");
 h_track_trackscore[4] = (TH1D*)inputfile->Get("h_trackscore_muon");
 h_track_trackscore[5] = (TH1D*)inputfile->Get("h_trackscore_other");
 h_track_trackscore[6] = (TH1D*)inputfile->Get("h_trackscore_photon");
+
+
+Double_t denomall = h_track_trackscore[0]->Integral()+h_track_trackscore[1]->Integral()+
+                    h_track_trackscore[2]->Integral()+h_track_trackscore[3]->Integral()+
+                    h_track_trackscore[4]->Integral()+h_track_trackscore[5]->Integral()+
+                    h_track_trackscore[6]->Integral();
+std::cout<<"h_track_trackscore[0]->Integral()= "<<h_track_trackscore[0]->Integral()<<std::endl;
+std::cout<<"h_track_trackscore[1]->Integral()= "<<h_track_trackscore[1]->Integral()<<std::endl;
+std::cout<<"h_track_trackscore[2]->Integral()= "<<h_track_trackscore[2]->Integral()<<std::endl;
+std::cout<<"h_track_trackscore[3]->Integral()= "<<h_track_trackscore[3]->Integral()<<std::endl;
+std::cout<<"h_track_trackscore[4]->Integral()= "<<h_track_trackscore[4]->Integral()<<std::endl;
+std::cout<<"h_track_trackscore[5]->Integral()= "<<h_track_trackscore[5]->Integral()<<std::endl;
+std::cout<<"h_track_trackscore[6]->Integral()= "<<h_track_trackscore[6]->Integral()<<std::endl;
+
+std::cout<<"denomall = "<<denomall<<std::endl;
+Double_t normface[7];
+for(int i=0; i<7; i++){
+  normface[i]=1/denomall;
+  std::cout<<"i= "<<i<<"  normfac = "<<normface[i]<<std::endl;
+}
+h_track_trackscore[0]->Scale(normface[0]);
+h_track_trackscore[1]->Scale(normface[1]);
+h_track_trackscore[2]->Scale(normface[2]);
+h_track_trackscore[3]->Scale(normface[3]);
+h_track_trackscore[4]->Scale(normface[4]);
+h_track_trackscore[5]->Scale(normface[5]);
+h_track_trackscore[6]->Scale(normface[6]);
+
+std::cout<<"h_track_trackscore[0]->Integral()= "<<h_track_trackscore[0]->Integral()<<std::endl;
+std::cout<<"h_track_trackscore[1]->Integral()= "<<h_track_trackscore[1]->Integral()<<std::endl;
+std::cout<<"h_track_trackscore[2]->Integral()= "<<h_track_trackscore[2]->Integral()<<std::endl;
+std::cout<<"h_track_trackscore[3]->Integral()= "<<h_track_trackscore[3]->Integral()<<std::endl;
+std::cout<<"h_track_trackscore[4]->Integral()= "<<h_track_trackscore[4]->Integral()<<std::endl;
+std::cout<<"h_track_trackscore[5]->Integral()= "<<h_track_trackscore[5]->Integral()<<std::endl;
+std::cout<<"h_track_trackscore[6]->Integral()= "<<h_track_trackscore[6]->Integral()<<std::endl;
+
+
+
+
+TH1D* h_electron_trackscore[4];
+h_electron_trackscore[0] = (TH1D*)inputfile->Get("h_michele_trackscore");
+h_electron_trackscore[1] = (TH1D*)inputfile->Get("h_gammae_trackscore");
+h_electron_trackscore[2] = (TH1D*)inputfile->Get("h_pione_trackscore");
+h_electron_trackscore[3] = (TH1D*)inputfile->Get("h_othere_trackscore");
+
+Double_t denom = h_electron_trackscore[0]->Integral()+h_electron_trackscore[1]->Integral()+
+                 h_electron_trackscore[2]->Integral()+h_electron_trackscore[3]->Integral();
+h_electron_trackscore[0]->Scale(1/denom);
+h_electron_trackscore[1]->Scale(1/denom);
+h_electron_trackscore[2]->Scale(1/denom);
+h_electron_trackscore[3]->Scale(1/denom);
+
+
+
+
 
 
 TH1D *h_mom_recotruep;
@@ -230,6 +350,7 @@ h_mom_tmdqdxtruep = (TH1D*)inputfile->Get("h_mom_tmdqdxtruep");
 TH1D *h_mom_selectedtruepipm;
 TH1D *h_mom_trkscoretruepipm;
 TH1D *h_mom_tmdqdxtruepipm;
+
 h_mom_selectedtruepipm = (TH1D*)inputfile->Get("h_mom_selectedtruepipm");
 h_mom_trkscoretruepipm = (TH1D*)inputfile->Get("h_mom_trkscoretruepipm");
 h_mom_tmdqdxtruepipm = (TH1D*)inputfile->Get("h_mom_tmdqdxtruepipm");
@@ -260,9 +381,9 @@ h_mom_gentruepionpm = (TH1D*)inputfile->Get("h_mom_gentruepionpm");
   pEff_nocut1->SetLineWidth(2);
   pEff_nocut1->SetMarkerStyle(20);
   pEff_nocut1->SetMarkerSize(0.5);
-  pEff_nocut1->SetTitle(";True Momentum [GeV];No. of Tracks");
+  pEff_nocut1->SetTitle(";True Momentum [GeV];Reco Efficiency");
   pEff_nocut1->Draw();
-   
+prelim->Draw("same");   
 cv->SaveAs("h_beforecut_eff_pionpm.png");
 //----------------------------------------------------------------
 
@@ -305,8 +426,8 @@ pEff_nothresh->SetMarkerSize(0.5);
 pEff_nothresh->SetTitle(";True Beam End Energy[GeV];Efficiency");
 
 TEfficiency *pEff_withthresh = new TEfficiency(*h_true_beam_endE_num, *h_true_beam_endE_den);
-pEff_withthresh->SetLineColor(kBlue);
-pEff_withthresh->SetMarkerColor(kBlue);
+pEff_withthresh->SetLineColor(kBlue-5);
+pEff_withthresh->SetMarkerColor(kBlue-5);
 pEff_withthresh->SetLineWidth(2);
 pEff_withthresh->SetMarkerStyle(20);
 pEff_withthresh->SetMarkerSize(0.5);
@@ -395,12 +516,52 @@ cp0->SaveAs("h_genvstruepi0_truemomentum.png");
 
 
 //---------------------------------------------------------------------
+TCanvas *cme=new TCanvas("cme", "cme", 900, 600);
+THStack *hs_cme = new THStack("hs_cme", "");
 
+h_electron_trackscore[0]->SetFillColor(2);
+//h_electron_trackscore[0]->SetFillStyle(3004);
+h_electron_trackscore[0]->SetLineColor(2);
+
+h_electron_trackscore[1]->SetFillColor(kGreen+2);
+//h_electron_trackscore[1]->SetFillStyle(3005);
+h_electron_trackscore[1]->SetLineColor(kGreen+2);
+
+h_electron_trackscore[2]->SetFillColor(4);
+//h_electron_trackscore[2]->SetFillStyle(3006);
+h_electron_trackscore[2]->SetLineColor(4);
+
+h_electron_trackscore[3]->SetFillColor(6);
+//h_electron_trackscore[3]->SetFillStyle(3007);
+h_electron_trackscore[3]->SetLineColor(6);
+
+hs_cme->Add(h_electron_trackscore[0]);
+hs_cme->Add(h_electron_trackscore[1]);
+hs_cme->Add(h_electron_trackscore[2]);
+hs_cme->Add(h_electron_trackscore[3]);
+
+TLegend *legcme=new TLegend(0.35, 0.65, 0.65, 0.85);
+legcme->SetBorderSize(0);
+legcme->SetFillStyle(0);
+legcme->AddEntry(h_electron_trackscore[0], "e^{-} (Michel)");
+legcme->AddEntry(h_electron_trackscore[1], "e^{-} (Gamma)");
+legcme->AddEntry(h_electron_trackscore[2], "e^{-} (#pi^{0})");
+legcme->AddEntry(h_electron_trackscore[3], "e^{-} (Other)");
+
+hs_cme->Draw("hist");
+legcme->Draw("same");
+hs_cme->GetXaxis()->SetTitle("Track Score(CNN)");
+hs_cme->GetYaxis()->SetTitle("No. of Tracks");
+hs_cme->SetTitle("");
+gPad->Modified();
+
+
+cme->SaveAs("h_trackscore_electron.png");
 TCanvas *cc= new TCanvas("cc", "cc", 900, 600);
 THStack *hs_new = new THStack("hs_new", "");
 
-h_track_trackscore[0]->SetLineColor(kBlue);
-h_track_trackscore[0]->SetFillColor(kBlue);
+h_track_trackscore[0]->SetLineColor(kBlue-5);
+h_track_trackscore[0]->SetFillColor(kBlue-5);
 h_track_trackscore[1]->SetLineColor(kGreen);
 h_track_trackscore[1]->SetFillColor(kGreen);
 h_track_trackscore[2]->SetLineColor(kMagenta);
@@ -436,7 +597,7 @@ hs_new->Add(h_track_trackscore[6]);
 
 hs_new->Draw("hist");
 leg->Draw("same");
-hs_new->GetXaxis()->SetTitle("Track Score of Track");
+hs_new->GetXaxis()->SetTitle("Track Score(CNN)");
 hs_new->GetYaxis()->SetTitle("No. of Tracks");
 hs_new->SetTitle("");
 gPad->Modified();
@@ -461,7 +622,7 @@ h_proton_tmdqdxchi2->SetLineWidth(4);
 h_proton_tmdqdxchi2->SetTitle("");
 
 h_pion_tmdqdxchi2 = (TH1D*)inputfile->Get("htmdqdx_chi2_phypo_pionpm");
-h_pion_tmdqdxchi2 ->SetFillColor(kBlue);
+h_pion_tmdqdxchi2 ->SetFillColor(kBlue-5);
 h_pion_tmdqdxchi2 ->SetLineWidth(4);
 
 h_muon_tmdqdxchi2 = (TH1D*)inputfile->Get("htmdqdx_chi2_phypo_muon");
@@ -517,7 +678,7 @@ h_proton_chi2->SetLineWidth(4);
 h_proton_chi2->SetTitle("");
 
 h_pion_chi2 = (TH1D*)inputfile->Get("h_chi2_phypo_pionpm");
-h_pion_chi2 ->SetFillColor(kBlue);
+h_pion_chi2 ->SetFillColor(kBlue-5);
 h_pion_chi2 ->SetLineWidth(4);
 
 h_muon_chi2 = (TH1D*)inputfile->Get("h_chi2_phypo_muon");
@@ -579,7 +740,7 @@ h_proton_nhits->SetLineWidth(4);
 h_proton_nhits->SetTitle("");
 
 h_pion_nhits = (TH1D*)inputfile->Get("h_nhits_pionpm");
-h_pion_nhits ->SetFillColor(kBlue);
+h_pion_nhits ->SetFillColor(kBlue-5);
 h_pion_nhits ->SetLineWidth(4);
 
 h_muon_nhits = (TH1D*)inputfile->Get("h_nhits_muon");
@@ -658,51 +819,91 @@ ceffnhits->SaveAs("h_eff_nhits.png");
 //========================================================
 TH1D *h_pion_tmdqdx;
 TH1D *h_proton_tmdqdx;
+TH1D *h_photon_tmdqdx;
+TH1D *h_other_tmdqdx;
+TH1D *h_mc_tmdqdx;
+TH1D *h_data_tmdqdx;
 
-h_pion_tmdqdx = (TH1D*)inputfile->Get("h_tmdqdx_pionpm");
-h_proton_tmdqdx = (TH1D*)inputfile->Get("h_tmdqdx_proton");
+h_pion_tmdqdx = (TH1D*)inputfile->Get("h_tmdqdx_pionpm_new");
+h_proton_tmdqdx = (TH1D*)inputfile->Get("h_tmdqdx_proton_new");
+h_photon_tmdqdx = (TH1D*)inputfile->Get("h_tmdqdx_photon_new");
+h_other_tmdqdx = (TH1D*)inputfile->Get("h_tmdqdx_other_new");
+h_mc_tmdqdx = (TH1D*)inputfile->Get("h_tmdqdx_new");
+h_data_tmdqdx = (TH1D*)inputfile_data->Get("h_tmdqdx_new");
 
 
-TCanvas *cdqdx= new TCanvas("cdqdx", "cdqdx", 900, 1200);
+h_data_tmdqdx->Scale(h_mc_tmdqdx->Integral()/(1.0*h_data_tmdqdx->Integral()));
+h_data_tmdqdx->SetLineWidth(4);
+//TCanvas *cdqdx= new TCanvas("cdqdx", "cdqdx", 900, 1200);
+TCanvas *cdqdx= new TCanvas("cdqdx", "cdqdx", 900, 600);
 //upper plot will be in pad1
-TPad *pad1 = new TPad("pad1", "pad1", 0, 0.3, 1.0, 1.0);
+/*TPad *pad1 = new TPad("pad1", "pad1", 0, 0.3, 1.0, 1.0);
 pad1->SetBottomMargin(0); // Upper and lower plot are joined
 pad1->SetGridx();         // Vertical grid
 pad1->Draw();             // Draw the upper pad: pad1
 pad1->cd();               // pad1 becomes the current pa
+*/
+THStack *hs_tmdqdx_all=new THStack("hs_tmdqdx_all","");
 
-h_proton_tmdqdx->GetXaxis()->SetTitle("Truncated Mean dQdx [ADC/cm]");
+ 
+
+h_proton_tmdqdx->GetXaxis()->SetTitle("Truncated Mean dEdx [MeV/cm]");
 h_proton_tmdqdx->GetYaxis()->SetTitle("No. of Tracks");
 h_proton_tmdqdx->SetLineWidth(4);
-h_proton_tmdqdx->SetLineColor(kBlue);
+h_proton_tmdqdx->SetLineColor(kMagenta);
+h_proton_tmdqdx->SetFillColor(kMagenta);
 h_proton_tmdqdx->SetTitle("");
 
-h_pion_tmdqdx->GetXaxis()->SetTitle("Truncated Mean dQdx [ADC/cm]");
+h_pion_tmdqdx->GetXaxis()->SetTitle("Truncated Mean dEdx [MeV/cm]");
 h_pion_tmdqdx->GetYaxis()->SetTitle("No. of Tracks");
 h_pion_tmdqdx->SetLineWidth(4);
-h_pion_tmdqdx->SetLineColor(kRed);
+h_pion_tmdqdx->SetLineColor(kBlue-5);
+h_pion_tmdqdx->SetFillColor(kBlue-5);
 h_pion_tmdqdx->SetTitle("");
 
+h_photon_tmdqdx->GetXaxis()->SetTitle("Truncated Mean dEdx [MeV/cm]");
+h_photon_tmdqdx->GetYaxis()->SetTitle("No. of Tracks");
+h_photon_tmdqdx->SetLineWidth(4);
+h_photon_tmdqdx->SetLineColor(kCyan);
+h_photon_tmdqdx->SetFillColor(kCyan);
+h_photon_tmdqdx->SetTitle("");
 
-h_pion_tmdqdx->Draw("hist");
-h_proton_tmdqdx->Draw("hist,same");
+h_other_tmdqdx->GetXaxis()->SetTitle("Truncated Mean dEdx [MeV/cm]");
+h_other_tmdqdx->GetYaxis()->SetTitle("No. of Tracks");
+h_other_tmdqdx->SetLineWidth(4);
+h_other_tmdqdx->SetLineColor(kYellow);
+h_other_tmdqdx->SetFillColor(kYellow);
+h_other_tmdqdx->SetTitle("");
+
+
+hs_tmdqdx_all->Add(h_pion_tmdqdx);
+hs_tmdqdx_all->Add(h_proton_tmdqdx);
+hs_tmdqdx_all->Add(h_photon_tmdqdx);
+hs_tmdqdx_all->Add(h_other_tmdqdx);
 
 TLegend *legpp= new TLegend(0.7, 0.6, 0.85, 0.85);
 
 legpp->AddEntry(h_proton_tmdqdx, "Proton");
 legpp->AddEntry(h_pion_tmdqdx, "#pi^{+}/#pi^{-}");
-
+legpp->AddEntry(h_photon_tmdqdx, "Photon");
+legpp->AddEntry(h_other_tmdqdx, "Other");
+hs_tmdqdx_all->Draw("hist");
+h_data_tmdqdx->Draw("same");
 legpp->Draw("same");
+prelim->Draw("same");
+hs_tmdqdx_all->GetXaxis()->SetTitle("Truncated Mean dEdx [MeV/cm]");
+hs_tmdqdx_all->GetYaxis()->SetTitle("No. of Tracks");
+gPad->Update();
 cdqdx->cd(); // Go back to the main canvas before defining pad 2
 
-TPad *pad2 = new TPad("pad2", "pad2", 0, 0.05, 1, 0.3);
+/*TPad *pad2 = new TPad("pad2", "pad2", 0, 0.05, 1, 0.3);
 pad2->SetTopMargin(0);
 pad2->SetBottomMargin(0.2);
 pad2->SetGridx(); // vertical grid
 pad2->Draw();
 pad2->cd();       // pad2 becomes the current pa
 
-TH1D *h1=(TH1D*)h_pion_tmdqdx->Clone();
+TH1D *h1=(TH1D*)h_mc_tmdqdx->Clone();
 TH1D *h2=(TH1D*)h_proton_tmdqdx->Clone();
 h1->Rebin(2);
 h2->Rebin(2);
@@ -717,8 +918,10 @@ h2->GetYaxis()->SetLabelSize(11);
 h2->GetXaxis()->SetTitleSize(0.1);
 h2->GetXaxis()->SetLabelFont(43);
 h2->GetXaxis()->SetLabelSize(11);
+h2->SetLineColor(kMagenta);
+h2->SetFillStyle(0);
 h2->Draw("hist");
-
+*/
 cdqdx->SaveAs("h_trunmeandqdx.png");
 
 /*
@@ -742,12 +945,16 @@ h_PiAbs_sig_pmom->SetFillColor(kMagenta);
 h_PiAbs_sig_pmom->SetLineColor(kMagenta);
 h_PiAbs_chxbac_pmom->SetFillColor(kGreen+1);
 h_PiAbs_chxbac_pmom->SetLineColor(kGreen+1);
-h_PiAbs_reabac_pmom->SetFillColor(kBlue);
-h_PiAbs_reabac_pmom->SetLineColor(kBlue);
+h_PiAbs_reabac_pmom->SetFillColor(kBlue-5);
+h_PiAbs_reabac_pmom->SetLineColor(kBlue-5);
 h_PiAbs_other_pmom->SetFillColor(kRed);
 h_PiAbs_other_pmom->SetLineColor(kRed);
 Double_t scale_fac=(h_PiAbs_sig_pmom->Integral()+h_PiAbs_chxbac_pmom->Integral()+h_PiAbs_reabac_pmom->Integral()+h_PiAbs_other_pmom->Integral())/h_PiAbs_sel_pmom_data->Integral();
-h_PiAbs_sel_pmom_data->Scale(scale_fac);
+h_PiAbs_sig_pmom->Scale(Nevtdata/(Nevtmc*1.0));
+h_PiAbs_chxbac_pmom->Scale(Nevtdata/(Nevtmc*1.0));
+h_PiAbs_reabac_pmom->Scale(Nevtdata/(Nevtmc*1.0));
+h_PiAbs_other_pmom->Scale(Nevtdata/(Nevtmc*1.0));
+//h_PiAbs_sel_pmom_data->Scale(scale_fac);
 
 h_PiAbs_sig_pmom->Rebin(2);
 h_PiAbs_chxbac_pmom->Rebin(2);
@@ -756,7 +963,6 @@ h_PiAbs_other_pmom->Rebin(2);
 h_PiAbs_sel_pmom_data->Rebin(2);
 
 TCanvas *cpmom= new TCanvas("cpmom", "cpmom", 900, 600);
-
 THStack *hs_pmom = new THStack("hs_pmom", "");
 hs_pmom->Add(h_PiAbs_sig_pmom);
 hs_pmom->Add(h_PiAbs_chxbac_pmom);
@@ -767,7 +973,8 @@ h_PiAbs_sel_pmom_data->SetLineWidth(4);
 h_PiAbs_sel_pmom_data->Draw("same");
 hs_pmom->GetXaxis()->SetTitle("Track Momentum [GeV]");
 hs_pmom->GetYaxis()->SetTitle("No. of Events");
-hs_pmom->SetMaximum(100);
+int binmax_pmom = h_PiAbs_sel_pmom_data->GetMaximumBin();
+hs_pmom->SetMaximum(1.5*h_PiAbs_sel_pmom_data->GetBinContent(binmax_pmom));
 gPad->Modified();
 
 TLegend *pmultleg = new TLegend(0.55, 0.6, 0.85, 0.85);
@@ -777,6 +984,8 @@ pmultleg->AddEntry(h_PiAbs_reabac_pmom, "BKG-Pion Reaction");
 pmultleg->AddEntry(h_PiAbs_other_pmom, "Other"); 
 pmultleg->AddEntry(h_PiAbs_sel_pmom_data, "Data");
 pmultleg->Draw("same");
+prelim->Draw("same");
+
 cpmom->SaveAs("h_proton_momentum.png");
 
 TH1D *h_PiAbs_other_pcostheta;
@@ -791,7 +1000,11 @@ h_PiAbs_chxbac_pcostheta=(TH1D*)inputfile->Get("h_PiAbs_chxbac_pcostheta");
 h_PiAbs_reabac_pcostheta=(TH1D*)inputfile->Get("h_PiAbs_reabac_pcostheta");
 h_PiAbs_sel_pcostheta_data=(TH1D*)inputfile_data->Get("h_PiAbs_sel_pcostheta");
 
-h_PiAbs_sel_pcostheta_data->Scale(scale_fac);
+//h_PiAbs_sel_pcostheta_data->Scale(scale_fac);
+h_PiAbs_sig_pcostheta->Scale(Nevtdata/(Nevtmc*1.0));
+h_PiAbs_chxbac_pcostheta->Scale(Nevtdata/(Nevtmc*1.0));
+h_PiAbs_reabac_pcostheta->Scale(Nevtdata/(Nevtmc*1.0));
+h_PiAbs_other_pcostheta->Scale(Nevtdata/(Nevtmc*1.0));
 
 h_PiAbs_other_pcostheta->Rebin(2);
 h_PiAbs_sig_pcostheta->Rebin(2);
@@ -804,8 +1017,8 @@ h_PiAbs_sig_pcostheta->SetFillColor(kMagenta);
 h_PiAbs_sig_pcostheta->SetLineColor(kMagenta);
 h_PiAbs_chxbac_pcostheta->SetFillColor(kGreen+1);
 h_PiAbs_chxbac_pcostheta->SetLineColor(kGreen+1);
-h_PiAbs_reabac_pcostheta->SetFillColor(kBlue);
-h_PiAbs_reabac_pcostheta->SetLineColor(kBlue);
+h_PiAbs_reabac_pcostheta->SetFillColor(kBlue-5);
+h_PiAbs_reabac_pcostheta->SetLineColor(kBlue-5);
 h_PiAbs_other_pcostheta->SetFillColor(kRed);
 h_PiAbs_other_pcostheta->SetLineColor(kRed);
 
@@ -822,8 +1035,12 @@ h_PiAbs_sel_pcostheta_data->Draw("same");
 
 hs_pcostheta->GetXaxis()->SetTitle("cos#theta");
 hs_pcostheta->GetYaxis()->SetTitle("No. of Events");
+int binmax_pcostheta = h_PiAbs_sel_pcostheta_data->GetMaximumBin();
+hs_pcostheta->SetMaximum(1.5*h_PiAbs_sel_pcostheta_data->GetBinContent(binmax_pcostheta));
+
 gPad->Modified();
 pmultleg->Draw("same");
+prelim->Draw("same");
 cpcostheta->SaveAs("h_proton_costheta.png");
 //=====================================================================
 TH1D *h_PiAbs_other_ptheta;
@@ -839,7 +1056,11 @@ h_PiAbs_chxbac_ptheta=(TH1D*)inputfile->Get("h_PiAbs_chxbac_ptheta");
 h_PiAbs_reabac_ptheta=(TH1D*)inputfile->Get("h_PiAbs_reabac_ptheta");
 h_PiAbs_sel_ptheta_data=(TH1D*)inputfile_data->Get("h_PiAbs_sel_ptheta");
 
-h_PiAbs_sel_ptheta_data->Scale(scale_fac);
+//h_PiAbs_sel_ptheta_data->Scale(scale_fac);
+h_PiAbs_sig_ptheta->Scale(Nevtdata/(Nevtmc*1.0));
+h_PiAbs_chxbac_ptheta->Scale(Nevtdata/(Nevtmc*1.0));
+h_PiAbs_reabac_ptheta->Scale(Nevtdata/(Nevtmc*1.0));
+h_PiAbs_other_ptheta->Scale(Nevtdata/(Nevtmc*1.0));
 
 h_PiAbs_other_ptheta->Rebin(2);
 h_PiAbs_sig_ptheta->Rebin(2);
@@ -851,8 +1072,8 @@ h_PiAbs_sig_ptheta->SetFillColor(kMagenta);
 h_PiAbs_sig_ptheta->SetLineColor(kMagenta);
 h_PiAbs_chxbac_ptheta->SetFillColor(kGreen+1);
 h_PiAbs_chxbac_ptheta->SetLineColor(kGreen+1);
-h_PiAbs_reabac_ptheta->SetFillColor(kBlue);
-h_PiAbs_reabac_ptheta->SetLineColor(kBlue);
+h_PiAbs_reabac_ptheta->SetFillColor(kBlue-5);
+h_PiAbs_reabac_ptheta->SetLineColor(kBlue-5);
 h_PiAbs_other_ptheta->SetFillColor(kRed);
 h_PiAbs_other_ptheta->SetLineColor(kRed);
 
@@ -868,9 +1089,11 @@ hs_ptheta->Add(h_PiAbs_other_ptheta);
 hs_ptheta->Draw("hist");
 h_PiAbs_sel_ptheta_data->SetLineWidth(4);
 h_PiAbs_sel_ptheta_data->Draw("same");
-hs_ptheta->GetXaxis()->SetTitle("#theta");
+hs_ptheta->GetXaxis()->SetTitle("#theta [Rad]");
 hs_ptheta->GetYaxis()->SetTitle("No. of Events");
-hs_ptheta->SetMaximum(100);
+int binmax_ptheta = h_PiAbs_sel_ptheta_data->GetMaximumBin();
+hs_ptheta->SetMaximum(1.5*h_PiAbs_sel_ptheta_data->GetBinContent(binmax_ptheta));
+prelim->Draw("same");
 gPad->Modified();
 pmultleg->Draw("same");
 cptheta->SaveAs("h_proton_theta.png");
@@ -891,7 +1114,11 @@ h_PiAbs_chxbac_pphi=(TH1D*)inputfile->Get("h_PiAbs_chxbac_pphi");
 h_PiAbs_reabac_pphi=(TH1D*)inputfile->Get("h_PiAbs_reabac_pphi");
 h_PiAbs_sel_pphi_data=(TH1D*)inputfile_data->Get("h_PiAbs_sel_pphi");
 
-h_PiAbs_sel_pphi_data->Scale(scale_fac);
+//h_PiAbs_sel_pphi_data->Scale(scale_fac);
+h_PiAbs_sig_pphi->Scale(Nevtdata/(Nevtmc*1.0));
+h_PiAbs_chxbac_pphi->Scale(Nevtdata/(Nevtmc*1.0));
+h_PiAbs_reabac_pphi->Scale(Nevtdata/(Nevtmc*1.0));
+h_PiAbs_other_pphi->Scale(Nevtdata/(Nevtmc*1.0));
 
 
 h_PiAbs_other_pphi->Rebin(2);
@@ -904,8 +1131,8 @@ h_PiAbs_sig_pphi->SetFillColor(kMagenta);
 h_PiAbs_sig_pphi->SetLineColor(kMagenta);
 h_PiAbs_chxbac_pphi->SetFillColor(kGreen+1);
 h_PiAbs_chxbac_pphi->SetLineColor(kGreen+1);
-h_PiAbs_reabac_pphi->SetFillColor(kBlue);
-h_PiAbs_reabac_pphi->SetLineColor(kBlue);
+h_PiAbs_reabac_pphi->SetFillColor(kBlue-5);
+h_PiAbs_reabac_pphi->SetLineColor(kBlue-5);
 h_PiAbs_other_pphi->SetFillColor(kRed);
 h_PiAbs_other_pphi->SetLineColor(kRed);
 
@@ -920,9 +1147,11 @@ hs_pphi->Add(h_PiAbs_other_pphi);
 hs_pphi->Draw("hist");
 h_PiAbs_sel_pphi_data->SetLineWidth(4);
 h_PiAbs_sel_pphi_data->Draw("same");
-hs_pphi->SetMaximum(100);
+int binmax_pphi = h_PiAbs_sel_pphi_data->GetMaximumBin();
+hs_pphi->SetMaximum(1.5*h_PiAbs_sel_pphi_data->GetBinContent(binmax_pphi));
 hs_pphi->GetXaxis()->SetTitle("Azimuthal Angle #phi [Rad]");
 hs_pphi->GetYaxis()->SetTitle("No. of Events");
+prelim->Draw("same");
 gPad->Modified();
 pmultleg->Draw("same");
 cpphi->SaveAs("h_proton_phi.png");
@@ -942,14 +1171,18 @@ h_sel_Emissing_data=(TH1D*)inputfile_data->Get("h_sel_Emissing");
 
 scale_fac=(h_sig_Emissing->Integral()+h_chxbac_Emissing->Integral()+h_reabac_Emissing->Integral()+h_other_Emissing->Integral())/h_sel_Emissing_data->Integral();
 
-h_sel_Emissing_data->Scale(scale_fac);
+//h_sel_Emissing_data->Scale(scale_fac);
+h_sig_Emissing->Scale(Nevtdata/(Nevtmc*1.0));
+h_chxbac_Emissing->Scale(Nevtdata/(Nevtmc*1.0));
+h_reabac_Emissing->Scale(Nevtdata/(Nevtmc*1.0));
+h_other_Emissing->Scale(Nevtdata/(Nevtmc*1.0));
 
 h_sig_Emissing->SetFillColor(kMagenta);
 h_sig_Emissing->SetLineColor(kMagenta);
 h_chxbac_Emissing->SetFillColor(kGreen+1);
 h_chxbac_Emissing->SetLineColor(kGreen+1);
-h_reabac_Emissing->SetFillColor(kBlue);
-h_reabac_Emissing->SetLineColor(kBlue);
+h_reabac_Emissing->SetFillColor(kBlue-5);
+h_reabac_Emissing->SetLineColor(kBlue-5);
 h_other_Emissing->SetFillColor(kRed);
 h_other_Emissing->SetLineColor(kRed);
 
@@ -964,12 +1197,175 @@ hs_Emissing->Add(h_other_Emissing);
 hs_Emissing->Draw("hist");
 h_sel_Emissing_data->SetLineWidth(4);
 h_sel_Emissing_data->Draw("same");
-hs_Emissing->SetMaximum(40);
+int binmax_emissing = h_sel_Emissing_data->GetMaximumBin();
+hs_Emissing->SetMaximum(1.5*h_sel_Emissing_data->GetBinContent(binmax_emissing));
 hs_Emissing->GetXaxis()->SetTitle("Missing Energy[GeV]");
 hs_Emissing->GetYaxis()->SetTitle("No. of Events");
 gPad->Modified();
 pmultleg->Draw("same");
+prelim->Draw("same");
 cEmissing->SaveAs("h_Emissing.png");
+
+//====================================================
+TH1D *h_other_ShwRecoDist;
+TH1D *h_sig_ShwRecoDist;
+TH1D *h_chxbac_ShwRecoDist;
+TH1D *h_reabac_ShwRecoDist;
+TH1D *h_sel_ShwRecoDist_data;
+
+h_other_ShwRecoDist=(TH1D*)inputfile->Get("h_energetic_shower_dist_other");
+h_sig_ShwRecoDist=(TH1D*)inputfile->Get("h_energetic_shower_dist_abs");
+h_chxbac_ShwRecoDist=(TH1D*)inputfile->Get("h_energetic_shower_dist_chx");
+h_reabac_ShwRecoDist=(TH1D*)inputfile->Get("h_energetic_shower_dist_rea");
+h_sel_ShwRecoDist_data=(TH1D*)inputfile_data->Get("h_energetic_shower_dist_all");
+
+
+scale_fac=(h_sig_ShwRecoDist->Integral()+h_chxbac_ShwRecoDist->Integral()+h_reabac_ShwRecoDist->Integral()+h_other_ShwRecoDist->Integral())/h_sel_ShwRecoDist_data->Integral();
+
+//h_sel_ShwRecoDist_data->Scale(scale_fac);
+h_sig_ShwRecoDist->Scale(Nevtdata/(Nevtmc*1.0));
+h_chxbac_ShwRecoDist->Scale(Nevtdata/(Nevtmc*1.0));
+h_reabac_ShwRecoDist->Scale(Nevtdata/(Nevtmc*1.0));
+h_other_ShwRecoDist->Scale(Nevtdata/(Nevtmc*1.0));
+
+
+h_sig_ShwRecoDist->SetFillColor(kMagenta);
+h_sig_ShwRecoDist->SetLineColor(kMagenta);
+h_chxbac_ShwRecoDist->SetFillColor(kGreen+1);
+h_chxbac_ShwRecoDist->SetLineColor(kGreen+1);
+h_reabac_ShwRecoDist->SetFillColor(kBlue-5);
+h_reabac_ShwRecoDist->SetLineColor(kBlue-5);
+h_other_ShwRecoDist->SetFillColor(kRed);
+h_other_ShwRecoDist->SetLineColor(kRed);
+
+
+TCanvas *cShwRecoDist= new TCanvas("cShwRecoDist", "cShwRecoDist", 900, 600);
+
+THStack *hs_ShwRecoDist = new THStack("hs_ShwRecoDist", "");
+hs_ShwRecoDist->Add(h_sig_ShwRecoDist);
+hs_ShwRecoDist->Add(h_chxbac_ShwRecoDist);
+hs_ShwRecoDist->Add(h_reabac_ShwRecoDist);
+hs_ShwRecoDist->Add(h_other_ShwRecoDist);
+hs_ShwRecoDist->Draw("hist");
+h_sel_ShwRecoDist_data->SetLineWidth(4);
+h_sel_ShwRecoDist_data->Draw("same");
+int binmax_shwrecodist = h_sel_ShwRecoDist_data->GetMaximumBin();
+hs_ShwRecoDist->SetMaximum(1.5*h_sel_ShwRecoDist_data->GetBinContent(binmax_shwrecodist));
+hs_ShwRecoDist->GetXaxis()->SetTitle("Shower - Vertex Distance[cm]");
+hs_ShwRecoDist->GetYaxis()->SetTitle("No. of Events");
+gPad->Modified();
+pmultleg->Draw("same");
+prelim->Draw("same");
+cShwRecoDist->SaveAs("h_ShwRecoDist.png");
+//==================================================
+TH1D *h_other_ShwRecoAng;
+TH1D *h_sig_ShwRecoAng;
+TH1D *h_chxbac_ShwRecoAng;
+TH1D *h_reabac_ShwRecoAng;
+TH1D *h_sel_ShwRecoAng_data;
+
+h_other_ShwRecoAng=(TH1D*)inputfile->Get("h_energetic_shower_ang_other");
+h_sig_ShwRecoAng=(TH1D*)inputfile->Get("h_energetic_shower_ang_abs");
+h_chxbac_ShwRecoAng=(TH1D*)inputfile->Get("h_energetic_shower_ang_chx");
+h_reabac_ShwRecoAng=(TH1D*)inputfile->Get("h_energetic_shower_ang_rea");
+h_sel_ShwRecoAng_data=(TH1D*)inputfile_data->Get("h_energetic_shower_ang_all");
+
+
+scale_fac=(h_sig_ShwRecoAng->Integral()+h_chxbac_ShwRecoAng->Integral()+h_reabac_ShwRecoAng->Integral()+h_other_ShwRecoAng->Integral())/h_sel_ShwRecoAng_data->Integral();
+
+h_sig_ShwRecoAng->Scale(Nevtdata/(Nevtmc*1.0));
+h_chxbac_ShwRecoAng->Scale(Nevtdata/(Nevtmc*1.0));
+h_reabac_ShwRecoAng->Scale(Nevtdata/(Nevtmc*1.0));
+h_other_ShwRecoAng->Scale(Nevtdata/(Nevtmc*1.0));
+
+
+//h_sel_ShwRecoAng_data->Scale(scale_fac);
+
+h_sig_ShwRecoAng->SetFillColor(kMagenta);
+h_sig_ShwRecoAng->SetLineColor(kMagenta);
+h_chxbac_ShwRecoAng->SetFillColor(kGreen+1);
+h_chxbac_ShwRecoAng->SetLineColor(kGreen+1);
+h_reabac_ShwRecoAng->SetFillColor(kBlue-5);
+h_reabac_ShwRecoAng->SetLineColor(kBlue-5);
+h_other_ShwRecoAng->SetFillColor(kRed);
+h_other_ShwRecoAng->SetLineColor(kRed);
+
+
+TCanvas *cShwRecoAng= new TCanvas("cShwRecoAng", "cShwRecoAng", 900, 600);
+
+THStack *hs_ShwRecoAng = new THStack("hs_ShwRecoAng", "");
+hs_ShwRecoAng->Add(h_sig_ShwRecoAng);
+hs_ShwRecoAng->Add(h_chxbac_ShwRecoAng);
+hs_ShwRecoAng->Add(h_reabac_ShwRecoAng);
+hs_ShwRecoAng->Add(h_other_ShwRecoAng);
+hs_ShwRecoAng->Draw("hist");
+h_sel_ShwRecoAng_data->SetLineWidth(4);
+h_sel_ShwRecoAng_data->Draw("same");
+int binmax_shwrecoang = h_sel_ShwRecoAng_data->GetMaximumBin();
+hs_ShwRecoAng->SetMaximum(1.5*h_sel_ShwRecoAng_data->GetBinContent(binmax_shwrecoang));
+hs_ShwRecoAng->GetXaxis()->SetTitle("Angle of Shower[Rad]");
+hs_ShwRecoAng->GetYaxis()->SetTitle("No. of Events");
+gPad->Modified();
+pmultleg->Draw("same");
+prelim->Draw("same");
+cShwRecoAng->SaveAs("h_ShwRecoAng.png");
+
+//=======================================================
+TH1D *h_other_ShwRecoEng;
+TH1D *h_sig_ShwRecoEng;
+TH1D *h_chxbac_ShwRecoEng;
+TH1D *h_reabac_ShwRecoEng;
+TH1D *h_sel_ShwRecoEng_data;
+
+h_other_ShwRecoEng=(TH1D*)inputfile->Get("h_energetic_shower_eng_other");
+h_sig_ShwRecoEng=(TH1D*)inputfile->Get("h_energetic_shower_eng_abs");
+h_chxbac_ShwRecoEng=(TH1D*)inputfile->Get("h_energetic_shower_eng_chx");
+h_reabac_ShwRecoEng=(TH1D*)inputfile->Get("h_energetic_shower_eng_rea");
+h_sel_ShwRecoEng_data=(TH1D*)inputfile_data->Get("h_energetic_shower_eng_all");
+
+
+scale_fac=(h_sig_ShwRecoEng->Integral()+h_chxbac_ShwRecoEng->Integral()+h_reabac_ShwRecoEng->Integral()+h_other_ShwRecoEng->Integral())/h_sel_ShwRecoEng_data->Integral();
+
+//h_sel_ShwRecoEng_data->Scale(scale_fac);
+h_sig_ShwRecoEng->Scale(Nevtdata/(Nevtmc*1.0));
+h_chxbac_ShwRecoEng->Scale(Nevtdata/(Nevtmc*1.0));
+h_reabac_ShwRecoEng->Scale(Nevtdata/(Nevtmc*1.0));
+h_other_ShwRecoEng->Scale(Nevtdata/(Nevtmc*1.0));
+
+
+
+h_sig_ShwRecoEng->SetFillColor(kMagenta);
+h_sig_ShwRecoEng->SetLineColor(kMagenta);
+h_chxbac_ShwRecoEng->SetFillColor(kGreen+1);
+h_chxbac_ShwRecoEng->SetLineColor(kGreen+1);
+h_reabac_ShwRecoEng->SetFillColor(kBlue-5);
+h_reabac_ShwRecoEng->SetLineColor(kBlue-5);
+h_other_ShwRecoEng->SetFillColor(kRed);
+h_other_ShwRecoEng->SetLineColor(kRed);
+
+
+TCanvas *cShwRecoEng= new TCanvas("cShwRecoEng", "cShwRecoEng", 900, 600);
+
+THStack *hs_ShwRecoEng = new THStack("hs_ShwRecoEng", "");
+hs_ShwRecoEng->Add(h_sig_ShwRecoEng);
+hs_ShwRecoEng->Add(h_chxbac_ShwRecoEng);
+hs_ShwRecoEng->Add(h_reabac_ShwRecoEng);
+hs_ShwRecoEng->Add(h_other_ShwRecoEng);
+hs_ShwRecoEng->Draw("hist");
+h_sel_ShwRecoEng_data->SetLineWidth(4);
+h_sel_ShwRecoEng_data->Draw("same");
+int binmax_shwrecoeng = h_sel_ShwRecoEng_data->GetMaximumBin();
+hs_ShwRecoEng->SetMaximum(1.5*h_sel_ShwRecoEng_data->GetBinContent(binmax_shwrecoeng));
+hs_ShwRecoEng->GetXaxis()->SetTitle("Shower Energy[MeV]");
+hs_ShwRecoEng->GetYaxis()->SetTitle("No. of Events");
+gPad->Modified();
+pmultleg->Draw("same");
+prelim->Draw("same");
+cShwRecoEng->SaveAs("h_ShwRecoEng.png");
+
+
+
+
 //====================================================
 TH1D *h_other_Pmissing;
 TH1D *h_sig_Pmissing;
@@ -983,14 +1379,20 @@ h_chxbac_Pmissing=(TH1D*)inputfile->Get("h_chxbac_Pmissing");
 h_reabac_Pmissing=(TH1D*)inputfile->Get("h_reabac_Pmissing");
 h_sel_Pmissing_data=(TH1D*)inputfile_data->Get("h_sel_Pmissing");
 
-h_sel_Pmissing_data->Scale(scale_fac);
+scale_fac=(h_sig_Pmissing->Integral()+h_chxbac_Pmissing->Integral()+h_reabac_Pmissing->Integral()+h_other_Pmissing->Integral())/h_sel_Pmissing_data->Integral();
+//h_sel_Pmissing_data->Scale(scale_fac);
+h_sig_Pmissing->Scale(Nevtdata/(Nevtmc*1.0));
+h_chxbac_Pmissing->Scale(Nevtdata/(Nevtmc*1.0));
+h_reabac_Pmissing->Scale(Nevtdata/(Nevtmc*1.0));
+h_other_Pmissing->Scale(Nevtdata/(Nevtmc*1.0));
+
 
 h_sig_Pmissing->SetFillColor(kMagenta);
 h_sig_Pmissing->SetLineColor(kMagenta);
 h_chxbac_Pmissing->SetFillColor(kGreen+1);
 h_chxbac_Pmissing->SetLineColor(kGreen+1);
-h_reabac_Pmissing->SetFillColor(kBlue);
-h_reabac_Pmissing->SetLineColor(kBlue);
+h_reabac_Pmissing->SetFillColor(kBlue-5);
+h_reabac_Pmissing->SetLineColor(kBlue-5);
 h_other_Pmissing->SetFillColor(kRed);
 h_other_Pmissing->SetLineColor(kRed);
 
@@ -1006,10 +1408,14 @@ hs_Pmissing->Draw("hist");
 h_sel_Pmissing_data->SetLineWidth(4);
 h_sel_Pmissing_data->Draw("same");
 hs_Pmissing->SetMaximum(40);
+int binmax_pmissing = h_sel_Pmissing_data->GetMaximumBin();
+hs_Pmissing->SetMaximum(1.5*h_sel_Pmissing_data->GetBinContent(binmax_pmissing));
+
 hs_Pmissing->GetXaxis()->SetTitle("Missing Momentum[GeV]");
 hs_Pmissing->GetYaxis()->SetTitle("No. of Events");
 gPad->Modified();
 pmultleg->Draw("same");
+prelim->Draw("same");
 cPmissing->SaveAs("h_Pmissing.png");
 //=========================================================
 TH1D *h_other_Ptmissing;
@@ -1024,14 +1430,20 @@ h_chxbac_Ptmissing=(TH1D*)inputfile->Get("h_chxbac_Ptmissing");
 h_reabac_Ptmissing=(TH1D*)inputfile->Get("h_reabac_Ptmissing");
 h_sel_Ptmissing_data=(TH1D*)inputfile_data->Get("h_sel_Ptmissing");
 
-h_sel_Ptmissing_data->Scale(scale_fac);
+scale_fac=(h_sig_Ptmissing->Integral()+h_chxbac_Ptmissing->Integral()+h_reabac_Ptmissing->Integral()+h_other_Ptmissing->Integral())/h_sel_Ptmissing_data->Integral();
+//h_sel_Ptmissing_data->Scale(scale_fac);
+h_sig_Ptmissing->Scale(Nevtdata/(Nevtmc*1.0));
+h_chxbac_Ptmissing->Scale(Nevtdata/(Nevtmc*1.0));
+h_reabac_Ptmissing->Scale(Nevtdata/(Nevtmc*1.0));
+h_other_Ptmissing->Scale(Nevtdata/(Nevtmc*1.0));
+
 
 h_sig_Ptmissing->SetFillColor(kMagenta);
 h_sig_Ptmissing->SetLineColor(kMagenta);
 h_chxbac_Ptmissing->SetFillColor(kGreen+1);
 h_chxbac_Ptmissing->SetLineColor(kGreen+1);
-h_reabac_Ptmissing->SetFillColor(kBlue);
-h_reabac_Ptmissing->SetLineColor(kBlue);
+h_reabac_Ptmissing->SetFillColor(kBlue-5);
+h_reabac_Ptmissing->SetLineColor(kBlue-5);
 h_other_Ptmissing->SetFillColor(kRed);
 h_other_Ptmissing->SetLineColor(kRed);
 
@@ -1047,8 +1459,11 @@ hs_Ptmissing->Draw("hist");
 h_sel_Ptmissing_data->SetLineWidth(4);
 h_sel_Ptmissing_data->Draw("same");
 hs_Ptmissing->SetMaximum(50);
+int binmax_ptmissing = h_sel_Ptmissing_data->GetMaximumBin();
+hs_Ptmissing->SetMaximum(1.5*h_sel_Ptmissing_data->GetBinContent(binmax_ptmissing));
 hs_Ptmissing->GetXaxis()->SetTitle("Transverse Missing P[GeV]");
 hs_Ptmissing->GetYaxis()->SetTitle("No. of Events");
+prelim->Draw("same");
 gPad->Modified();
 pmultleg->Draw("same");
 cPtmissing->SaveAs("h_Ptmissing.png");
@@ -1065,14 +1480,20 @@ h_chxbac_Plongit=(TH1D*)inputfile->Get("h_chxbac_Plongit");
 h_reabac_Plongit=(TH1D*)inputfile->Get("h_reabac_Plongit");
 h_sel_Plongit_data=(TH1D*)inputfile_data->Get("h_sel_Plongit");
 
-h_sel_Plongit_data->Scale(scale_fac);
+
+//h_sel_Plongit_data->Scale(scale_fac);
+h_sig_Plongit->Scale(Nevtdata/(Nevtmc*1.0));
+h_chxbac_Plongit->Scale(Nevtdata/(Nevtmc*1.0));
+h_reabac_Plongit->Scale(Nevtdata/(Nevtmc*1.0));
+h_other_Plongit->Scale(Nevtdata/(Nevtmc*1.0));
+
 
 h_sig_Plongit->SetFillColor(kMagenta);
 h_sig_Plongit->SetLineColor(kMagenta);
 h_chxbac_Plongit->SetFillColor(kGreen+1);
 h_chxbac_Plongit->SetLineColor(kGreen+1);
-h_reabac_Plongit->SetFillColor(kBlue);
-h_reabac_Plongit->SetLineColor(kBlue);
+h_reabac_Plongit->SetFillColor(kBlue-5);
+h_reabac_Plongit->SetLineColor(kBlue-5);
 h_other_Plongit->SetFillColor(kRed);
 h_other_Plongit->SetLineColor(kRed);
 
@@ -1087,9 +1508,11 @@ hs_Plongit->Add(h_other_Plongit);
 hs_Plongit->Draw("hist");
 h_sel_Plongit_data->SetLineWidth(4);
 h_sel_Plongit_data->Draw("same");
-hs_Plongit->SetMaximum(30);
+int binmax_plongit = h_sel_Plongit_data->GetMaximumBin();
+hs_Plongit->SetMaximum(1.5*h_sel_Plongit_data->GetBinContent(binmax_plongit));
 hs_Plongit->GetXaxis()->SetTitle("Longitudinal Momentum[GeV]");
 hs_Plongit->GetYaxis()->SetTitle("No. of Events");
+prelim->Draw("same");
 gPad->Modified();
 pmultleg->Draw("same");
 cPlongit->SaveAs("h_Plongit.png");
@@ -1135,8 +1558,9 @@ TCanvas *c=new TCanvas("c", "c", 900, 600);
   pEff_nocut->SetMarkerStyle(20);
   pEff_nocut->SetMarkerSize(0.5);
   //pEff_nocut->SetMaximum(1.4);
-  pEff_nocut->SetTitle(";True Momentum [GeV];No. of Tracks");
+  pEff_nocut->SetTitle(";True Momentum [GeV];Efficiency");
   pEff_nocut->Draw();
+
   
   TEfficiency *pEff_trkscore = new TEfficiency(*h_mom_trkscoretruep, *h_mom_gentruep);
   pEff_trkscore->SetLineColor(kRed); 
@@ -1147,8 +1571,8 @@ TCanvas *c=new TCanvas("c", "c", 900, 600);
   pEff_trkscore->Draw("same");
   
   TEfficiency *pEff_tmdqdx = new TEfficiency(*h_mom_tmdqdxtruep, *h_mom_gentruep);
-  pEff_tmdqdx->SetLineColor(kBlue); 
-  pEff_tmdqdx->SetMarkerColor(kBlue);
+  pEff_tmdqdx->SetLineColor(kBlue-5); 
+  pEff_tmdqdx->SetMarkerColor(kBlue-5);
   pEff_tmdqdx->SetLineWidth(2);
   pEff_tmdqdx->SetMarkerStyle(20);
   pEff_tmdqdx->SetMarkerSize(0.5);
@@ -1160,13 +1584,14 @@ TCanvas *c=new TCanvas("c", "c", 900, 600);
   pEff_sel->SetLineWidth(2);
   pEff_sel->SetMarkerStyle(20);
   pEff_sel->SetMarkerSize(0.5);
+
   pEff_sel->Draw("same");
 
   std::cout<<"total gen tracks "<<h_mom_gentruep->GetEntries()<<std::endl;
   std::cout<<"total sel tracks "<<h_mom_selectedtruep->GetEntries()<<std::endl; 
 
  
-  TLegend *effleg = new TLegend(0.1, 0.6, 0.4, 0.85);
+  TLegend *effleg = new TLegend(0.1, 0.6, 0.5, 0.85);
   effleg->SetBorderSize(0);
   effleg->SetFillStyle(0);
   effleg->AddEntry(pEff_nocut, "No Cut");
@@ -1175,7 +1600,15 @@ TCanvas *c=new TCanvas("c", "c", 900, 600);
   effleg->AddEntry(pEff_sel, "Chi2 Cut");
  
   effleg->Draw("same");
+  prelim->Draw("same");
+  gPad->Update();
+  auto graph_kk = pEff_nocut->GetPaintedGraph(); 
+  graph_kk->SetMinimum(0);
+  graph_kk->SetMaximum(1.3); 
+  gPad->Update(); 
+
   c->SaveAs("h_all_efficiency.png");   
+
   //-------------------------------------------------------------
   
 
@@ -1191,9 +1624,16 @@ TCanvas *c=new TCanvas("c", "c", 900, 600);
   pipmEff_nocut->SetMarkerStyle(20);
   pipmEff_nocut->SetMarkerSize(0.5);
   //pipmEff_nocut->GetYaxis()->SetRange(0, 1.4);
-  pipmEff_nocut->SetTitle(";True Momentum [GeV];No. of Tracks");
+  //pipmEff_nocut->SetMaximum(1.2);
+  pipmEff_nocut->SetTitle(";True Momentum [GeV];Efficiency");
   pipmEff_nocut->Draw();
-  
+  gPad->Update();
+  auto graph2 = pipmEff_nocut->GetPaintedGraph(); 
+  graph2->SetMinimum(0);
+  graph2->SetMaximum(1); 
+  gPad->Update();  
+
+ 
   TEfficiency *pipmEff_trkscore = new TEfficiency(*h_mom_trkscoretruepipm, *h_mom_gentruepionpm);
   pipmEff_trkscore->SetLineColor(kRed); 
   pipmEff_trkscore->SetMarkerColor(kRed);
@@ -1203,8 +1643,8 @@ TCanvas *c=new TCanvas("c", "c", 900, 600);
   pipmEff_trkscore->Draw("same");
   
   TEfficiency *pipmEff_tmdqdx = new TEfficiency(*h_mom_tmdqdxtruepipm, *h_mom_gentruepionpm);
-  pipmEff_tmdqdx->SetLineColor(kBlue); 
-  pipmEff_tmdqdx->SetMarkerColor(kBlue);
+  pipmEff_tmdqdx->SetLineColor(kBlue-5); 
+  pipmEff_tmdqdx->SetMarkerColor(kBlue-5);
   pipmEff_tmdqdx->SetLineWidth(2);
   pipmEff_tmdqdx->SetMarkerStyle(20);
   pipmEff_tmdqdx->SetMarkerSize(0.5);
@@ -1221,7 +1661,15 @@ TCanvas *c=new TCanvas("c", "c", 900, 600);
   //pipmEff_nocut->GetYaxis()->SetUserRange(0, 1.4);
  
   effleg->Draw("same");
+  prelim->Draw("same");
+
   gPad->Update();
+  auto graph_jj = pipmEff_nocut->GetPaintedGraph(); 
+  graph_jj->SetMinimum(0);
+  graph_jj->SetMaximum(1.3); 
+  gPad->Update(); 
+
+ 
   cpi->SaveAs("h_all_efficiency_chargedpion.png");   
 
 
@@ -1257,8 +1705,8 @@ TCanvas *c=new TCanvas("c", "c", 900, 600);
   h_orimom_proton->SetFillColor(kMagenta);
   h_orimom_neutron->SetLineColor(kBlack);
   h_orimom_neutron->SetFillColor(kBlack);
-  h_orimom_pionpm->SetLineColor(kBlue);
-  h_orimom_pionpm->SetFillColor(kBlue);
+  h_orimom_pionpm->SetLineColor(kBlue-5);
+  h_orimom_pionpm->SetFillColor(kBlue-5);
   h_orimom_pion0->SetLineColor(kGreen);
   h_orimom_pion0->SetFillColor(kGreen);
 
@@ -1332,8 +1780,8 @@ TCanvas *c=new TCanvas("c", "c", 900, 600);
   h_recomom_selected_proton->SetFillColor(kMagenta);
   //h_recomom_selected_neutron->SetLineColor(kBlack);
   //h_recomom_selected_neutron->SetFillColor(kBlack);
-  h_recomom_selected_pionpm->SetLineColor(kBlue);
-  h_recomom_selected_pionpm->SetFillColor(kBlue);
+  h_recomom_selected_pionpm->SetLineColor(kBlue-5);
+  h_recomom_selected_pionpm->SetFillColor(kBlue-5);
   //h_recomom_selected_pion0->SetLineColor(kGreen);
   //h_recomom_selected_pion0->SetFillColor(kGreen);
 
@@ -1395,8 +1843,8 @@ TCanvas *c=new TCanvas("c", "c", 900, 600);
   h_recopimom_selected_proton->SetFillColor(kMagenta);
   //h_recopimom_selected_neutron->SetLineColor(kBlack);
   //h_recopimom_selected_neutron->SetFillColor(kBlack);
-  h_recopimom_selected_pionpm->SetLineColor(kBlue);
-  h_recopimom_selected_pionpm->SetFillColor(kBlue);
+  h_recopimom_selected_pionpm->SetLineColor(kBlue-5);
+  h_recopimom_selected_pionpm->SetFillColor(kBlue-5);
   //h_recopimom_selected_pion0->SetLineColor(kGreen);
   //h_recopimom_selected_pion0->SetFillColor(kGreen);
 
@@ -1432,12 +1880,69 @@ TCanvas *c=new TCanvas("c", "c", 900, 600);
 
   crecopimom_selected->SaveAs("h_recopimom_selected_alltrack.png");  
 
- 
+  //------------------------------------------------------------------------ 
+  TH1D* h_eff_pmom_den = (TH1D*)inputfile->Get("h_eff_pmom_den");
+  h_eff_pmom_den->Rebin(2);
+  TH1D* h_eff_pmom_num = (TH1D*)inputfile->Get("h_eff_pmom_num");
+  h_eff_pmom_num->Rebin(2);
 
+  TH1D* h_eff_pcostheta_den = (TH1D*)inputfile->Get("h_eff_pcostheta_den");
+  h_eff_pcostheta_den->Rebin(2);
+  TH1D* h_eff_pcostheta_num = (TH1D*)inputfile->Get("h_eff_pcostheta_num");
+  h_eff_pcostheta_num->Rebin(2);
+
+  TH1D* h_eff_pphi_den = (TH1D*)inputfile->Get("h_eff_pphi_den");
+  h_eff_pphi_den->Rebin(2);
+  TH1D* h_eff_pphi_num = (TH1D*)inputfile->Get("h_eff_pphi_num");
+  h_eff_pphi_num->Rebin(2);
+
+  TEfficiency *pEff_pmom=0;
+  TCanvas *ceff_pmom=new TCanvas("ceff_pmom", "ceff_pmom", 900, 700);
+  pEff_pmom = new TEfficiency(*h_eff_pmom_num, *h_eff_pmom_den);
+  pEff_pmom -> SetTitle(";True p_{proton}[GeV];Efficiency");
+  pEff_pmom->SetLineWidth(2);
+  pEff_pmom->SetLineColor(kGreen+2);
+  pEff_pmom->Draw("");
+
+  gPad->Update();
+  auto graph_hhh = pEff_pmom->GetPaintedGraph();
+  graph_hhh->SetMinimum(0.0);
+  graph_hhh->SetMaximum(1.0);
+  gPad->Update();
+  ceff_pmom->SaveAs("h_eff_pmom.png");
 
   
 
-  //--------------------------------------------------------------------------
+ 
+  TEfficiency *pEff_pcostheta=0;
+  TCanvas *ceff_pcostheta=new TCanvas("ceff_pcostheta", "ceff_pcostheta", 900, 700);
+  pEff_pcostheta = new TEfficiency(*h_eff_pcostheta_num, *h_eff_pcostheta_den);
+  pEff_pcostheta -> SetTitle(";True cos#theta_{proton};Efficiency");
+  pEff_pcostheta->SetLineWidth(2);
+  pEff_pcostheta->SetLineColor(kGreen+2);
+  pEff_pcostheta->Draw("");
+
+  gPad->Update();
+  auto graph_jjj = pEff_pcostheta->GetPaintedGraph();
+  graph_jjj->SetMinimum(0.0);
+  graph_jjj->SetMaximum(1.0);
+  gPad->Update();
+  ceff_pcostheta->SaveAs("h_eff_pcostheta.png");
+ 
+  TEfficiency *pEff_pphi=0;
+  TCanvas *ceff_pphi=new TCanvas("ceff_pphi", "ceff_pphi", 900, 700);
+  pEff_pphi = new TEfficiency(*h_eff_pphi_num, *h_eff_pphi_den);
+  pEff_pphi -> SetTitle(";True #phi_{proton}[Rad];Efficiency");
+  pEff_pphi->SetLineWidth(2);
+  pEff_pphi->SetLineColor(kGreen+2);
+  pEff_pphi->Draw("");
+  gPad->Update();
+  auto graph_kkk = pEff_pphi->GetPaintedGraph();
+  graph_kkk->SetMinimum(0.0);
+  graph_kkk->SetMaximum(1.0);
+  gPad->Update();
+   ceff_pphi->SaveAs("h_eff_pphi.png");
+   //--------------------------------------------------------------------------
 
   //==========================================================================
   

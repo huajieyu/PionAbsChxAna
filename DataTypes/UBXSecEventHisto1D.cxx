@@ -9,6 +9,8 @@ namespace DataTypes {
 
     void UBXSecEventHisto1D::InitializeBootstraps()
     {
+
+            std::cout<<"Initializing all the members of UBXSecEventHisto1D "<<std::endl;
     	    h_orimom_proton = new TH1D("h_orimom_proton", "h_orimom_proton", 100, 0.0001, 0.8);
 	    h_orimom_neutron = new TH1D("h_orimom_neutron", "h_orimom_neutron", 100, 0.0001, 0.8);
 	    h_orimom_pionpm = new TH1D("h_orimom_pionpm", "h_orimom_pionpm", 100, 0.0001, 0.8);
@@ -99,10 +101,22 @@ namespace DataTypes {
 	    h_tmdqdx=new TH1D("h_tmdqdx", "h_tmdqdx", 100, 0.0, 10.);
 	    h_tmdqdx_proton=new TH1D("h_tmdqdx_proton", "h_tmdqdx_proton", 100, 0.0, 10.);
 	    h_tmdqdx_pionpm=new TH1D("h_tmdqdx_pionpm", "h_tmdqdx_pionpm", 100, 0.0, 10.);
-	    
+	    h_tmdqdx_photon=new TH1D("h_tmdqdx_photon", "h_tmdqdx_photon", 100, 0.0, 10.);
+	    h_tmdqdx_other=new TH1D("h_tmdqdx_other", "h_tmdqdx_other", 100, 0.0, 10.);
+
+	    h_tmdqdx_new=new TH1D("h_tmdqdx_new", "h_tmdqdx_new", 100, 0.0, 10.);
+	    h_tmdqdx_proton_new=new TH1D("h_tmdqdx_proton_new", "h_tmdqdx_proton_new", 100, 0.0, 10.);
+	    h_tmdqdx_pionpm_new=new TH1D("h_tmdqdx_pionpm_new", "h_tmdqdx_pionpm_new", 100, 0.0, 10.);
+	    h_tmdqdx_photon_new=new TH1D("h_tmdqdx_photon_new", "h_tmdqdx_photon_new", 100, 0.0, 10.);
+	    h_tmdqdx_other_new=new TH1D("h_tmdqdx_other_new", "h_tmdqdx_other_new", 100, 0.0, 10.);
+		    
 
             h_tmdqdxvsrange_proton=new TH2D("h_tmdqdxvsrange_proton", "h_tmdqdxvsrange_proton", 100, 0.0, 10., 100, 0.0, 300.0);
             h_tmdqdxvsrange_pionpm=new TH2D("h_tmdqdxvsrange_pionpm", "h_tmdqdxvsrange_pionpm", 100, 0.0, 10., 100, 0.0, 300.0);
+            h_tmdqdxvsrange_photon=new TH2D("h_tmdqdxvsrange_photon", "h_tmdqdxvsrange_photon", 100, 0.0, 10., 100, 0.0, 300.0);
+            h_tmdqdxvsrange_other=new TH2D("h_tmdqdxvsrange_other", "h_tmdqdxvsrange_other", 100, 0.0, 10., 100, 0.0, 300.0);
+
+
 
             /*h_tmdqdx=new TH1D("h_tmdqdx", "h_tmdqdx", 100, 0.0, 1200);
 	    h_tmdqdx_proton=new TH1D("h_tmdqdx_proton", "h_tmdqdx_proton", 100, 0.0, 1200);
@@ -128,10 +142,10 @@ namespace DataTypes {
 	    h_shwang_nonphoton=new TH1D("h_shwang_nonphoton", "h_shwang_nonphoton", 60, -0., 3.14);
 	    h_shwang_all=new TH1D("h_shwang_all", "h_shwang_all", 60, -0.0, 3.14);
  
-	    h_shwdis_photon=new TH1D("h_shwdis_photon", "h_shwdis_photon", 60, -0., 150);
-	    h_shwdis_electron=new TH1D("h_shwdis_electron", "h_shwdis_electron", 60, -0., 150);
-	    h_shwdis_nonphoton=new TH1D("h_shwdis_nonphoton", "h_shwdis_nonphoton", 60, -0., 150);
-	    h_shwdis_all=new TH1D("h_shwdis_all", "h_shwdis_all", 60, -0.0, 150);
+	    h_shwdis_photon=new TH1D("h_shwdis_photon", "h_shwdis_photon", 150, -0., 150);
+	    h_shwdis_electron=new TH1D("h_shwdis_electron", "h_shwdis_electron", 150, -0., 150);
+	    h_shwdis_nonphoton=new TH1D("h_shwdis_nonphoton", "h_shwdis_nonphoton", 150, -0., 150);
+	    h_shwdis_all=new TH1D("h_shwdis_all", "h_shwdis_all", 150, -0.0, 150);
  
 
 	    h_trackscore_shwlike_photon=new TH1D("h_trackscore_shwlike_photon", "h_trackscore_shwlike_photon", 100, -0.0, 0.3);
@@ -186,11 +200,11 @@ namespace DataTypes {
             h_PiAbs_reabac_pmom = new TH1D ("h_PiAbs_reabac_pmom", "h_PiAbs_reabac_pmom", 50, 0.0, 1.2);
             h_PiAbs_other_pmom = new TH1D ("h_PiAbs_other_pmom", "h_PiAbs_other_pmom", 50, 0.0, 1.2);
 
-            h_PiAbs_sel_pcostheta = new TH1D ("h_PiAbs_sel_pcostheta", "h_PiAbs_sel_pcostheta", 50, -1., 1.0);
-            h_PiAbs_sig_pcostheta = new TH1D ("h_PiAbs_sig_pcostheta", "h_PiAbs_sig_pcostheta", 50, -1., 1.0);
-            h_PiAbs_chxbac_pcostheta = new TH1D ("h_PiAbs_chxbac_pcostheta", "h_PiAbs_chxbac_pcostheta", 50, -1., 1.0);
-            h_PiAbs_reabac_pcostheta = new TH1D ("h_PiAbs_reabac_pcostheta", "h_PiAbs_reabac_pcostheta", 50, -1., 1.0);
-            h_PiAbs_other_pcostheta = new TH1D ("h_PiAbs_other_pcostheta", "h_PiAbs_other_pcostheta", 50, -1., 1.0);
+            h_PiAbs_sel_pcostheta = new TH1D ("h_PiAbs_sel_pcostheta", "h_PiAbs_sel_pcostheta", 50, -1.0, 1.0);
+            h_PiAbs_sig_pcostheta = new TH1D ("h_PiAbs_sig_pcostheta", "h_PiAbs_sig_pcostheta", 50, -1.0, 1.0);
+            h_PiAbs_chxbac_pcostheta = new TH1D ("h_PiAbs_chxbac_pcostheta", "h_PiAbs_chxbac_pcostheta", 50, -1.0, 1.0);
+            h_PiAbs_reabac_pcostheta = new TH1D ("h_PiAbs_reabac_pcostheta", "h_PiAbs_reabac_pcostheta", 50, -1.0, 1.0);
+            h_PiAbs_other_pcostheta = new TH1D ("h_PiAbs_other_pcostheta", "h_PiAbs_other_pcostheta", 50, -1.0, 1.0);
 
             h_PiAbs_sel_ptheta = new TH1D ("h_PiAbs_sel_ptheta", "h_PiAbs_sel_ptheta", 50, -0., 3.14);
             h_PiAbs_sig_ptheta = new TH1D ("h_PiAbs_sig_ptheta", "h_PiAbs_sig_ptheta", 50, -0., 3.14);
@@ -239,7 +253,7 @@ namespace DataTypes {
 
             h_PiAbs_sig_truevsreco_pmult = new TH2D ("h_PiAbs_sig_truevsreco_pmult", "h_PiAbs_sig_truevsreco_pmult", 10, -0.5, 9.5, 10, -0.5, 9.5);
             h_PiAbs_sig_truevsreco_pmult ->GetXaxis()->SetTitle("Proton Multiplicity[True]");
-            h_PiAbs_sig_truevsreco_pmult ->GetYaxis()->SetTitle("Proton_Multiplicity[Reco]");
+            h_PiAbs_sig_truevsreco_pmult ->GetYaxis()->SetTitle("Proton Multiplicity[Reco]");
 
             h_sig_pvsnmult = new TH2D("h_sig_pvsnmult", "h_sig_pvsnmult", 15, -0.5, 14.5, 15, -0.5, 14.5);
             h_sig_pvsnmult->GetXaxis()->SetTitle("No. of Protons");
@@ -436,6 +450,30 @@ namespace DataTypes {
             h_true_beam_endE_num = new TH1D("h_true_beam_endE_num", "h_true_beam_endE_num", nbins_beamE, bins_beamE);
 
             h_sel_gdvsd=new TH2D("h_sel_gdvsd", "h_sel_gdvsd", 6, -0.5, 5.5, 6, -0.5, 5.5); 
+
+            h_michele_trackscore = new TH1D("h_michele_trackscore", "h_michele_trackscore", 100, 0.0, 1.0);
+            h_gammae_trackscore = new TH1D("h_gammae_trackscore", "h_gammae_trackscore", 100, 0.0, 1.0);
+            h_pione_trackscore = new TH1D("h_pione_trackscore", "h_pione_trackscore", 100, 0.0, 1.0);
+            h_othere_trackscore = new TH1D("h_othere_trackscore", "h_othere_trackscore", 100, 0.0, 1.0);
+            
+            h_energetic_shower_eng_all = new TH1D("h_energetic_shower_eng_all", "h_energetic_shower_eng_all", 50, 0.0, 500);
+            h_energetic_shower_eng_abs = new TH1D("h_energetic_shower_eng_abs", "h_energetic_shower_eng_abs", 50, 0.0, 500);
+            h_energetic_shower_eng_chx = new TH1D("h_energetic_shower_eng_chx", "h_energetic_shower_eng_chx", 50, 0.0, 500);
+            h_energetic_shower_eng_rea = new TH1D("h_energetic_shower_eng_rea", "h_energetic_shower_eng_rea", 50, 0.0, 500);
+            h_energetic_shower_eng_other = new TH1D("h_energetic_shower_eng_other", "h_energetic_shower_eng_other", 50, 0.0, 500);
+
+            h_energetic_shower_ang_all = new TH1D("h_energetic_shower_ang_all", "h_energetic_shower_ang_all", 50, 0.0, 3.14);
+            h_energetic_shower_ang_abs = new TH1D("h_energetic_shower_ang_abs", "h_energetic_shower_ang_abs", 50, 0.0, 3.14);
+            h_energetic_shower_ang_chx = new TH1D("h_energetic_shower_ang_chx", "h_energetic_shower_ang_chx", 50, 0.0, 3.14);
+            h_energetic_shower_ang_rea = new TH1D("h_energetic_shower_ang_rea", "h_energetic_shower_ang_rea", 50, 0.0, 3.14);
+            h_energetic_shower_ang_other = new TH1D("h_energetic_shower_ang_other", "h_energetic_shower_ang_other", 50, 0.0, 3.14);
+
+            h_energetic_shower_dist_all = new TH1D("h_energetic_shower_dist_all", "h_energetic_shower_dist_all", 50, 0.0, 40);
+            h_energetic_shower_dist_abs = new TH1D("h_energetic_shower_dist_abs", "h_energetic_shower_dist_abs", 50, 0.0, 40);
+            h_energetic_shower_dist_chx = new TH1D("h_energetic_shower_dist_chx", "h_energetic_shower_dist_chx", 50, 0.0, 40);
+            h_energetic_shower_dist_rea = new TH1D("h_energetic_shower_dist_rea", "h_energetic_shower_dist_rea", 50, 0.0, 40);
+            h_energetic_shower_dist_other = new TH1D("h_energetic_shower_dist_other", "h_energetic_shower_dist_other", 50, 0.0, 40);
+            h_pcostheta1st2nd_ptmissing = new TH2D("h_pcostheta1st2nd_ptmissing", "h_pcostheta1st2nd_ptmissing", 50, 0.0, 1.2, 50, -1.0, 1.0);
 
     }
 

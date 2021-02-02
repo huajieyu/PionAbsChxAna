@@ -13,11 +13,12 @@ maker = Main.Maker()
 #maker.SetInputFile("/dune/data/users/calcuttj/pionana_mc_1GeV_5_29_20.root");
 #maker.SetInputFile("/dune/data/users/calcuttj/pionana_5387_5_28_20.root") # Run1 After Neutrino
 
-maker.SetInputFile("/dune/data/users/calcuttj/pionana_5387_6_15_20.root");
-#maker.SetInputFile("/dune/data/users/fstocker/pionana_mcc12/pionana_mc_1GeV_5_5_20.root");
-
-#maker.SetOutputFile("/dune/app/users/jiang/dunetpc_analysis/UBAna/Main/mac/output_test.root") # Run1 After Neutrino
-
+#maker.SetInputFile("/dune/data/users/calcuttj/pionana_5387_6_15_20.root");
+#maker.SetInputFile("/dune/data/users/calcuttj/pionana_5387_6_19_20.root");
+#maker.SetInputFile("/dune/data/users/calcuttj/pionana_Prod3_5387_1GeV_7_30_20.root");
+#maker.SetInputFile("/dune/data/users/calcuttj/pionana_Prod3_5387_1GeV_9_20_20.root");
+#maker.SetInputFile("/dune/data/users/fstocker/ANALYSIS/prod4_files/pionana_Prod4_5387_1GeV_12_16_20.root");
+maker.SetInputFile("/dune/data/users/fstocker/ANALYSIS/prod4_files/pionana_Prod4_5387_1GeV_1_14_21.root");
 maker.SetOutputFile("/dune/app/users/jiang/dunetpc_analysis/PionAbsChxAna/UBAna/Main/mac/output_test_data.root") # Run1 After Neutrino
 
 maker.SetEntries(-1)

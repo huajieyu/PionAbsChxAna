@@ -132,6 +132,9 @@ namespace Base {
     /// Extracts the cross section, provide a vector of background names to be subtracted in the first argument
     TH1D* ExtractCrossSection(std::vector<std::string>, std::string, std::string);
 
+    TH1D* ExtractCrossSection_PiAbs(std::vector<std::string>, std::string, std::string, double);
+
+
     /// Returns the extracted MC cross section (must be called after ExtractCrossSection)
     TH1D* GetMCCrossSection();
 

@@ -502,49 +502,11 @@ bool Main::Maker::has_pi0shower(const std::vector<double> &track_score){
    return true;
 }
 //====================================================================================
-const std::vector<double> Main::Maker::truncatedMean_xglu(int nhits_left, int nhits_right, double truncate_low, double truncate_high, std::vector<std::vector<double>> &vecs_dEdX){
 
-   size_t size = 0;
+
+const std::vector<double> Main::Maker::truncatedMean_xglu(double tmdqdx_test){
+
    std::vector<double> trunc_mean;
-   std::vector<double> help_vec;
-   truncate_high = 1 - truncate_high; 
-   int i_low = 0;
-   int i_high = 0;
-
-   //sort the dEdX vecotrs in matrix
-   for(auto &&vec : vecs_dEdX){
-      size = vec.size();
-      help_vec.clear();
-
-      //check dEdX vector isn't empty!
-      if(vec.empty()){
-         trunc_mean.push_back(-9999.);
-         continue;
-      }
-
-      else{
-         //Sort Vector
-         sort(vec.begin(), vec.end());
-       
-         //Discard upper and lower part of signal
-         //rint rounds to integer
-         i_low = rint ( size*truncate_low);
-         i_high = rint( size*truncate_high);
-         
-         
-         for(int i = i_low; i <= i_high; i++){
-               help_vec.push_back(vec[i]);
-         };
-
-         //Mean of help vector
-
-         trunc_mean.push_back(accumulate(help_vec.begin(), help_vec.end(), 0.0) / help_vec.size());
-
-      }
-
-
-   };
-
    return trunc_mean;
 
 };
@@ -800,6 +762,25 @@ bool Main::Maker::has_shower_Eng(const std::vector<double> &track_score,
 
   return false;
 };
+//---------------------------------------------------------------
+bool Main::Maker::has_shower_Ang(const std::vector<double> &track_score,
+                                  const std::vector<double> &shwang) {
+  if(track_score.empty() || shwang.empty())
+    return false;
+
+  for(size_t i = 0; i < track_score.size(); ++i){
+     if ((track_score[i] < cut_trackScore) &&
+         (shwang[i] < cut_angle_shower_low && shwang[i] > cut_angle_shower_high) &&
+         (track_score[i] != -999.)) {
+       return true;
+     }
+  }
+
+  return false;
+};
+
+
+
 //------------------------------------------------------------------
 bool Main::Maker::has_shower_Dist(const std::vector<double> &track_score,
                                   const std::vector<double> &distance) {
@@ -1117,15 +1098,19 @@ void Main::Maker::MakeFile()
   
   int evts = chain_ubxsec -> GetEntries();
   LOG_NORMAL() << "Number of events used is: " << evts << endl;
-  
+   
   UBXSecEvent * t = new UBXSecEvent(chain_ubxsec);
   //ActivateBranches(t);
-
+  LOG_NORMAL() << "Declear the OBJECT of UBXSecEvent"<<std::endl;
   _event_histo_1d = new UBXSecEventHisto1D();
   _event_histo_1d->InitializeBootstraps();
+
+  _event_histo = new UBXSecEventHisto();
+  _event_histo->InitializeBootstraps();
+
   //========================================================================
   //int evts = chain_ubxsec->GetEntries();
-  std::cout<<"total number of events is "<<evts<<std::endl;
+  LOG_NORMAL()<<"total number of events is "<<evts<<std::endl;
   //loop over all the events
   int barWidth = 70;
 
@@ -1168,14 +1153,30 @@ void Main::Maker::MakeFile()
 
   int TestGenSig=0;
 
-  int n_bins_mumom = 10;
-  int n_bins_mucostheta = 10;
-  double bins_mumom[11];
-  double bins_mucostheta[11];
-  for(int i=0; i<11; i++){
-     bins_mumom[i]=1.2/10.0*i;
-     bins_mucostheta[i]=-1.0+2.0/10.0*i;
+  int n_bins_mumom = 50;
+  int n_bins_mucostheta = 50;
+  int n_bins_muphi = 50;
+  double bins_mumom[51];
+  double bins_mucostheta[51];
+  double bins_muphi[51];
+  for(int i=0; i<51; i++){
+     bins_mumom[i]=0.0 + 1.2/50.0*i;
+     bins_mucostheta[i]=-1.0 + 2.0/50.0*i;
+     bins_muphi[i]=-TMath::Pi() + 2*TMath::Pi()*i/50.0;
   }
+
+  TH2D *h_pcostheta1st2nd_ptmissing = new TH2D("h_pcostheta1st2nd_ptmissing", "h_pcostheta1st2nd_ptmissing", 50, 0.0, 1.2, 50, -1.0, 1.0);
+  TH1D *h_sel_pcostheta1st2nd=new TH1D("h_sel_pcostheta1st2nd", "h_sel_pcostheta1st2nd", 50, -1.0, 1.0);
+  TH1D *h_sig_pcostheta1st2nd=new TH1D("h_sig_pcostheta1st2nd", "h_sig_pcostheta1st2nd", 50, -1.0, 1.0);
+  TH1D *h_chxbac_pcostheta1st2nd=new TH1D("h_chxbac_pcostheta1st2nd", "h_chxbac_pcostheta1st2nd", 50, -1.0, 1.0);
+  TH1D *h_reabac_pcostheta1st2nd=new TH1D("h_reabac_pcostheta1st2nd", "h_reabac_pcostheta1st2nd", 50, -1.0, 1.0);
+
+  TH2D *h_true_reco_mom = new TH2D("h_true_reco_mom", "h_true_reco_mom", n_bins_mumom, bins_mumom, n_bins_mumom, bins_mumom);
+  TH2D *h_true_reco_costheta = new TH2D("h_true_reco_costheta", "h_true_reco_costheta", n_bins_mucostheta, bins_mucostheta, n_bins_mucostheta, bins_mucostheta);
+  TH2D *h_true_reco_phi = new TH2D("h_true_reco_phi", "h_true_reco_phi",  n_bins_muphi, bins_muphi, n_bins_muphi, bins_muphi);
+
+
+
   // True v.s. reco histograms for constructing smearing matrix
   std::map<std::string,TH2D*> bs_geant_pm1_true_reco_mom;
   bs_geant_pm1_true_reco_mom["nominal"] = new TH2D("bs_geant_pm1_true_reco_mom_nominal", ";Proton Momentum (Truth) [GeV]; Proton Momentum (Reco) [GeV]", n_bins_mumom, bins_mumom, n_bins_mumom, bins_mumom);
@@ -1208,10 +1209,9 @@ void Main::Maker::MakeFile()
 
 
 
+  TH1D* h_Evttot = new TH1D("h_Evttot", "h_Evttot", 1, 0.5, 1.5);
 
-
-  //std::cout<<"libo test before looping over all the events"<<std::endl;
-  
+   
   std::vector<std::string> fname_geant_pm1;
   std::vector<int> fpion_evt_index;
   fname_geant_pm1.clear();
@@ -1230,17 +1230,32 @@ void Main::Maker::MakeFile()
         }
   }
   
-
+  int totalshower_trkscore=0;
+  int totalshower_trknhits=0;
+  int totalshower_trkdist=0;
+  int totalshower_trkeng=0;
+ 
+  int totalgamma_trkscore=0;
+  int totalgamma_trknhits=0;
+  int totalgamma_trkdist=0;
+  int totalgamma_trkeng=0;
+ 
+  //std::cout<<"start looping over all the events the first pion event is "<<fpion_evt_index[0]<<std::endl;
+  std::cout<<"initial entry is "<<_initial_entry<<" total number of events is "<<evts<<std::endl;
   //get the first pion event
   double event_weight = 1.0;
+
+  Evttot = 0;
+
   for(int i= _initial_entry; i<evts; i++){
 	if(i !=0) DrawProgressBar((double)i/(double)evts, barWidth);
         
-
+        
 	chain_ubxsec->GetEntry(i);
+        //std::cout<<"i = "<<i<<std::endl;
         if(isdata==0){
         if(i==fpion_evt_index[0] && isdata==0 && _fill_bootstrap_geant){
-          
+          //std::cout<<"total g4 reweight factor size is "<<t->g4rw_primary_var->size()<<std::endl;
           for(long unsigned int k=0; k<t->g4rw_primary_var->size(); k++){
              string name = t->g4rw_primary_var->at(k);
              fname_geant_pm1.push_back(name + "_p1");
@@ -1281,12 +1296,14 @@ void Main::Maker::MakeFile()
         }  
 
         }//end of is isdata==0
-	
+        //std::cout<<"end of setting all the Weight Names of the bootstraps; is it data? "<<isdata<<std::endl;	
 	//========================================================================
 	//select muon and pion beam events
 	if(isdata==0){
 	
-          if(abs(t->true_beam_PDG) != 211 && abs(t->true_beam_PDG) !=13) continue; 
+          if(abs(t->true_beam_PDG) != 211 && abs(t->true_beam_PDG) !=13) continue;
+          //Evttot += event_weight; 
+          //h_Evttot->Fill(event_weight);
           if(!isBeamType(t->reco_beam_type)) continue;
           if(!manual_beamPos_mc(t->reco_beam_startX, t->reco_beam_startY, t->reco_beam_startZ, 
                               t->reco_beam_trackDirX, t->reco_beam_trackDirY, t->reco_beam_trackDirZ,
@@ -1294,14 +1311,74 @@ void Main::Maker::MakeFile()
                               t->true_beam_startX, t->true_beam_startY, t->true_beam_startZ)) continue;
           if(!endAPA3(t->reco_beam_endZ) )continue;
         } 
+     
         if(isdata==1){
-          if(!data_beam_PID(t->data_BI_PDG_candidates)) continue;
+          if(!data_beam_PID(t->beam_inst_PDG_candidates)) continue;
+          //Evttot += event_weight; 
+          //h_Evttot->Fill(event_weight);
           if(!manual_beamPos_data(t->event, t->reco_beam_startX, t->reco_beam_startY, t->reco_beam_startZ,
                                 t->reco_beam_trackDirX, t->reco_beam_trackDirY, t->reco_beam_trackDirZ,
-                                t->data_BI_X, t->data_BI_Y, t->data_BI_dirX, t->data_BI_dirY,
-                                t->data_BI_dirZ, t->data_BI_nMomenta, t->data_BI_nTracks)) continue;
+                                t->beam_inst_X, t->beam_inst_Y, t->beam_inst_dirX, t->beam_inst_dirY,
+                                t->beam_inst_dirZ, t->beam_inst_nMomenta, t->beam_inst_nTracks)) continue;
           if(!endAPA3(t->reco_beam_endZ) )continue;
         }
+        h_Evttot->Fill(event_weight);
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        //set the map of wire number and incident particles
+        //hit-by-hit wire z position
+        for(unsigned int ih=0; ih<t->reco_beam_calo_wire_z->size(); ih++){
+            //if there is a hit, then there is a incident particle
+            _event_histo->htotinc_reco_beamz->Fill(t->reco_beam_calo_wire_z->at(ih));
+            _event_histo->htotinc_reco_beamwire->Fill(t->reco_beam_calo_wire->at(ih));
+            //check the resolution of the wire number or position of each hit
+
+
+        } 
+        for(long unsigned int i=0; i<sizeof(slicebins)/sizeof(slicebins[0]); i++){
+          slicebins[i]=20*i;
+        }
+        //ignore the last hit in the calculation of thickness and energy
+        //??????????????????????????????????/???????
+        
+        for(long unsigned int is=0; is<sizeof(slicebins)/sizeof(slicebins[0])-1; is++){
+            double eincident = 0.0;
+            int nincident = 0;
+            double slicethickness = 0.0;
+            for(int nh=slicebins[is]; nh<slicebins[is+1]; nh++) {
+                 if(std::find(t->reco_beam_calo_wire->begin(), t->reco_beam_calo_wire->end(), nh) != t->reco_beam_calo_wire->end()) {
+                    if(t->reco_beam_incidentEnergies->size()>0 && t->reco_beam_TrkPitch->size()>0){                    
+                       nincident = nincident+1;
+                       int realindex = -999;
+                       //nh is the wire number find the readindex
+                       for(long unsigned int kk=0; kk<t->reco_beam_calo_wire->size()-1; kk++){
+                           if(t->reco_beam_calo_wire->at(kk)==nh) {realindex = kk;}
+                       }
+                       if(realindex>=0){ 
+                          eincident = eincident + t->reco_beam_incidentEnergies->at(realindex);
+                          slicethickness = slicethickness + t->reco_beam_TrkPitch->at(realindex);
+                       }
+                    }
+                 }//end of if the wire number  
+            } // end of loop over all wire in a certain slices [is]
+            if(nincident>0){
+               eincident = eincident/(nincident*1.0);
+               //incidentEnergy = average value of all the hits within the slice
+               
+               _event_histo->htotinc_reco_beam_incidentEnergy[is]->Fill(eincident);
+               _event_histo->htotinc_reco_beam_sliceThickness[is]->Fill(slicethickness);
+            }
+            if(t->reco_beam_calo_wire->back()>slicebins[is] && t->reco_beam_calo_wire->back()<slicebins[is+1]){
+                if(isdata==0){
+                   _event_histo->htotinc_true_beam_trajz[is]->Fill(t->true_beam_traj_Z->back());
+                }
+                _event_histo->htotinc_reco_beam_endz[is]->Fill(t->reco_beam_calo_endZ);
+            }
+        }//loop over all the slices
+        if(isdata==0){
+           _event_histo->htotinc_reco_beamz_reso->Fill((t->reco_beam_calo_endZ-t->true_beam_traj_Z->back()));
+           _event_histo->htotinc_reco_beamwire_reso->Fill((t->reco_beam_calo_wire->back()-t->true_beam_slices->back()));
+        }
+
 
 
         //========================================================================================       
@@ -1345,7 +1422,6 @@ void Main::Maker::MakeFile()
  		     ngen_proton++;
         }
         }//end of if isdata==0 
-
 
         bool isSignal = false;
         bool isChxBKG = false;
@@ -1412,14 +1488,66 @@ void Main::Maker::MakeFile()
                 isOtherBKG = true;
         }
         }//end of if isdata
+        //check all the generated absorption/charge exchange events !!!!!!!!!!!
+        //Fill the histograms for the proton momentum and angle
+        if(isSignal_withthresh){
+              //loop over all the MC particles in signal event
+              int temp_genpindex=-999.0; double temp_genpmom=-999.0; double temp_genpcostheta=-999.0; double temp_genpphi=-999.0;
+              for(unsigned int tmk=0; tmk<t->true_beam_daughter_startP->size(); tmk++){
+                      if(abs(t->true_beam_daughter_PDG->at(tmk)) !=2212) continue;
+                      _event_histo->h_true_pphi_test->Fill(TMath::ATan2(t->true_beam_daughter_startPy->at(tmk), t->true_beam_daughter_startPx->at(tmk)));
+                      if(t->true_beam_daughter_startP->at(tmk)>temp_genpmom){
+                      temp_genpindex = tmk;
+                      temp_genpmom=t->true_beam_daughter_startP->at(tmk);
+                      temp_genpcostheta=t->true_beam_daughter_startPz->at(tmk)/t->true_beam_daughter_startP->at(tmk);
+                      temp_genpphi= TMath::ATan2(t->true_beam_daughter_startPy->at(tmk), t->true_beam_daughter_startPx->at(tmk));
+                      }           
+              }
+                       _event_histo->h_eff_pmom_den->Fill(temp_genpmom);
+                       _event_histo->h_eff_pcostheta_den->Fill(temp_genpcostheta);
+                       _event_histo->h_eff_pphi_den->Fill(temp_genpphi);
+        //-----------------------------------------------------------------------------
+          for(long unsigned int is=0; is<sizeof(slicebins)/sizeof(slicebins[0])-1; is++){
+
+            if(t->reco_beam_calo_wire->back()>=slicebins[is] && t->reco_beam_calo_wire->back()<slicebins[is+1]){
+                double eincident = 0.0;
+                int nincident = t->reco_beam_calo_wire->back()-slicebins[is]+1;
+                for(int ic=slicebins[is]; ic<=t->reco_beam_calo_wire->back()-1; ic++){
+                    //ic is the wire number over here
+                    if(std::find(t->reco_beam_calo_wire->begin(),t->reco_beam_calo_wire->end(), ic) !=t->reco_beam_calo_wire->end()){
+                      if(t->reco_beam_incidentEnergies->size()>0 && t->reco_beam_TrkPitch->size()>0){                    
+                         int realindex = -999;
+                         //nh is the wire number find the readindex
+                         for(long unsigned int kk=0; kk<t->reco_beam_calo_wire->size(); kk++){
+                            if(t->reco_beam_calo_wire->at(kk)==ic) {realindex = kk;}
+                         }
+                         if(realindex >=0){
+                            eincident = eincident + t->reco_beam_incidentEnergies->at(realindex);
+                         }
+                      } 
+                       
+                    }
+                }
+                if(nincident>0){
+                       eincident = eincident/(nincident*1.0);
+                       _event_histo->hgen_reco_beam_incidentEnergy[is]->Fill(eincident);
+                }
+            } 
+          }//end of loop over all the slices
+        //-------------------------------------------------------------------------------
+        }//end of if this is a generated signal event
         //================================================================
+        //std::cout<<"start to fill the vector with reweight factors"<<t->g4rw_primary_var->size()<<std::endl;
         std::vector<double> wgts_geant_pm1;  //size of wgts_geant_pm1 would be 2*reweight names
-        if(isdata==0){
+        if(isdata==0 && _fill_bootstrap_geant){
         for(long unsigned int i=0; i<t->g4rw_primary_var->size(); i++){
             wgts_geant_pm1.push_back(t->g4rw_primary_plus_sigma_weight->at(i));
             wgts_geant_pm1.push_back(t->g4rw_primary_minus_sigma_weight->at(i));
         }
         }//end of if isdata for filling reweight factors for Geant4
+
+        //std::cout<<"end of filling the vector with reweight factors"<<t->g4rw_primary_var->size()<<std::endl;
+
         //==================================================================
         if(isdata==0){
         //get the denomator of the energetic protons for momentum, angles
@@ -1437,15 +1565,17 @@ void Main::Maker::MakeFile()
             _event_histo_1d->h_PiAbs_gen_sig_energeticproton_mom->Fill(t->true_beam_daughter_startP->at(temp_genpindex));
             //_event_histo_1d->h_PiAbs_gen_sig_energeticproton_costheta->Fill(t->true_beam_daughter_startPz->at(temp_genpindex)/t->true_beam_daughter_startP->at(temp_genpindex));
             _event_histo_1d->h_PiAbs_gen_sig_energeticproton_phi->Fill(TMath::ATan2(t->true_beam_daughter_startPy->at(temp_genpindex),t->true_beam_daughter_startPx->at(temp_genpindex)));
-           bs_geant_pm1_eff_mumom_den.Fill(t->true_beam_daughter_startP->at(temp_genpindex), event_weight, wgts_geant_pm1);
-           bs_geant_pm1_eff_mucostheta_den.Fill(t->true_beam_daughter_startPz->at(temp_genpindex)/t->true_beam_daughter_startP->at(temp_genpindex), event_weight, wgts_geant_pm1);
+           if(_fill_bootstrap_geant){
+             bs_geant_pm1_eff_mumom_den.Fill(t->true_beam_daughter_startP->at(temp_genpindex), event_weight, wgts_geant_pm1);
+             bs_geant_pm1_eff_mucostheta_den.Fill(t->true_beam_daughter_startPz->at(temp_genpindex)/t->true_beam_daughter_startP->at(temp_genpindex), event_weight, wgts_geant_pm1);
+           }
             TestGenSig++;
           } 
              
         }//end of selected signal before event selection
         
         }//end of if isdata==0
-        
+        //std::cout<<"selected the most energetic protons "<<std::endl;
         //==================================================================
 
 
@@ -1472,7 +1602,7 @@ void Main::Maker::MakeFile()
         //====================================================================
         //----------------------------------------------------------------------------  
         //check how many nucleons 
-        //loop over all the true beam daughter particles
+        //LOG_NORMAL()<<"loop over all the true beam daughter particles"<<std::endl;
         for(unsigned indp=0; indp<t->true_beam_daughter_ID->size(); indp++){
 
 
@@ -1503,7 +1633,7 @@ void Main::Maker::MakeFile()
                           
         } //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         }//end of if isdata=0
-        //LOG_NORMAL()<<"Start to Fill histograms for chi2 and calculate truncated mean dqdx"<<std::endl;
+        LOG_NORMAL()<<"Start to Fill histograms for chi2 and calculate truncated mean dqdx"<<std::endl;
         //======================================================================
 	//loop over all the daughter particles and get the chi2
         for(unsigned int ipfp=0; ipfp<t->reco_daughter_allTrack_ID->size(); ipfp++){ 
@@ -1539,7 +1669,7 @@ void Main::Maker::MakeFile()
         }//end of loop over all the daughter PDF particles  
         //--------------------------------------------------------------------------------
 
-
+        //LOG_NORMAL()<<"Loop over all the true beam daughters and fill histograms for start momentum"<<std::endl;
 	std::vector<double> trunmeandqdx_test;
 	std::vector<double> poop_par;
         //======================================================================
@@ -1606,6 +1736,7 @@ void Main::Maker::MakeFile()
         }// end of loop over all the true particles
         }//end of isdata==0
         //======================================================================
+        LOG_NORMAL()<<"Loop over all the reconstructed daughter particles "<<std::endl;
         /*
         * loop over all the reconstructed daughter particles
         * get the photons and fill the parent ID of the photon into 
@@ -1773,43 +1904,106 @@ void Main::Maker::MakeFile()
 
        
         
-
+        LOG_NORMAL()<<"Calculated the shower angle and Shower distance from the vertex"<<std::endl;
 
         Int_t totalrecogamma = 0;
+        //loop over all the daughter particles and get the most energetic shower(score<0.3)
+        double temp_energy_shw=-999.0;
+        temp_index_shw=-999;
+        for(unsigned int gg=0; gg<t->reco_daughter_PFP_trackScore_collection->size(); gg++){
+              if(t->reco_daughter_PFP_trackScore_collection->at(gg)>=trkscorecut) continue;
+              if(t->reco_daughter_allShower_energy->at(gg)>temp_energy_shw){
+                  temp_energy_shw=t->reco_daughter_allShower_energy->at(gg);
+                  temp_index_shw=gg;
+              }
+        }
 
-	//for(unsigned int jj=0; jj<t->reco_daughter_PFP_true_byHits_PDG->size(); jj++){
+        
+       
+
+
+
         for(unsigned int jj=0; jj<t->reco_daughter_PFP_trackScore_collection->size(); jj++){
             _event_histo_1d->h_trackscore_all->Fill(t->reco_daughter_PFP_trackScore_collection->at(jj));
             if(t->reco_daughter_PFP_trackScore_collection->at(jj)<trkscorecut){
                totalrecogamma++;
                _event_histo_1d->h_trackscore_shwlike_all->Fill(t->reco_daughter_PFP_trackScore_collection->at(jj));
-               _event_histo_1d->h_shweng_all->Fill(t->reco_daughter_allShower_energy->at(jj));
+
+               if(daughter_distance3D_shower[jj]>cut_daughter_shower_distance_low){
+                 _event_histo_1d->h_shweng_all->Fill(t->reco_daughter_allShower_energy->at(jj));
+                 _event_histo_1d->h_shwang_all->Fill(daughter_angle3D_shower[jj]);
+               }
                _event_histo_1d->h_nhits_shwlike_all->Fill(t->reco_daughter_PFP_nHits->at(jj));
-               _event_histo_1d->h_shwang_all->Fill(daughter_angle3D_shower[jj]);
                _event_histo_1d->h_shwdis_all->Fill(daughter_distance3D_shower[jj]); 
+
+
+
+             
+
                if(isdata == 0){
+                   //-------------------------------------------------------------------------------
+                   if(t->reco_daughter_PFP_trackScore_collection->at(jj)!= -999.){
+                   totalshower_trkscore++;
+                   if(abs(t->reco_daughter_PFP_true_byHits_PDG->at(jj))==22){
+                       totalgamma_trkscore++;
+                   }
+                   if(t->reco_daughter_PFP_nHits->at(jj)>cut_energy_shower_low){
+                       totalshower_trknhits++;
+                       if(abs(t->reco_daughter_PFP_true_byHits_PDG->at(jj))==22 ||
+                          abs(t->reco_daughter_PFP_true_byHits_PDG->at(jj))==11){
+                            totalgamma_trknhits++;
+                       }
+                   }
+                   if(daughter_distance3D_shower[jj]>cut_daughter_shower_distance_low){
+                       totalshower_trkdist++;
+                       if(abs(t->reco_daughter_PFP_true_byHits_PDG->at(jj))==22 ||
+                       abs(t->reco_daughter_PFP_true_byHits_PDG->at(jj))==11){
+                           totalgamma_trkdist++;
+                       }
+                       if(t->reco_daughter_allShower_energy->at(jj)>cut_energy_shower_low){
+                           totalshower_trkeng++;
+                           if(abs(t->reco_daughter_PFP_true_byHits_PDG->at(jj))==22 ||
+                              abs(t->reco_daughter_PFP_true_byHits_PDG->at(jj))==11){
+                              totalgamma_trkeng++;
+                           }
+                       }
+                   } 
+                   }
+                 
+
+
+
+                   //------------------------------------------------------------------------------
                    if(abs(t->reco_daughter_PFP_true_byHits_PDG->at(jj))==22){
                         _event_histo_1d->h_trackscore_shwlike_photon->Fill(t->reco_daughter_PFP_trackScore_collection->at(jj));
-                        _event_histo_1d->h_shweng_photon->Fill(t->reco_daughter_allShower_energy->at(jj));
+                        if(daughter_distance3D_shower[jj]>cut_daughter_shower_distance_low){
+                           _event_histo_1d->h_shweng_photon->Fill(t->reco_daughter_allShower_energy->at(jj));
+                           _event_histo_1d->h_shwang_photon->Fill(daughter_angle3D_shower[jj]);
+                        }  
                         _event_histo_1d->h_nhits_shwlike_photon->Fill(t->reco_daughter_PFP_nHits->at(jj));
-                        _event_histo_1d->h_shwang_photon->Fill(daughter_angle3D_shower[jj]);
                         _event_histo_1d->h_shwdis_photon->Fill(daughter_distance3D_shower[jj]);
 
                    }else if(abs(t->reco_daughter_PFP_true_byHits_PDG->at(jj))==11){ 
                         _event_histo_1d->h_trackscore_shwlike_electron->Fill(t->reco_daughter_PFP_trackScore_collection->at(jj));
-                        _event_histo_1d->h_shweng_electron->Fill(t->reco_daughter_allShower_energy->at(jj));
+                        if(daughter_distance3D_shower[jj]>cut_daughter_shower_distance_low){
+                           _event_histo_1d->h_shweng_electron->Fill(t->reco_daughter_allShower_energy->at(jj));
+                           _event_histo_1d->h_shwang_electron->Fill(daughter_angle3D_shower[jj]);
+                        }
                         _event_histo_1d->h_nhits_shwlike_electron->Fill(t->reco_daughter_PFP_nHits->at(jj));
-                        _event_histo_1d->h_shwang_electron->Fill(daughter_angle3D_shower[jj]);
                         _event_histo_1d->h_shwdis_electron->Fill(daughter_distance3D_shower[jj]);
                    }else {
                         _event_histo_1d->h_trackscore_shwlike_nonphoton->Fill(t->reco_daughter_PFP_trackScore_collection->at(jj));
+                        if(daughter_distance3D_shower[jj]>cut_daughter_shower_distance_low){
                         _event_histo_1d->h_shweng_nonphoton->Fill(t->reco_daughter_allShower_energy->at(jj));
-                        _event_histo_1d->h_nhits_shwlike_nonphoton->Fill(t->reco_daughter_PFP_nHits->at(jj));
                         _event_histo_1d->h_shwang_nonphoton->Fill(daughter_angle3D_shower[jj]);
+                        }
+                        _event_histo_1d->h_nhits_shwlike_nonphoton->Fill(t->reco_daughter_PFP_nHits->at(jj));
                         _event_histo_1d->h_shwdis_nonphoton->Fill(daughter_distance3D_shower[jj]);
                    }
                } 
             }
+
+            LOG_NORMAL()<<"Filled out track score distributions "<<std::endl;
             if(isdata == 0){
 	    if(abs(t->reco_daughter_PFP_true_byHits_PDG->at(jj))==2212){
 	            _event_histo_1d->h_trackscore_proton->Fill(t->reco_daughter_PFP_trackScore_collection->at(jj));       
@@ -1820,7 +2014,17 @@ void Main::Maker::MakeFile()
             } else if(abs(t->reco_daughter_PFP_true_byHits_PDG->at(jj))==211){
         	    _event_histo_1d->h_trackscore_pionpm->Fill(t->reco_daughter_PFP_trackScore_collection->at(jj));  
             } else if(abs(t->reco_daughter_PFP_true_byHits_PDG->at(jj))==11){
-	            _event_histo_1d->h_trackscore_electron->Fill(t->reco_daughter_PFP_trackScore_collection->at(jj));       
+	            _event_histo_1d->h_trackscore_electron->Fill(t->reco_daughter_PFP_trackScore_collection->at(jj));      
+                    if(abs(t->reco_daughter_PFP_true_byHits_parPDG->at(jj))==13){
+                          _event_histo_1d->h_michele_trackscore->Fill(t->reco_daughter_PFP_trackScore_collection->at(jj));
+                    } else if(abs(t->reco_daughter_PFP_true_byHits_parPDG->at(jj))==22){
+                          _event_histo_1d->h_gammae_trackscore->Fill(t->reco_daughter_PFP_trackScore_collection->at(jj));
+                    } else if(abs(t->reco_daughter_PFP_true_byHits_parPDG->at(jj))==111){
+                          _event_histo_1d->h_pione_trackscore->Fill(t->reco_daughter_PFP_trackScore_collection->at(jj));
+                    } else{
+                          _event_histo_1d->h_othere_trackscore->Fill(t->reco_daughter_PFP_trackScore_collection->at(jj));
+                          //std::cout<<"the PDG code of the electron is "<<t->reco_daughter_PFP_true_byHits_parPDG->at(jj)<<std::endl;
+                    } 
             } else if(abs(t->reco_daughter_PFP_true_byHits_PDG->at(jj))==22){
 		    _event_histo_1d->h_trackscore_photon->Fill(t->reco_daughter_PFP_trackScore_collection->at(jj));       
             } else if(abs(t->reco_daughter_PFP_true_byHits_PDG->at(jj))==13){
@@ -1832,6 +2036,8 @@ void Main::Maker::MakeFile()
             }
             } //end of if isdata==0
             //---------------------------------------------------------------------
+
+            LOG_NORMAL()<<"Filled out the hisgrams of track score according to PDG ID"<<std::endl;
 
             //if(t->reco_daughter_PFP_trackScore_collection->at(jj)<trkscorecut && t->reco_daughter_PFP_nHits->at(jj)>=40) {nshwcand ++; }
             
@@ -1855,7 +2061,7 @@ void Main::Maker::MakeFile()
                daughter_distance3D_shower[jj]>= cut_daughter_shower_distance_low &&
                daughter_distance3D_shower[jj]<= cut_daughter_shower_distance_high) continue;
             */ 
-
+            LOG_NORMAL()<<"Performing emergy cut shower energy and shower distance cut to the TPC objects before PID"<<std::endl;
             if(t->reco_daughter_PFP_trackScore_collection->at(jj)<trkscorecut &&
                t->reco_daughter_PFP_trackScore_collection->at(jj) !=-999. &&  
                ((t->reco_daughter_allShower_energy->at(jj)>= cut_energy_shower_low /*&& 
@@ -1877,22 +2083,33 @@ void Main::Maker::MakeFile()
                    
             }
             }// end of if isdata==0 ----------------------------------------------------------------
-
-             
+            int dedx_vector_size = t->reco_daughter_allTrack_calibrated_dEdX_SCE->at(jj).size();
+            double tme=GetTruncatedMean(t->reco_daughter_allTrack_calibrated_dEdX_SCE->at(jj), 2, dedx_vector_size - 5, 0.1, 0.6); 
  
             _event_histo_1d->h_tmdqdx->Fill(reco_daughter_allTrack_truncLibo_dEdX_test.at(jj));
+            _event_histo_1d->h_tmdqdx_new->Fill(tme);
             if(isdata ==0){
 	    if(abs(t->reco_daughter_PFP_true_byHits_PDG->at(jj))==2212){
 	           _event_histo_1d->h_tmdqdx_proton->Fill(reco_daughter_allTrack_truncLibo_dEdX_test.at(jj));        
+                   _event_histo_1d->h_tmdqdx_proton_new->Fill(tme);
             _event_histo_1d->h_tmdqdxvsrange_proton->Fill(reco_daughter_allTrack_truncLibo_dEdX_test.at(jj), t->reco_daughter_allTrack_len->at(jj));
 
 	    }else if(abs(t->reco_daughter_PFP_true_byHits_PDG->at(jj))==211){
 	           _event_histo_1d->h_tmdqdx_pionpm->Fill(reco_daughter_allTrack_truncLibo_dEdX_test.at(jj));        
+                   _event_histo_1d->h_tmdqdx_pionpm_new->Fill(tme);
             _event_histo_1d->h_tmdqdxvsrange_pionpm->Fill(reco_daughter_allTrack_truncLibo_dEdX_test.at(jj), t->reco_daughter_allTrack_len->at(jj));
-	    }
+	    }else if(abs(t->reco_daughter_PFP_true_byHits_PDG->at(jj))==22){
+	           _event_histo_1d->h_tmdqdx_photon->Fill(reco_daughter_allTrack_truncLibo_dEdX_test.at(jj));        
+                   _event_histo_1d->h_tmdqdx_photon_new->Fill(tme);
+            _event_histo_1d->h_tmdqdxvsrange_photon->Fill(reco_daughter_allTrack_truncLibo_dEdX_test.at(jj), t->reco_daughter_allTrack_len->at(jj));
+	    }else{
+	           _event_histo_1d->h_tmdqdx_other->Fill(reco_daughter_allTrack_truncLibo_dEdX_test.at(jj));        
+                   _event_histo_1d->h_tmdqdx_other_new->Fill(tme);
+            _event_histo_1d->h_tmdqdxvsrange_other->Fill(reco_daughter_allTrack_truncLibo_dEdX_test.at(jj), t->reco_daughter_allTrack_len->at(jj));
+            }		
             } //end of if isdata ==0 
 
-
+            
             
 
 
@@ -1902,7 +2119,7 @@ void Main::Maker::MakeFile()
             double temp_tmdqdx=reco_daughter_allTrack_truncLibo_dEdX_test.at(jj);
 
             //==================================================================================
-            if(temp_tmdqdx<cut_dEdX_low || (temp_tmdqdx>cut_dEdX_high && temp_tmdqdx<3.8 )){ //fill out chi2 of the transition region
+            if(temp_tmdqdx<cut_dEdX_low || (temp_tmdqdx>cut_dEdX_high && temp_tmdqdx<cut_for_proton )){ //fill out chi2 of the transition region
              _event_histo_1d->htmdqdx_chi2_phypo_mc->Fill(t->reco_daughter_allTrack_Chi2_proton->at(jj)/t->reco_daughter_allTrack_Chi2_ndof->at(jj));
             if(isdata==0){
             if(abs(t->reco_daughter_PFP_true_byHits_PDG->at(jj))==2212) {
@@ -1924,11 +2141,14 @@ void Main::Maker::MakeFile()
             }
             } // end of if isdata ==0
             }//end of selecting proton region and transition region
+
+            
+            LOG_NORMAL()<<"Filled out histograms for trunmean dEdx and Chi2"<<std::endl;
             //================================================================================= 
             if(temp_tmdqdx>=cut_dEdX_low && temp_tmdqdx<=cut_dEdX_high 
                   /*&& t->reco_daughter_PFP_trackScore_collection->at(jj)>trkscorecut*/) 
             {ntmdqdxcand_withthresh++;}
-            if(temp_tmdqdx>3.8) {
+            if(temp_tmdqdx>cut_for_proton) {  //proton region 1
                isPCand = true;
                if(isdata==0){
                if(t->reco_daughter_PFP_true_byHits_parID->at(jj) == t->true_beam_ID){
@@ -1952,7 +2172,7 @@ void Main::Maker::MakeFile()
                }
                }//end of if isdata==0
             }
-            if((temp_tmdqdx<3.8 && temp_tmdqdx>cut_dEdX_high) || temp_tmdqdx<cut_dEdX_low) {  //transition region
+            if((temp_tmdqdx<cut_for_proton && temp_tmdqdx>cut_dEdX_high) || temp_tmdqdx<cut_dEdX_low) {  //transition region
                 if(isdata==0){
                 if(t->reco_daughter_PFP_true_byHits_parID->at(jj) == t->true_beam_ID){
                   if(abs(t->reco_daughter_PFP_true_byHits_PDG->at(jj))==2212) {
@@ -2002,15 +2222,18 @@ void Main::Maker::MakeFile()
                 } //end of if isdata==0
                 }
             } //end of performing tmdqdx cut
-            //LOG_NORMAL()<<"End of Treat Different Regions of the Truncated Mean dQdx"<<std::endl;
+            LOG_NORMAL()<<"End of Treat Different Regions of the Truncated Mean dQdx"<<std::endl;
             if(isPCand == false /*&& t->reco_daughter_allTrack_momByRange_alt_proton->at(jj) > momthreshcut*/){
               if(t->reco_daughter_allTrack_Chi2_ndof->at(jj)>10){
                 nonprotoncand_withthresh ++;
               }
             }
+            LOG_NORMAL()<<"Count the number of protons with the number of hits greater than 10"<<std::endl;
             if(isPCand == true){
                 //-------------------------------------------------------------------------------
                 if(isdata==0){
+                //std::cout<<"size of dEdx "<<t->reco_daughter_allTrack_calibrated_dEdX_SCE->size()<<std::endl;
+                //std::cout<<"size of resRange "<<t->reco_daughter_allTrack_resRange_SCE->size()<<std::endl;
                 if(t->reco_daughter_allTrack_calibrated_dEdX_SCE->at(jj).size()>0){ 
                  for(unsigned int ndr=0; ndr<t->reco_daughter_allTrack_calibrated_dEdX_SCE->at(jj).size(); ndr++){
                      _event_histo_1d->h_selproton_dedxRR->Fill(t->reco_daughter_allTrack_resRange_SCE->at(jj).at(ndr),t->reco_daughter_allTrack_calibrated_dEdX_SCE->at(jj).at(ndr));
@@ -2035,7 +2258,7 @@ void Main::Maker::MakeFile()
                     _event_histo_1d->h_recomom_selected_other->Fill(t->reco_daughter_allTrack_len->at(jj));
                 }
                 //----------------------------------------------------------------------------
-                //check if this proton is a daughter particles
+                //std::cout<<"check if this proton is a daughter particles"<<std::endl;
 
                 std::vector<int>::iterator temprecoit;
 
@@ -2071,31 +2294,49 @@ void Main::Maker::MakeFile()
 
                   }
                 } //     end of this proton id found in the daughter particle ID
-                //-------fill histograms for momentum track range, angular resolution of the selected proton
+                //std::cout<<"---fill histograms for momentum track range, angular resolution of the selected proton"<<std::endl;
                 if(abs(t->reco_daughter_PFP_true_byHits_PDG->at(jj))==2212){
                   _event_histo_1d->h_selproton_momreso->Fill(t->reco_daughter_PFP_true_byHits_startP->at(jj),t->reco_daughter_allTrack_momByRange_alt_proton->at(jj));
-                 _event_histo_1d->h_trklen_reso->Fill((t->reco_daughter_allTrack_alt_len->at(jj)-t->reco_daughter_PFP_true_byHits_len->at(jj))/t->reco_daughter_PFP_true_byHits_len->at(jj));
+                  //_event_histo_1d->h_trklen_reso->Fill((t->reco_daughter_allTrack_alt_len->at(jj)-t->reco_daughter_PFP_true_byHits_len->at(jj))/t->reco_daughter_PFP_true_byHits_len->at(jj));
+                  _event_histo_1d->h_trklen_reso->Fill((t->reco_daughter_allTrack_len->at(jj)-t->reco_daughter_PFP_true_byHits_len->at(jj))/t->reco_daughter_PFP_true_byHits_len->at(jj));
                   _event_histo_1d->h_selproton_costhetareso->Fill(t->reco_daughter_PFP_true_byHits_startPz->at(jj)/t->reco_daughter_PFP_true_byHits_startP->at(jj), TMath::Cos(t->reco_daughter_allTrack_Theta->at(jj)));
-
                   _event_histo_1d->h_totalp_mom->Fill(t->reco_daughter_PFP_true_byHits_startP->at(jj));
-
                   if(t->reco_daughter_PFP_true_byHits_endProcess->at(jj) !="protonInelastic") {
                   _event_histo_1d->h_selproton_momreso_new->Fill(t->reco_daughter_allTrack_momByRange_alt_proton->at(jj)/t->reco_daughter_PFP_true_byHits_startP->at(jj)-1);
-                  _event_histo_1d->h_selproton_momPxreso_new->Fill(t->reco_daughter_allTrack_momByRange_alt_proton->at(jj)*TMath::Cos(t->reco_daughter_allTrack_Phi->at(jj))*TMath::Sin(t->reco_daughter_allTrack_Theta->at(jj))/t->reco_daughter_PFP_true_byHits_startPx->at(jj)-1);
-                  _event_histo_1d->h_selproton_momPyreso_new->Fill(t->reco_daughter_allTrack_momByRange_alt_proton->at(jj)*TMath::Sin(t->reco_daughter_allTrack_Phi->at(jj))*TMath::Sin(t->reco_daughter_allTrack_Theta->at(jj))/t->reco_daughter_PFP_true_byHits_startPy->at(jj)-1);
-                  _event_histo_1d->h_selproton_momPzreso_new->Fill(t->reco_daughter_allTrack_momByRange_alt_proton->at(jj)*TMath::Cos(t->reco_daughter_allTrack_Theta->at(jj))/t->reco_daughter_PFP_true_byHits_startPz->at(jj)-1);
+                  double recoPx=t->reco_daughter_allTrack_momByRange_alt_proton->at(jj)*TMath::Cos(t->reco_daughter_allTrack_Phi->at(jj))*TMath::Sin(t->reco_daughter_allTrack_Theta->at(jj));
+                  double recoPy=t->reco_daughter_allTrack_momByRange_alt_proton->at(jj)*TMath::Sin(t->reco_daughter_allTrack_Phi->at(jj))*TMath::Sin(t->reco_daughter_allTrack_Theta->at(jj));
+                  double recoPz=t->reco_daughter_allTrack_momByRange_alt_proton->at(jj)*TMath::Cos(t->reco_daughter_allTrack_Theta->at(jj));
+                  TVector3 temprecoP, tempbeamP;
+                  temprecoP.SetXYZ(recoPx, recoPy, recoPz);
+                  tempbeamP.SetXYZ(t->reco_beam_trackEndDirX, t->reco_beam_trackEndDirY, t->reco_beam_trackEndDirZ);
+                  TVector3 direction=tempbeamP.Unit();
+                  temprecoP.RotateUz(direction);
+
+                  double truePx=t->reco_daughter_PFP_true_byHits_startPx->at(jj);
+                  double truePy=t->reco_daughter_PFP_true_byHits_startPy->at(jj);
+                  double truePz=t->reco_daughter_PFP_true_byHits_startPz->at(jj);
+
+
+                  _event_histo_1d->h_selproton_momPxreso_new->Fill(recoPx/truePx-1);
+                  _event_histo_1d->h_selproton_momPyreso_new->Fill(recoPy/truePy-1);
+                  _event_histo_1d->h_selproton_momPzreso_new->Fill(recoPz/truePz-1);
                  
                   _event_histo_1d->h_selproton_costhetareso_new->Fill(TMath::Cos(t->reco_daughter_allTrack_Theta->at(jj))/(t->reco_daughter_PFP_true_byHits_startPz->at(jj)/t->reco_daughter_PFP_true_byHits_startP->at(jj))-1);
+
+
+
+
                   }
                   if(t->reco_daughter_PFP_true_byHits_endProcess->at(jj)=="protonInelastic"){
                     _event_histo_1d->h_reintp_mom->Fill(t->reco_daughter_PFP_true_byHits_startP->at(jj));
                   }                
-
+                  
                 }
+                //std::cout<<"end of if this is a proton "<<std::endl;
                 }//end of if isdata==0 
                 //-----------------------------------------------------------------------------
             } //end of if pcand is true
-            //check if this is a pion candidate and fill out track range of the selected pion candidate
+            LOG_NORMAL()<<"checked if this is a pion candidate or proton candidate"<<std::endl;
             if(isdata==0 && !isPCand && isPiCand){
 
 
@@ -2118,7 +2359,7 @@ void Main::Maker::MakeFile()
 
             //--------------------------------------------------------------------
 	}// end of loop over all the PFP_true_
-         
+        LOG_NORMAL()<<"Start doing event selection for all the pion events"<<std::endl; 
         Ntotal_beam++;  //total number of events past beam selection
 
         if(isSignal_withthresh){         _event_histo_1d->hsig_nrecogamma->Fill(totalrecogamma); }
@@ -2132,6 +2373,9 @@ void Main::Maker::MakeFile()
 
         std::vector<double> &daughter_shwdis_ptr=daughter_distance3D_shower;
         //std::vector<double> shwdisref=&daughter_shwdis_ptr;
+
+        std::vector<double> &daughter_shwang_ptr=daughter_angle3D_shower;
+        //std::vector<double> shwangref=&daughter_shwang_ptr;
 
         std::vector<double> *daughter_trkscore_ptr=t->reco_daughter_PFP_trackScore_collection;
         std::vector<double> trkscoreref=*daughter_trkscore_ptr;
@@ -2192,22 +2436,49 @@ void Main::Maker::MakeFile()
 
 
         
-        /*if(sel_abs) if(has_shower_nHits(trkscoreref, nhitsref)) continue;
-
-
-        if(sel_chx) if(trkscoreref.size()==0) continue;
-        if(sel_chx) if(!has_shower_nHits(trkscoreref, nhitsref)) continue;
+        /*
         */
         //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-        if(sel_abs) if(has_shower_Eng(trkscoreref, shwengref)) continue;
-        if(sel_abs) if(has_shower_Dist(trkscoreref, daughter_shwdis_ptr)) continue;
-        //if(sel_abs) if(nshwcand>0) continue;
+        if(temp_index_shw>=0){
+             _event_histo_1d->h_energetic_shower_eng_all->Fill(t->reco_daughter_allShower_energy->at(temp_index_shw));
+             _event_histo_1d->h_energetic_shower_ang_all->Fill(daughter_angle3D_shower[temp_index_shw]);
+             _event_histo_1d->h_energetic_shower_dist_all->Fill(daughter_distance3D_shower[temp_index_shw]);
 
-        if(sel_chx) if(trkscoreref.size()==0) continue;
-        if(sel_chx) if(!has_shower_Eng(trkscoreref, shwengref)) continue;
+             if(isSignal_withthresh){ 
+                 _event_histo_1d->h_energetic_shower_eng_abs->Fill(t->reco_daughter_allShower_energy->at(temp_index_shw));
+                 _event_histo_1d->h_energetic_shower_ang_abs->Fill(daughter_angle3D_shower[temp_index_shw]);
+                 _event_histo_1d->h_energetic_shower_dist_abs->Fill(daughter_distance3D_shower[temp_index_shw]);
+             } 
+             if(isChxBKG_withthresh){
+                 _event_histo_1d->h_energetic_shower_eng_chx->Fill(t->reco_daughter_allShower_energy->at(temp_index_shw));
+                 _event_histo_1d->h_energetic_shower_ang_chx->Fill(daughter_angle3D_shower[temp_index_shw]);
+                 _event_histo_1d->h_energetic_shower_dist_chx->Fill(daughter_distance3D_shower[temp_index_shw]);
+
+             }
+             if(isReaBKG_withthresh){
+                 _event_histo_1d->h_energetic_shower_eng_rea->Fill(t->reco_daughter_allShower_energy->at(temp_index_shw));
+                 _event_histo_1d->h_energetic_shower_ang_rea->Fill(daughter_angle3D_shower[temp_index_shw]);
+                 _event_histo_1d->h_energetic_shower_dist_rea->Fill(daughter_distance3D_shower[temp_index_shw]);
+
+             }
+        }
+
+        //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< 
+        if(sel_abs) if(has_shower_Dist(trkscoreref, daughter_shwdis_ptr)) continue;
+        if(sel_abs) if(has_shower_Eng(trkscoreref, shwengref)) continue;
+        //if(sel_abs) if(has_shower_Ang( trkscoreref, daughter_shwang_ptr)) continue;
+        if(sel_abs) if(temp_index_shw>=0 && t->reco_daughter_allShower_energy->at(temp_index_shw)>100) continue;
+        if(sel_abs) if(temp_index_shw>=0 && daughter_distance3D_shower[temp_index_shw]>7) continue;
+
+
+        //if(sel_chx) if(trkscoreref.size()==0) continue;
         if(sel_chx) if(!has_shower_Dist(trkscoreref, daughter_shwdis_ptr)) continue;
-        //if(sel_chx) {if(!has_shower_Eng(trkscoreref, shwengref) && !has_shower_Dist(trkscoreref, daughter_shwdis_ptr)) continue;}
+        if(sel_chx) if(!has_shower_Eng(trkscoreref, shwengref)) continue;
+        
+        //if(sel_chx) if(temp_index_shw>=0 && t->reco_daughter_allShower_energy->at(temp_index_shw)<=100) continue;
+        //if(sel_chx) if(temp_index_shw>=0 && daughter_distance3D_shower[temp_index_shw]<=6) continue;
+        //if(sel_chx) if(temp_index_shw<0) continue;
         
         /*if(sel_abs) if(has_shower_nHits_distance(trkscoreref, nhitsref, daughter_distance3D_shower)) continue;
         if(sel_chx) if(trkscoreref.size()==0) continue;
@@ -2253,23 +2524,22 @@ void Main::Maker::MakeFile()
 
         //loop over all the tracks , calculate total P,KE
         //and select the most energetic proton candidates
-
         double temp_pmom=-999.0; double temp_pcostheta=-999.0; double temp_pphi=-999.0; double temp_pcosthetax=-999.;
         double temp_plen = -999.0; int temp_pindex = -999;
 
         Int_t totalgd=0;
 
         for(unsigned int ntrk=0; ntrk<t->reco_daughter_allTrack_len->size(); ntrk++){
- 
              _event_histo_1d->h_PiAbs_sel_pmom->Fill(t->reco_daughter_allTrack_momByRange_alt_proton->at(ntrk));
+             //rotate vectors to get the angle with respect to the beam direction
+
+
              _event_histo_1d->h_PiAbs_sel_pcostheta->Fill(TMath::Cos(t->reco_daughter_allTrack_Theta->at(ntrk)));
              _event_histo_1d->h_PiAbs_sel_ptheta->Fill(t->reco_daughter_allTrack_Theta->at(ntrk));
              
              _event_histo_1d->h_PiAbs_sel_pcosthetax->Fill(TMath::Cos(thetax(t->reco_daughter_allTrack_Theta->at(ntrk), t->reco_daughter_allTrack_Phi->at(ntrk))));
              _event_histo_1d->h_PiAbs_sel_pphi->Fill(t->reco_daughter_allTrack_Phi->at(ntrk));
-
              if(isdata==0){ 
-               //check if the parID can be found in the true beam daughters
                std::vector<int>::iterator selrecoit;
                selrecoit=std::find(t->true_beam_daughter_ID->begin(), t->true_beam_daughter_ID->end(), t->reco_daughter_PFP_true_byHits_parID->at(ntrk));
  
@@ -2284,7 +2554,7 @@ void Main::Maker::MakeFile()
                      _event_histo_1d->h_seltrk_pphi_beam_granddaughter->Fill(t->reco_daughter_allTrack_Phi->at(ntrk));
                      _event_histo_1d->h_seltrk_distvtx_granddaughter->Fill(daughter_distance3D.at(ntrk));
                      _event_histo_1d->h_seltrk_angle_granddaughter->Fill(daughter_angle3D.at(ntrk));
-                     std::cout<<"Event Number is "<<t->event<<"  run number is "<<t->run<<" Particle PDG = "<<t->reco_daughter_PFP_true_byHits_PDG->at(ntrk)<<" Parent ID= "<<t->reco_daughter_PFP_true_byHits_parID->at(ntrk)<<" Parent PDG = "<<t->reco_daughter_PFP_true_byHits_parPDG->at(ntrk)<<std::endl;
+                     //std::cout<<"Event Number is "<<t->event<<"  run number is "<<t->run<<" Particle PDG = "<<t->reco_daughter_PFP_true_byHits_PDG->at(ntrk)<<" Parent ID= "<<t->reco_daughter_PFP_true_byHits_parID->at(ntrk)<<" Parent PDG = "<<t->reco_daughter_PFP_true_byHits_parPDG->at(ntrk)<<std::endl;
                } else { //select the beam grand daughter particles
                      _event_histo_1d->h_seltrk_ptheta_beam_daughter->Fill(t->reco_daughter_allTrack_Theta->at(ntrk));
                      _event_histo_1d->h_seltrk_pphi_beam_daughter->Fill(t->reco_daughter_allTrack_Phi->at(ntrk));
@@ -2295,12 +2565,15 @@ void Main::Maker::MakeFile()
                total_truepPy += t->reco_daughter_PFP_true_byHits_startPy->at(ntrk);
                total_truepKE += t->reco_daughter_PFP_true_byHits_startE->at(ntrk) - ProtonMass;
              }
-             
              total_recopKE += TMath::Sqrt(t->reco_daughter_allTrack_momByRange_alt_proton->at(ntrk)*t->reco_daughter_allTrack_momByRange_alt_proton->at(ntrk) + ProtonMass*ProtonMass) - ProtonMass;
+             
+
              total_pPx += t->reco_daughter_allTrack_momByRange_alt_proton->at(ntrk)*TMath::Sin(t->reco_daughter_allTrack_Theta->at(ntrk))*TMath::Cos(t->reco_daughter_allTrack_Phi->at(ntrk));
              total_pPy += t->reco_daughter_allTrack_momByRange_alt_proton->at(ntrk)*TMath::Sin(t->reco_daughter_allTrack_Theta->at(ntrk))*TMath::Sin(t->reco_daughter_allTrack_Phi->at(ntrk));
              total_pPz += t->reco_daughter_allTrack_momByRange_alt_proton->at(ntrk)*TMath::Cos(t->reco_daughter_allTrack_Theta->at(ntrk));
 
+
+             
              if(t->reco_daughter_allTrack_len->at(ntrk) > temp_plen){
                                 temp_pindex = ntrk;
                                 temp_plen=t->reco_daughter_allTrack_len->at(ntrk);
@@ -2309,9 +2582,13 @@ void Main::Maker::MakeFile()
                                 temp_pphi=t->reco_daughter_allTrack_Phi->at(ntrk);
                                 temp_pcosthetax=TMath::Cos(thetax(t->reco_daughter_allTrack_Theta->at(ntrk), t->reco_daughter_allTrack_Phi->at(ntrk)));
              }
+            
 
-        }
+        } //end of loop over all the tracks and get the information of most energetic 
+        
 
+
+        //==========================================================================================
         _event_histo_1d->h_sel_gdvsd->Fill(t->reco_daughter_allTrack_len->size(),totalgd);
 
         if(isdata==0 &&(isSignal_withthresh || isChxBKG_withthresh || isReaBKG_withthresh) && temp_pindex>-999.){
@@ -2332,7 +2609,7 @@ void Main::Maker::MakeFile()
         }
 
         Emissing_Qsubtracted_reco = t->reco_beam_interactingEnergy/1000. - total_recopKE + Eexcit; 
-        //std::cout<<"Reco Energy of Beam is "<<t->reco_beam_interactingEnergy<<std::endl;
+        LOG_NORMAL()<<"Reco Energy of Beam is "<<t->reco_beam_interactingEnergy<<std::endl;
         double reco_beam_px = 0.0; double reco_beam_py = 0.0; double reco_beam_pz = 0.0;
 
         
@@ -2350,6 +2627,96 @@ void Main::Maker::MakeFile()
            _event_histo_1d->h_sel_Ptmissing->Fill(reco_Ptmissing);
            _event_histo_1d->h_sel_Plongit->Fill(reco_Pz);
         }
+
+        //std::cout<<"end of loop over all the tracks and calculated total px py pz "<<std::endl;;
+        double p1st_px=0.;
+        double p2nd_px=0.;
+        double p1st_py=0.;
+        double p2nd_py=0.;
+        double p1st_pz=0.;
+        double p2nd_pz=0.;
+        double E1st=0.;
+        double E2nd=0.;
+        double pcostheta1st2nd=0.;
+        if(t->reco_daughter_allTrack_len->size()==2){
+                  if(t->reco_daughter_allTrack_momByRange_alt_proton->at(0) > 
+                               t->reco_daughter_allTrack_momByRange_alt_proton->at(1)){
+                               p1st_px=t->reco_daughter_allTrack_momByRange_alt_proton->at(0)*TMath::Sin(t->reco_daughter_allTrack_Theta->at(0))*TMath::Cos(t->reco_daughter_allTrack_Phi->at(0));
+                               p2nd_px=t->reco_daughter_allTrack_momByRange_alt_proton->at(1)*TMath::Sin(t->reco_daughter_allTrack_Theta->at(1))*TMath::Cos(t->reco_daughter_allTrack_Phi->at(1));
+                               p1st_py=t->reco_daughter_allTrack_momByRange_alt_proton->at(0)*TMath::Sin(t->reco_daughter_allTrack_Theta->at(0))*TMath::Sin(t->reco_daughter_allTrack_Phi->at(0));
+                               p2nd_py=t->reco_daughter_allTrack_momByRange_alt_proton->at(1)*TMath::Sin(t->reco_daughter_allTrack_Theta->at(1))*TMath::Sin(t->reco_daughter_allTrack_Phi->at(1));
+                               p1st_pz=t->reco_daughter_allTrack_momByRange_alt_proton->at(0)*TMath::Cos(t->reco_daughter_allTrack_Theta->at(0));
+                               p2nd_pz=t->reco_daughter_allTrack_momByRange_alt_proton->at(1)*TMath::Cos(t->reco_daughter_allTrack_Theta->at(1));
+                               E1st = TMath::Sqrt(ProtonMass*ProtonMass+t->reco_daughter_allTrack_momByRange_alt_proton->at(0)*t->reco_daughter_allTrack_momByRange_alt_proton->at(0));
+                               E2nd = TMath::Sqrt(ProtonMass*ProtonMass+t->reco_daughter_allTrack_momByRange_alt_proton->at(1)*t->reco_daughter_allTrack_momByRange_alt_proton->at(1));
+  
+ 
+                  }else{
+                               p2nd_px=t->reco_daughter_allTrack_momByRange_alt_proton->at(0)*TMath::Sin(t->reco_daughter_allTrack_Theta->at(0))*TMath::Cos(t->reco_daughter_allTrack_Phi->at(0));
+                               p1st_px=t->reco_daughter_allTrack_momByRange_alt_proton->at(1)*TMath::Sin(t->reco_daughter_allTrack_Theta->at(1))*TMath::Cos(t->reco_daughter_allTrack_Phi->at(1));
+                               p2nd_py=t->reco_daughter_allTrack_momByRange_alt_proton->at(0)*TMath::Sin(t->reco_daughter_allTrack_Theta->at(0))*TMath::Sin(t->reco_daughter_allTrack_Phi->at(0));
+                               p1st_py=t->reco_daughter_allTrack_momByRange_alt_proton->at(1)*TMath::Sin(t->reco_daughter_allTrack_Theta->at(1))*TMath::Sin(t->reco_daughter_allTrack_Phi->at(1));
+                               p2nd_pz=t->reco_daughter_allTrack_momByRange_alt_proton->at(0)*TMath::Cos(t->reco_daughter_allTrack_Theta->at(0));
+                               p1st_pz=t->reco_daughter_allTrack_momByRange_alt_proton->at(1)*TMath::Cos(t->reco_daughter_allTrack_Theta->at(1));
+                               E2nd = TMath::Sqrt(ProtonMass*ProtonMass+t->reco_daughter_allTrack_momByRange_alt_proton->at(0)*t->reco_daughter_allTrack_momByRange_alt_proton->at(0));
+                               E1st = TMath::Sqrt(ProtonMass*ProtonMass+t->reco_daughter_allTrack_momByRange_alt_proton->at(1)*t->reco_daughter_allTrack_momByRange_alt_proton->at(1));
+ 
+
+
+                  }
+                  TLorentzVector p1st;
+                  p1st.SetPxPyPzE(p1st_px, p1st_py, p1st_pz, E1st);
+                  TLorentzVector p2nd;
+                  p2nd.SetPxPyPzE(p2nd_px, p2nd_py, p2nd_pz, E2nd);
+
+                  TVector3 p1stv3;
+                  TVector3 p2ndv3;
+                  p1stv3.SetXYZ(p1st_px, p1st_py, p1st_pz);
+                  p2ndv3.SetXYZ(p2nd_px, p2nd_py, p2nd_pz);
+   
+                  //boost p1st and p2nd to the CM frame
+                  TVector3 bv;
+                  bv.SetXYZ(p1st_px+p2nd_px, p1st_py+p2nd_py, p1st_pz+p2nd_pz);
+                  p1st.Boost(bv);
+                  pcostheta1st2nd = TMath::Cos(p1stv3.Angle(p2ndv3));
+                  h_sel_pcostheta1st2nd->Fill(pcostheta1st2nd);
+                  if(isdata==0 && isSignal_withthresh) {h_sig_pcostheta1st2nd->Fill(pcostheta1st2nd); }
+                  if(isdata==0 && isChxBKG_withthresh) {h_chxbac_pcostheta1st2nd->Fill(pcostheta1st2nd); }
+                  if(isdata==0 && isReaBKG_withthresh) {h_reabac_pcostheta1st2nd->Fill(pcostheta1st2nd); }
+ 
+                  h_pcostheta1st2nd_ptmissing->Fill(reco_Ptmissing, pcostheta1st2nd);
+
+        } //end of calculating kinematic variables for the 2p events
+        for(long unsigned int is=0; is<sizeof(slicebins)/sizeof(slicebins[0])-1; is++){
+
+            if(t->reco_beam_calo_wire->back()>=slicebins[is] && t->reco_beam_calo_wire->back()<slicebins[is+1]){
+                double eincident = 0.0;
+                int nincident = t->reco_beam_calo_wire->back()-slicebins[is]+1;
+                for(int ic=slicebins[is]; ic<=t->reco_beam_calo_wire->back()-1; ic++){
+                    //ic is the wire number over here
+                    if(std::find(t->reco_beam_calo_wire->begin(),t->reco_beam_calo_wire->end(), ic) !=t->reco_beam_calo_wire->end()){
+                      if(t->reco_beam_incidentEnergies->size()>0 && t->reco_beam_TrkPitch->size()>0){                    
+                         int realindex = -999;
+                         //nh is the wire number find the readindex
+                         for(long unsigned int kk=0; kk<t->reco_beam_calo_wire->size(); kk++){
+                            if(t->reco_beam_calo_wire->at(kk)==ic) {realindex = kk;}
+                         }
+                         if(realindex >=0){
+                            eincident = eincident + t->reco_beam_incidentEnergies->at(realindex);
+                         }
+                      } 
+                       
+                    }
+                }
+                if(nincident>0){
+                       eincident = eincident/(nincident*1.0);
+                       _event_histo->hsel_reco_beam_incidentEnergy[is]->Fill(eincident);
+                }
+            } 
+        }
+        //-----------------------------------------------------------------------------------
+
+
         if(isdata==0 && isSignal_withthresh) {
                  _event_histo_1d->h_true_beam_endE_num->Fill(TMath::Sqrt(t->true_beam_endP*t->true_beam_endP + PionMass*PionMass));
  
@@ -2403,16 +2770,19 @@ void Main::Maker::MakeFile()
                  if(temp_pindex>-999){ //fill histograms with at least one proton
                    if(!isdata && _fill_bootstrap_geant) FillBootstrap(temp_pmom, event_weight, hmap_trkmom_geant_pm1_bs, "signal", fname_geant_pm1, wgts_geant_pm1);
                    if(!isdata && _fill_bootstrap_geant) FillBootstrap(temp_pcostheta, event_weight, hmap_trkcostheta_geant_pm1_bs, "signal", fname_geant_pm1, wgts_geant_pm1);
+                       
+
                  }
 
 
-                 int temp_genpindex=-999; double temp_genpmom=-999.0; double temp_genpcostheta=-999.0;
+                 int temp_genpindex=-999.0; double temp_genpmom=-999.0; double temp_genpcostheta=-999.0; double temp_genpphi=-999.0;
                  for(unsigned int tmk=0; tmk<t->true_beam_daughter_startP->size(); tmk++){
                       if(abs(t->true_beam_daughter_PDG->at(tmk)) !=2212) continue;
                       if(t->true_beam_daughter_startP->at(tmk)>temp_genpmom){
                       temp_genpindex = tmk;
                       temp_genpmom=t->true_beam_daughter_startP->at(tmk);
                       temp_genpcostheta=t->true_beam_daughter_startPz->at(tmk)/t->true_beam_daughter_startP->at(tmk);
+                      temp_genpphi= TMath::ATan2(t->true_beam_daughter_startPy->at(tmk), t->true_beam_daughter_startPx->at(tmk));
                       }           
                  }
  
@@ -2424,6 +2794,15 @@ void Main::Maker::MakeFile()
 
                     if(!isdata && _fill_bootstrap_geant) FillBootstrap(temp_genpmom, temp_pmom, event_weight, bs_geant_pm1_true_reco_mom, fname_geant_pm1, wgts_geant_pm1);
                     if(!isdata && _fill_bootstrap_geant) FillBootstrap(temp_genpcostheta, temp_pcostheta, event_weight, bs_geant_pm1_true_reco_costheta, fname_geant_pm1, wgts_geant_pm1);
+                    if(!isdata ) {
+                       _event_histo->h_eff_pmom_num->Fill(temp_genpmom);
+                       _event_histo->h_eff_pcostheta_num->Fill(temp_genpcostheta);
+                       _event_histo->h_eff_pphi_num->Fill(temp_genpphi);
+                    } 
+                    h_true_reco_mom->Fill(temp_genpmom, temp_pmom, event_weight);
+                    h_true_reco_costheta->Fill(temp_genpcostheta, temp_pcostheta, event_weight);
+                    h_true_reco_phi->Fill(temp_genpphi, temp_pphi, event_weight);
+
                  }
 
                  double temp_pmom2=-999.0; 
@@ -2479,7 +2858,38 @@ void Main::Maker::MakeFile()
                  _event_histo_1d->h_PiAbs_sig_energeticproton_truevsreco_phi->Fill(-TMath::ACos(t->true_beam_daughter_startPx->at(temp_selpindex)/TMath::Sqrt(t->true_beam_daughter_startPx->at(temp_selpindex)*t->true_beam_daughter_startPx->at(temp_selpindex)+t->true_beam_daughter_startPy->at(temp_selpindex)*t->true_beam_daughter_startPy->at(temp_selpindex))),temp_pphi);
 
                  }
-        }
+
+            for(long unsigned int is=0; is<sizeof(slicebins)/sizeof(slicebins[0])-1; is++){
+
+              if(t->reco_beam_calo_wire->back()>=slicebins[is] && t->reco_beam_calo_wire->back()<slicebins[is+1]){
+
+                double eincident = 0.0;
+                int nincident = t->reco_beam_calo_wire->back()-slicebins[is]+1;
+                for(int ic=slicebins[is]; ic<=t->reco_beam_calo_wire->back()-1; ic++){
+                   if(t->reco_beam_calo_wire->size()>0 && t->reco_beam_incidentEnergies->size()>0){
+                    //ic is the wire number over here
+                    if(std::find(t->reco_beam_calo_wire->begin(),t->reco_beam_calo_wire->end(), ic) !=t->reco_beam_calo_wire->end()){
+                      if(t->reco_beam_incidentEnergies->size()>0 && t->reco_beam_TrkPitch->size()>0){                    
+                         int realindex = -999;
+                         //nh is the wire number find the readindex
+                         for(long unsigned int kk=0; kk<t->reco_beam_calo_wire->size(); kk++){
+                            if(t->reco_beam_calo_wire->at(kk)==ic) {realindex = kk;}
+                         }
+                         if(realindex >=0){
+                            eincident = eincident + t->reco_beam_incidentEnergies->at(realindex);
+                         }
+                      } 
+                       
+                    }//end of if the wire number found in the vector of tracks
+                  }   
+                } //end of loop over all the wires before the end point of a beam track
+                if(nincident>0){
+                     eincident = eincident/(nincident*1.0);
+                     _event_histo->hsig_reco_beam_incidentEnergy[is]->Fill(eincident);
+                }
+              }
+            } 
+        }//end of if this is a signal event
 
  
 
@@ -2504,7 +2914,8 @@ void Main::Maker::MakeFile()
                       _event_histo_1d->h_chxbac_Ptmissing->Fill(reco_Ptmissing);  
                       _event_histo_1d->h_chxbac_Plongit->Fill(reco_Pz);
                  }
-                 if(abs(t->reco_daughter_PFP_true_byHits_PDG->at(tmk) == 22)){
+                 if(abs(t->reco_daughter_PFP_true_byHits_PDG->at(tmk)) == 22 
+                 || abs(t->reco_daughter_PFP_true_byHits_PDG->at(tmk)) == 11){
                      Nreco_pion0++;
                  }
                  //get the most energetic proton momentum and angle
@@ -2525,8 +2936,39 @@ void Main::Maker::MakeFile()
 
              _event_histo_1d->h_reco_photon_chx->Fill(Nreco_pion0);
  
+        for(long unsigned int is=0; is<sizeof(slicebins)/sizeof(slicebins[0])-1; is++){
 
+            if(t->reco_beam_calo_wire->back()>=slicebins[is] && t->reco_beam_calo_wire->back()<slicebins[is+1]){
+
+                double eincident = 0.0;
+                int nincident = t->reco_beam_calo_wire->back()-slicebins[is]+1;
+                for(int ic=slicebins[is]; ic<=t->reco_beam_calo_wire->back()-1; ic++){
+                   if(t->reco_beam_calo_wire->size()>0 && t->reco_beam_incidentEnergies->size()>0){
+                    //ic is the wire number over here
+                    if(std::find(t->reco_beam_calo_wire->begin(),t->reco_beam_calo_wire->end(), ic) !=t->reco_beam_calo_wire->end()){
+                      if(t->reco_beam_incidentEnergies->size()>0 && t->reco_beam_TrkPitch->size()>0){                    
+                         int realindex = -999;
+                         //nh is the wire number find the readindex
+                         for(long unsigned int kk=0; kk<t->reco_beam_calo_wire->size(); kk++){
+                            if(t->reco_beam_calo_wire->at(kk)==ic) {realindex = kk;}
+                         }
+                         if(realindex >=0){
+                            eincident = eincident + t->reco_beam_incidentEnergies->at(realindex);
+                         }
+                      } 
+                       
+                    }//end of if the wire number found in the vector of tracks
+ 
+                   }
+                }//end of loop over all the wire numbers before the end of beam track
+                if(nincident>0){
+                   eincident = eincident/(nincident*1.0);
+                   _event_histo->hchxbac_reco_beam_incidentEnergy[is]->Fill(eincident);
+                } 
+            } 
         }
+ 
+        }//end of if this is a chxbac event
         else if(isdata==0 && isReaBKG_withthresh) {
              _event_histo_1d->h_PiAbs_reabac_pmult->Fill(t->reco_daughter_allTrack_ID->size());
              if(t->reco_daughter_allTrack_ID->size()>0){
@@ -2543,7 +2985,8 @@ void Main::Maker::MakeFile()
                  _event_histo_1d->h_PiAbs_reabac_pphi->Fill(t->reco_daughter_allTrack_Phi->at(tmk));
                  _event_histo_1d->h_PiAbs_reabac_ptheta->Fill(t->reco_daughter_allTrack_Theta->at(tmk));
                  _event_histo_1d->h_PiAbs_reabac_pmom->Fill(t->reco_daughter_allTrack_momByRange_alt_proton->at(tmk)); 
-                 if(abs(t->reco_daughter_PFP_true_byHits_PDG->at(tmk) == 22)){
+                 if(abs(t->reco_daughter_PFP_true_byHits_PDG->at(tmk)) == 22 
+                 || abs(t->reco_daughter_PFP_true_byHits_PDG->at(tmk)) == 11 ){
                      Nreco_pion0_rea++;
                      //std::cout<<"Parent PDG code of this photon is "<<t->reco_daughter_PFP_true_byHits_parPDG->at(tmk)<<std::endl;
                  }
@@ -2569,9 +3012,43 @@ void Main::Maker::MakeFile()
 
 
 
-             _event_histo_1d->h_reco_pionpm_rea->Fill(Nreco_pionpm);
+             _event_histo_1d->h_reco_pionpm_rea->Fill(Nreco_pionpm + Nreco_pion0_rea);
              _event_histo_1d->h_reco_photon_rea->Fill(Nreco_pion0_rea);
+
+
+        for(long unsigned int is=0; is<sizeof(slicebins)/sizeof(slicebins[0])-1; is++){
+
+            if(t->reco_beam_calo_wire->back()>=slicebins[is] && t->reco_beam_calo_wire->back()<slicebins[is+1]){
+
+                double eincident = 0.0;
+                int nincident = t->reco_beam_calo_wire->back()-slicebins[is]+1;
+                for(int ic=slicebins[is]; ic<=t->reco_beam_calo_wire->back()-1; ic++){
+                   if(t->reco_beam_calo_wire->size()>0 && t->reco_beam_incidentEnergies->size()>0){
+                    //ic is the wire number over here
+                    if(std::find(t->reco_beam_calo_wire->begin(),t->reco_beam_calo_wire->end(), ic) !=t->reco_beam_calo_wire->end()){
+                      if(t->reco_beam_incidentEnergies->size()>0 && t->reco_beam_TrkPitch->size()>0){                    
+                         int realindex = -999;
+                         //nh is the wire number find the readindex
+                         for(long unsigned int kk=0; kk<t->reco_beam_calo_wire->size(); kk++){
+                            if(t->reco_beam_calo_wire->at(kk)==ic) {realindex = kk;}
+                         }
+                         if(realindex >=0){
+                            eincident = eincident + t->reco_beam_incidentEnergies->at(realindex);
+                         }
+                      } 
+                       
+                    }//end of if the wire number found in the vector of tracks
+ 
+                   }
+                }//end of loop over all the wire numbers before the end of beam track
+                if(nincident>0){
+                   eincident = eincident/(nincident*1.0);
+                   _event_histo->hreabac_reco_beam_incidentEnergy[is]->Fill(eincident);
+                } 
+            } 
         }
+ 
+        }//end of if this is a reabac event
         else if(isdata==0)  { 
              std::cout<<"this is nonpion beam event"<<std::endl;
              for(unsigned int tmk=0; tmk<t->reco_daughter_PFP_true_byHits_PDG->size(); tmk++){
@@ -2587,10 +3064,41 @@ void Main::Maker::MakeFile()
                       _event_histo_1d->h_other_Plongit->Fill(reco_Pz);
              }
  
+        for(long unsigned int is=0; is<sizeof(slicebins)/sizeof(slicebins[0])-1; is++){
+
+            if(t->reco_beam_calo_wire->back()>=slicebins[is] && t->reco_beam_calo_wire->back()<slicebins[is+1]){
+                double eincident = 0.0;
+                int nincident = t->reco_beam_calo_wire->back()-slicebins[is]+1;
+                for(int ic=slicebins[is]; ic<=t->reco_beam_calo_wire->back()-1; ic++){
+                   if(t->reco_beam_calo_wire->size()>0 && t->reco_beam_incidentEnergies->size()>0){
+                    //ic is the wire number over here
+                    if(std::find(t->reco_beam_calo_wire->begin(),t->reco_beam_calo_wire->end(), ic) !=t->reco_beam_calo_wire->end()){
+                      if(t->reco_beam_incidentEnergies->size()>0 && t->reco_beam_TrkPitch->size()>0){                    
+                         int realindex = -999;
+                         //nh is the wire number find the readindex
+                         for(long unsigned int kk=0; kk<t->reco_beam_calo_wire->size(); kk++){
+                            if(t->reco_beam_calo_wire->at(kk)==ic) {realindex = kk;}
+                         }
+                         if(realindex >=0){
+                            eincident = eincident + t->reco_beam_incidentEnergies->at(realindex);
+                         }
+                      } 
+                       
+                    }//end of if the wire number found in the vector of tracks
+ 
+                   }
+                }//end of loop over all the wire numbers before the end of beam track
+                if(nincident>0){
+                   eincident = eincident/(nincident*1.0);
+                   _event_histo->hotherbac_reco_beam_incidentEnergy[is]->Fill(eincident);
+                } 
+ 
+            } 
         }
+        }//end of if this is an other background event
         //-----------------------------------------------------------------------------------
         //------------------------------------------------------------
-        //std::cout<<"end of checking signal background"<<std::endl;
+        LOG_NORMAL()<<"end of checking signal background"<<std::endl;
 
 	//-----------------------------------------------------------  
 
@@ -2605,8 +3113,10 @@ void Main::Maker::MakeFile()
 
   //=========================================================================
   LOG_NORMAL() << "Saving 1D Event Histo." << std::endl;
-  
+  //file_out->WriteOBject(h_Evttot, "h_Evttot");  
+  h_Evttot->Write();
   file_out->WriteObject(_event_histo_1d, "UBXSecEventHisto1D");
+  file_out->WriteObject(_event_histo, "UBXSecEventHisto");
 
   file_out->WriteObject(&hmap_trkmom_geant_pm1_bs, "hmap_trkmom_geant_pm1_bs");
 
@@ -2622,8 +3132,13 @@ void Main::Maker::MakeFile()
   file_out->WriteObject(&bs_geant_pm1_true_reco_mom, "bs_geant_pm1_true_reco_mom");
   file_out->WriteObject(&bs_geant_pm1_true_reco_costheta, "bs_geant_pm1_true_reco_costheta");
 
-  LOG_NORMAL() << "1D Event Histo saved." << std::endl;
+  h_true_reco_mom->Write();
+  h_true_reco_costheta->Write();
+  h_true_reco_phi->Write();
 
+
+  LOG_NORMAL() << "1D Event Histo saved." << std::endl;
+  
  
 
 
@@ -2850,8 +3365,17 @@ void Main::Maker::MakeFile()
   std::cout<<"Ntotal ch2 event is "<<Ntotal_chi2<<std::endl; 
   std::cout<<"Ntotal shwid event is "<<Ntotal_shwid<<std::endl; 
  
+  //=========================================================================
+  std::cout<<"total number of showers (trkscore) "<<totalshower_trkscore<<std::endl;
+  std::cout<<"total number of showers (trknhits) "<<totalshower_trknhits<<std::endl;
+  std::cout<<"total number of showers (trkdist) "<<totalshower_trkdist<<std::endl;
+  std::cout<<"total number of showers (trkeng) "<<totalshower_trkeng<<std::endl;
 
- 
+  std::cout<<"total number of gammas (trkscore) "<<totalgamma_trkscore<<std::endl;
+  std::cout<<"total number of gammas (trknhits) "<<totalgamma_trknhits<<std::endl;
+  std::cout<<"total number of gammas (trkdist) "<<totalgamma_trkdist<<std::endl;
+  std::cout<<"total number of gammas (trkeng) "<<totalgamma_trkeng<<std::endl;
+
 
   //==========================================================================
 
