@@ -126,7 +126,7 @@ void ana::Loop()
         int this_wire = (*reco_beam_calo_wire)[i];
         int this_sliceID = this_wire/nwires_in_slice;
         //ignore the last slice for pitch and incident energy calculations
-        if (this_sliceID>=sliceID) continue;
+        if (this_sliceID>sliceID) continue;
 
         double this_incE = (*reco_beam_incidentEnergies)[i];
         double this_pitch = (*reco_beam_TrkPitch)[i];
