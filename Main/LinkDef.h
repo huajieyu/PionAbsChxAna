@@ -29,8 +29,10 @@
 
 #pragma link C++ class Main::Maker+;
 #pragma link C++ class Main::Analyse+;
+#pragma link C++ class Main::PiAbsanalysis+;
 //ADD_NEW_CLASS ... do not change this line
 #endif
+
 
 
 

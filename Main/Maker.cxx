@@ -1211,6 +1211,15 @@ void Main::Maker::MakeFile()
 
   TH1D* h_Evttot = new TH1D("h_Evttot", "h_Evttot", 1, 0.5, 1.5);
 
+
+  TH1D *incE[nslices];
+  TH1D *pitch[nslices];
+
+  TH1D *incE_gen[nslices];
+
+  TH1D *incE_sel[nslices];
+
+ 
    
   std::vector<std::string> fname_geant_pm1;
   std::vector<int> fpion_evt_index;
@@ -1246,6 +1255,24 @@ void Main::Maker::MakeFile()
   double event_weight = 1.0;
 
   Evttot = 0;
+  for (int i = 0; i<nslices; ++i){
+     interaction[i] = 0;
+     incident[i] = 0;
+     interaction_gen[i] = 0;
+     interaction_sel[i] = 0;
+
+     selected_tot[i]=0;
+     selected_bkg[i]=0;
+
+
+     incident_gen[i] = 0;
+     incident_sel[i] = 0;
+     incE[i] = new TH1D(Form("incE_%d",i),Form("Incident energy, %d<wire #<%d",i*nwires_in_slice, (i+1)*nwires_in_slice), nbinse, 0, 1200.);
+     pitch[i] = new TH1D(Form("pitch_%d",i),Form("Slice thickness, %d<wire #<%d",i*nwires_in_slice, (i+1)*nwires_in_slice), nbinsthickness, 0, 20.);
+     incE_gen[i] = new TH1D(Form("incE_gen_%d",i),Form("Incident energy, %d<wire #<%d",i*nwires_in_slice, (i+1)*nwires_in_slice), nbinse, 0, 1200.);
+     incE_sel[i] = new TH1D(Form("incE_sel_%d",i),Form("Incident energy, %d<wire #<%d",i*nwires_in_slice, (i+1)*nwires_in_slice), nbinse, 0, 1200.);
+  } 
+
 
   for(int i= _initial_entry; i<evts; i++){
 	if(i !=0) DrawProgressBar((double)i/(double)evts, barWidth);
@@ -1301,7 +1328,8 @@ void Main::Maker::MakeFile()
 	//select muon and pion beam events
 	if(isdata==0){
 	
-          if(abs(t->true_beam_PDG) != 211 && abs(t->true_beam_PDG) !=13) continue;
+          //if(abs(t->true_beam_PDG) != 211 && abs(t->true_beam_PDG) !=13) continue;
+          if(abs(t->true_beam_PDG) != 211) continue;
           //Evttot += event_weight; 
           //h_Evttot->Fill(event_weight);
           if(!isBeamType(t->reco_beam_type)) continue;
@@ -1333,7 +1361,67 @@ void Main::Maker::MakeFile()
             //check the resolution of the wire number or position of each hit
 
 
-        } 
+        }
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        LOG_NORMAL()<<"Start to calculate the average energy and thickness with Tingjun's method"<<std::endl;
+        //interaction slice ID based on the track end wire number
+        int sliceID = t->reco_beam_calo_wire->back()/nwires_in_slice;
+        //if (sliceID>=nslices) continue;  //ignore the events with the slice ID >  nslices (24);
+
+        //increment interaction counter
+        ++interaction[sliceID];
+        //increment incident counter
+        for (int i = 0; i<=sliceID; ++i) ++incident[i];
+
+        LOG_NORMAL()<<"Start to Fill Vector to store energy and thickness"<<std::endl;
+        //LOG_NORMAL()<<t->reco_beam_calo_wire->size()<<"     "<<t->reco_beam_incidentEnergies->size()<<"   "<<t->reco_beam_TrkPitch->size()<<std::endl;
+
+        std::vector<std::vector<double>> vpitch(nslices);
+        std::vector<std::vector<double>> vincE(nslices); 
+
+        if(t->reco_beam_incidentEnergies->size()>0){
+
+        for (size_t i = 0; i<t->reco_beam_calo_wire->size(); ++i){
+          int this_wire = t->reco_beam_calo_wire->at(i);
+          int this_sliceID = this_wire/nwires_in_slice;
+          //ignore the last slice for pitch and incident energy calculations
+          if (this_sliceID>sliceID) continue;
+
+          double this_incE = t->reco_beam_incidentEnergies->at(i);
+          double this_pitch = t->reco_beam_TrkPitch->at(i);
+          //std::cout<<this_pitch<<std::endl;
+          vpitch[this_sliceID].push_back(this_pitch);
+          vincE[this_sliceID].push_back(this_incE);
+        }
+        }
+        LOG_NORMAL()<<"Calculate the pitch in each slice "<<vpitch.size()<<std::endl;
+        for (size_t i = 0; i<vpitch.size(); ++i){
+          //std::cout<<"vpitch[i] size = "<<vpitch[i].size()<<std::endl;
+          if (!vpitch[i].empty()){
+          double sum_pitch = 0;
+          for (size_t j = 0; j<vpitch[i].size(); ++j){
+            //std::cout<<"i= "<<i<<"  j=  "<<j<<" vpitch at ij is "<<vpitch[i][j]<<std::endl;
+            sum_pitch += vpitch[i][j];
+          }
+         
+          pitch[i]->Fill(sum_pitch/vpitch[i].size()*nwires_in_slice);
+         
+          } //else {continue;}
+        }
+        LOG_NORMAL()<<"Calculate the energy in each slice "<<std::endl;
+        for (size_t i = 0; i<vincE.size(); ++i){
+          if (!vincE[i].empty()){
+          double sum_incE = 0;
+          for (size_t j = 0; j<vincE[i].size(); ++j){
+            sum_incE += vincE[i][j];
+          }
+          incE[i]->Fill(sum_incE/vincE[i].size());
+          }
+        }
+        //LOG_NORMAL()<<"End of calculating the thickness and energy with Tingjun's method"<<std::endl;
+ 
+
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
         for(long unsigned int i=0; i<sizeof(slicebins)/sizeof(slicebins[0]); i++){
           slicebins[i]=20*i;
         }
@@ -1534,6 +1622,16 @@ void Main::Maker::MakeFile()
                 }
             } 
           }//end of loop over all the slices
+
+        int sliceID = t->reco_beam_calo_wire->back()/nwires_in_slice;
+        //if (sliceID>=nslices) continue;  //ignore the events with the slice ID >  nslices (24);
+
+        //increment interaction counter
+        ++interaction_gen[sliceID];
+        //increment incident counter
+        //std::cout<<"interaction number (slice 15 ) is "<<interaction_gen[15]<<std::endl;
+        for (int i = 0; i<=sliceID; ++i) ++incident_gen[i];
+
         //-------------------------------------------------------------------------------
         }//end of if this is a generated signal event
         //================================================================
@@ -2714,6 +2812,15 @@ void Main::Maker::MakeFile()
                 }
             } 
         }
+
+        /*int*/ sliceID = t->reco_beam_calo_wire->back()/nwires_in_slice;
+        //if (sliceID>=nslices) continue;  //ignore the events with the slice ID >  nslices (24);
+
+        //increment interaction counter
+        ++selected_tot[sliceID];
+ 
+
+
         //-----------------------------------------------------------------------------------
 
 
@@ -2889,6 +2996,19 @@ void Main::Maker::MakeFile()
                 }
               }
             } 
+
+        int sliceID = t->reco_beam_calo_wire->back()/nwires_in_slice;
+        //if (sliceID>=nslices) continue;  //ignore the events with the slice ID >  nslices (24);
+
+        //increment interaction counter
+        ++interaction_sel[sliceID];
+   
+        //increment incident counter
+        for (int i = 0; i<=sliceID; ++i) ++incident_sel[i];
+
+
+
+
         }//end of if this is a signal event
 
  
@@ -2967,7 +3087,12 @@ void Main::Maker::MakeFile()
                 } 
             } 
         }
- 
+        int sliceID = t->reco_beam_calo_wire->back()/nwires_in_slice;
+        //if (sliceID>=nslices) continue;  //ignore the events with the slice ID >  nslices (24);
+
+        //increment interaction counter
+        ++selected_bkg[sliceID];
+  
         }//end of if this is a chxbac event
         else if(isdata==0 && isReaBKG_withthresh) {
              _event_histo_1d->h_PiAbs_reabac_pmult->Fill(t->reco_daughter_allTrack_ID->size());
@@ -3047,7 +3172,12 @@ void Main::Maker::MakeFile()
                 } 
             } 
         }
- 
+        int sliceID = t->reco_beam_calo_wire->back()/nwires_in_slice;
+        //if (sliceID>=nslices) continue;  //ignore the events with the slice ID >  nslices (24);
+
+        //increment interaction counter
+        ++selected_bkg[sliceID];
+  
         }//end of if this is a reabac event
         else if(isdata==0)  { 
              std::cout<<"this is nonpion beam event"<<std::endl;
@@ -3095,6 +3225,11 @@ void Main::Maker::MakeFile()
  
             } 
         }
+        int sliceID = t->reco_beam_calo_wire->back()/nwires_in_slice;
+        //if (sliceID>=nslices) continue;  //ignore the events with the slice ID >  nslices (24);
+
+        //increment interaction counter
+        ++selected_bkg[sliceID];
         }//end of if this is an other background event
         //-----------------------------------------------------------------------------------
         //------------------------------------------------------------
@@ -3140,7 +3275,92 @@ void Main::Maker::MakeFile()
   LOG_NORMAL() << "1D Event Histo saved." << std::endl;
   
  
+  double slcid[nslices];
+  double avg_incE[nslices];
+  double avg_pitch[nslices];
 
+  double efficiency_tj[nslices];
+  double efficiency_tj_err[nslices];
+ 
+  double tempxsec[nslices];
+  double tempxsec_test[nslices];
+
+  TEfficiency* pEff = new TEfficiency("eff", ";sliceID;Efficiency", nslices, -0.5, nslices-0.5);
+
+  for (int i = 0; i<nslices; ++i){
+     slcid[i] = i;
+     avg_incE[i] = incE[i]->GetMean();
+     avg_pitch[i] = pitch[i]->GetMean();
+     efficiency_tj[i]=interaction_sel[i]/interaction_gen[i];
+
+     efficiency_tj_err[i]=efficiency_tj[i]*TMath::Sqrt(1/interaction_sel[i]+1/interaction_gen[i]);
+
+     if(incident[i]>0 && avg_pitch[i]>0){
+
+     tempxsec_test[i]=MAr/(Density*NA*avg_pitch[i])*(selected_tot[i]-selected_bkg[i])/incident[i]/efficiency_tj[i];
+
+     tempxsec[i]     =MAr/(Density*NA*avg_pitch[i])*interaction_gen[i]/incident[i];
+     //std::cout<<"tempxsec = "<<tempxsec[i]<<"     MAr/(Density*NA*avg_pitch[i])  "<<MAr/(Density*NA*avg_pitch[i])<<"  (selected_tot[i]-selected_bkg[i])/incident[i]/efficiency_tj[i]"<<(selected_tot[i]-selected_bkg[i])/incident[i]/efficiency_tj[i]<<std::endl;
+     } else {tempxsec[i]=0.0;}
+     tempxsec[i] = tempxsec[i]/1e-27;  
+     tempxsec_test[i] = tempxsec_test[i]/1e-27;
+     pEff->Fill(interaction_sel[i], interaction_gen[i]);
+
+  }
+
+
+
+  pEff->Write();
+
+  TGraph *gr_int_slc = new TGraph(nslices, slcid, interaction);
+
+  TGraph *gr_inc_slc = new TGraph(nslices, slcid, incident);
+
+  TGraph *gr_incE_slc = new TGraph(nslices, slcid, avg_incE);
+
+
+  TGraph *gr_pitch_slc = new TGraph(nslices, slcid, avg_pitch);
+
+
+  TGraph *gr_intsel_slc = new TGraph(nslices, slcid, interaction_sel);
+
+  TGraph *gr_intgen_slc = new TGraph(nslices, slcid, interaction_gen);
+
+  TGraph *gr_efficiency_slc = new TGraph(nslices, slcid, efficiency_tj);
+
+  TGraph *gr_tempxsec_slc = new TGraph(nslices, slcid, tempxsec);
+
+  TGraph *gr_tempxsec_test_slc = new TGraph(nslices, slcid, tempxsec_test);
+
+  TGraph *gr_tempxsec_vs_incE_slc = new TGraph(nslices, avg_incE, tempxsec_test);
+
+
+  TGraph *gr_selected_tot_slc = new TGraph(nslices, slcid, selected_tot);
+
+
+  TGraph *gr_selected_bkg_slc = new TGraph(nslices, slcid, selected_bkg);
+
+
+
+   
+  gr_int_slc->Write("gr_int_slc");
+  gr_intsel_slc->Write("gr_intsel_slc");
+  gr_intgen_slc->Write("gr_intgen_slc");
+
+
+  gr_inc_slc->Write("gr_inc_slc");
+  gr_incE_slc->Write("gr_incE_slc");
+  gr_pitch_slc->Write("gr_pitch_slc");
+
+  gr_efficiency_slc->Write("gr_efficiency_slc");
+  gr_tempxsec_slc->Write("gr_tempxsec_slc");
+  gr_tempxsec_vs_incE_slc->Write("gr_tempxsec_vs_incE_slc");
+ 
+  gr_tempxsec_test_slc->Write("gr_tempxsec_test_slc");
+  //gr_tempxsec_test_vs_incE_slc->Write("gr_tempxsec_test_vs_incE_slc");
+ 
+  gr_selected_tot_slc->Write("gr_selected_tot_slc");
+  gr_selected_bkg_slc->Write("gr_selected_bkg_slc");
 
   
 
@@ -3318,9 +3538,6 @@ void Main::Maker::MakeFile()
   gr_percut->SetMarkerSize(0.8);
   gr_percut->Draw("PL");
   canvas_acceptance_graph_percut->SaveAs("acceptance_test.png");
-   
-
-
 	  
 
   std::cout<<"Noriabs = "<<Noriabs<<std::endl;
