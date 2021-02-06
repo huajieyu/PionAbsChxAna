@@ -35,8 +35,8 @@ maker.SetSignalTypeChx(False)
 
 maker.SetFVCut(True);
 maker.FillBootstrapGeant(True);
-maker.SetMomThreshCut(0);
-maker.SetTrkScoreCut(0.3);
+maker.SetMomThreshCut(0.0);
+maker.SetTrkScoreCut(0.4);
 maker.SetFVCut(True);
 
 

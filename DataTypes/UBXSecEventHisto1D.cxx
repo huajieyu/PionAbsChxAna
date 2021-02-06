@@ -10,7 +10,7 @@ namespace DataTypes {
     void UBXSecEventHisto1D::InitializeBootstraps()
     {
 
-            std::cout<<"Initializing all the members of UBXSecEventHisto1D "<<std::endl;
+            //LOG_NORMAL()<<"Initializing all the members of UBXSecEventHisto1D "<<std::endl;
     	    h_orimom_proton = new TH1D("h_orimom_proton", "h_orimom_proton", 100, 0.0001, 0.8);
 	    h_orimom_neutron = new TH1D("h_orimom_neutron", "h_orimom_neutron", 100, 0.0001, 0.8);
 	    h_orimom_pionpm = new TH1D("h_orimom_pionpm", "h_orimom_pionpm", 100, 0.0001, 0.8);

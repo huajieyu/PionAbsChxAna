@@ -88,23 +88,23 @@ namespace DataTypes {
     TH2D*  h_gen_recovstrue_beamwire; 
     TH1D*  htotinc_reco_beamz_reso;
     TH1D*  htotinc_reco_beamwire_reso;
-    Double_t slicebins[26];
+    Double_t slicebins[25];
 
  
-    TH1D*  htotinc_true_beam_trajz[25];
-    TH1D*  htotinc_reco_beam_endz[25];
+    TH1D*  htotinc_true_beam_trajz[24];
+    TH1D*  htotinc_reco_beam_endz[24];
 
-    TH1D*  hgen_reco_beam_incidentEnergy[25];
+    TH1D*  hgen_reco_beam_incidentEnergy[24];
 
-    TH1D*  htotinc_reco_beam_incidentEnergy[25];
-    TH1D*  htotinc_reco_beam_sliceThickness[25];
+    TH1D*  htotinc_reco_beam_incidentEnergy[24];
+    TH1D*  htotinc_reco_beam_sliceThickness[24];
 
 
-    TH1D*  hsel_reco_beam_incidentEnergy[25];
-    TH1D*  hsig_reco_beam_incidentEnergy[25];
-    TH1D*  hchxbac_reco_beam_incidentEnergy[25];
-    TH1D*  hreabac_reco_beam_incidentEnergy[25];
-    TH1D*  hotherbac_reco_beam_incidentEnergy[25];
+    TH1D*  hsel_reco_beam_incidentEnergy[24];
+    TH1D*  hsig_reco_beam_incidentEnergy[24];
+    TH1D*  hchxbac_reco_beam_incidentEnergy[24];
+    TH1D*  hreabac_reco_beam_incidentEnergy[24];
+    TH1D*  hotherbac_reco_beam_incidentEnergy[24];
 
   protected:
 

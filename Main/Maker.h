@@ -325,19 +325,12 @@ namespace Main{
 
 
     // These variables are filled in the reco-true TTree in the code
-    double _mom_true, _mom_mcs;
-    bool _contained, _selected;
-    double _angle_true, _angle_reco;
-    double _event_weight_fortree;
     std::vector<std::string> _wgtsnames_genie_multisim;
     std::vector<double> _wgts_genie_multisim;
     std::vector<std::string> _wgtsnames_extra_syst;
     std::vector<double> _wgts_extra_syst;
     std::vector<std::string> _wgtsnames_flux_multisim;
     std::vector<double> _wgts_flux_multisim;
-
-    double slicebins[26];
-
 
 
     std::map<int, int> sliceID_incidentN;
@@ -347,6 +340,38 @@ namespace Main{
     std::map<int, int> sliceID_backgroundN;
     std::map<int, double> sliceID_backgroundthickness;
           
+    const static int nwires_in_slice = 20;
+    const static int nslices = 480/nwires_in_slice;
+
+    Int_t nbinse=12; 
+    Int_t nbinsthickness = 100;
+
+    double NA=6.02214076e23;
+    double MAr=35.95; //gmol
+    double Density = 1.39; // g/cm^3
+
+
+
+ 
+    double interaction[nslices];
+    double incident[nslices];
+
+    double interaction_sel[nslices];
+    double incident_sel[nslices];
+
+    double selected_tot[nslices];
+    double selected_bkg[nslices];
+
+
+    double interaction_gen[nslices];
+    double incident_gen[nslices];
+
+
+
+    //TH1D *incE[nslices];
+    //TH1D *pitch[nslices];
+
+    double slicebins[nslices+1];
 
 
     bool _fill_bootstrap_mc_stat = false; ///< If true, fills bootstrap with poisson weights (mc stat)
