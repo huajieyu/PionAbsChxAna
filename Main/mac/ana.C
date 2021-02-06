@@ -4,6 +4,7 @@
 #include <TStyle.h>
 #include <TCanvas.h>
 #include <TH1D.h>
+#include <TH3F.h>
 #include <TGraph.h>
 #include <iostream>
 #include <vector>
@@ -78,22 +79,40 @@ void ana::Loop()
 //by  b_branchname->GetEntry(ientry); //read only this branch
    if (fChain == 0) return;
 
+   TFile f2("/cvmfs/dune.opensciencegrid.org/products/dune/dune_pardata/v01_66_00/SpaceChargeProtoDUNE/SCE_DataDriven_180kV_v4.root");
+   TH3F *RecoFwd_Displacement_Z_Neg = (TH3F*)f2.Get("RecoFwd_Displacement_Z_Neg");
+   TH3F *RecoFwd_Displacement_Z_Pos = (TH3F*)f2.Get("RecoFwd_Displacement_Z_Pos");
+
    const int nwires_in_slice = 20;
    const int nslices = 480/nwires_in_slice;
    Int_t nbinse=12; 
    Int_t nbinsthickness = 100;
 
+   double NA=6.02214076e23;
+   double MAr=35.95; //gmol
+   double Density = 1.39; // g/cm^3
+
    TFile f("hist.root","recreate");
    double interaction[nslices];
+   double true_interaction[nslices];
+   double true_abs[nslices];
+   double signal[nslices];
    double incident[nslices];
+   double true_incident[nslices];
    TH1D *incE[nslices];
    TH1D *pitch[nslices];
    for (int i = 0; i<nslices; ++i){
      interaction[i] = 0;
+     true_interaction[i] = 0;
+     true_abs[i] = 0;
+     signal[i] = 0;
      incident[i] = 0;
+     true_incident[i] = 0;
      incE[i] = new TH1D(Form("incE_%d",i),Form("Incident energy, %d<wire #<%d",i*nwires_in_slice, (i+1)*nwires_in_slice), nbinse, 0, 1200.);
      pitch[i] = new TH1D(Form("pitch_%d",i),Form("Slice thickness, %d<wire #<%d",i*nwires_in_slice, (i+1)*nwires_in_slice), nbinsthickness, 0, 20.);
    }
+
+   TH1D *dslcID = new TH1D("dslcID","reco slice ID - true slice ID",20,-10,10);
 
    Long64_t nentries = fChain->GetEntriesFast();
 
@@ -104,21 +123,58 @@ void ana::Loop()
       if (ientry < 0) break;
       nb = fChain->GetEntry(jentry);   nbytes += nb;
       // if (Cut(ientry) < 0) continue;
-      if(abs(true_beam_PDG) != 211 && abs(true_beam_PDG) !=13) continue;
+      if(abs(true_beam_PDG) != 211) continue;
+      //if(abs(true_beam_PDG) != 211 && abs(true_beam_PDG) !=13) continue;
       if(!manual_beamPos_mc(reco_beam_startX, reco_beam_startY, reco_beam_startZ, 
                             reco_beam_trackDirX, reco_beam_trackDirY, reco_beam_trackDirZ,
                             true_beam_startDirX, true_beam_startDirY, true_beam_startDirZ,
                             true_beam_startX, true_beam_startY, true_beam_startZ)) continue;
-      if(!endAPA3(reco_beam_endZ) )continue;
+      //if(!endAPA3(reco_beam_endZ) )continue;
+      //std::cout<<*true_beam_endProcess<<" "<<true_beam_endX<<" "<<true_beam_endY<<" "<<true_beam_endZ<<std::endl;
+
+      int true_sliceID = -1;
+
+      if ((*true_beam_endProcess) == "pi+Inelastic" && abs(true_beam_PDG) == 211){  //std::cout<<"signal"<<std::endl;
+        double true_endz = true_beam_endZ;
+        if (true_beam_endX>0){
+          true_endz += RecoFwd_Displacement_Z_Pos->GetBinContent(RecoFwd_Displacement_Z_Pos->FindBin(true_beam_endX, true_beam_endY, true_beam_endZ));
+        }
+        else{
+          true_endz += RecoFwd_Displacement_Z_Neg->GetBinContent(RecoFwd_Displacement_Z_Neg->FindBin(true_beam_endX, true_beam_endY, true_beam_endZ));
+        }
+        true_sliceID = int((true_endz-0.5603500-0.479/2)/0.479/nwires_in_slice); //z=0.56 is z coordinate for wire 0
+        if (true_sliceID <0) true_sliceID = 0;
+        if (true_sliceID < nslices){
+          ++true_interaction[true_sliceID];
+          if (true_daughter_nPi0 == 0 && true_daughter_nPiPlus == 0){//true absorption
+            ++true_abs[true_sliceID];
+          }
+        }
+        for (int i = 0; i<=true_sliceID; ++i){
+          if (i<nslices) ++true_incident[i];
+        }
+      }
 
       //interaction slice ID based on the track end wire number
       int sliceID = reco_beam_calo_wire->back()/nwires_in_slice;
+      //Add code to determine if it is absorption
+      bool isAbs = false;
+
       if (sliceID>=nslices) continue;
+
+      if (true_sliceID!=-1){
+        dslcID->Fill(sliceID - true_sliceID);
+        if (sliceID == true_sliceID){
+          ++signal[sliceID];
+        }
+      }
 
       //increment interaction counter
       ++interaction[sliceID];
       //increment incident counter
-      for (int i = 0; i<=sliceID; ++i) ++incident[i];
+      for (int i = 0; i<=sliceID; ++i){
+        ++incident[i];
+      }
 
       std::vector<std::vector<double>> vpitch(nslices);
       std::vector<std::vector<double>> vincE(nslices); 
@@ -159,22 +215,49 @@ void ana::Loop()
    double slcid[nslices];
    double avg_incE[nslices];
    double avg_pitch[nslices];
+   double eff_int[nslices];
+   double eff_inc[nslices];
+   double pur[nslices];
+   double xs[nslices];
+   double xs_abs[nslices];
    for (int i = 0; i<nslices; ++i){
      slcid[i] = i;
      avg_incE[i] = incE[i]->GetMean();
      avg_pitch[i] = pitch[i]->GetMean();
+     if (interaction[i]){
+       eff_int[i] = signal[i]/true_interaction[i];
+       eff_inc[i] = true_incident[i]/incident[i];
+       pur[i] = signal[i]/interaction[i];
+     }
+     if (avg_pitch[i]&&true_incident[i]){
+       xs[i] = MAr/(Density*NA*avg_pitch[i])*true_interaction[i]/true_incident[i]*1e27;
+       xs_abs[i] = MAr/(Density*NA*avg_pitch[i])*true_abs[i]/true_incident[i]*1e27;
+     }
+     else xs[i] = 0;
+     std::cout<<MAr<<" "<<Density<<" "<<NA<<" "<<avg_pitch[i]<<" "<<signal[i]<<" "<<incident[i]<<" "<<xs[i]<<std::endl;
    }
 
    TGraph *gr_int_slc = new TGraph(nslices, slcid, interaction);
+   TGraph *gr_trueint_slc = new TGraph(nslices, slcid, true_interaction);
    TGraph *gr_inc_slc = new TGraph(nslices, slcid, incident);
    TGraph *gr_incE_slc = new TGraph(nslices, slcid, avg_incE);
    TGraph *gr_pitch_slc = new TGraph(nslices, slcid, avg_pitch);
-   
+   TGraph *gr_effint_slc = new TGraph(nslices, slcid, eff_int);
+   TGraph *gr_effinc_slc = new TGraph(nslices, slcid, eff_inc);
+   TGraph *gr_pur_slc = new TGraph(nslices, slcid, pur);
+   TGraph *gr_xs_incE = new TGraph(nslices, avg_incE, xs);
+   TGraph *gr_xsabs_incE = new TGraph(nslices, avg_incE, xs_abs);
    f.Write();
    gr_int_slc->Write("gr_int_slc");
+   gr_trueint_slc->Write("gr_trueint_slc");
    gr_inc_slc->Write("gr_inc_slc");
    gr_incE_slc->Write("gr_incE_slc");
    gr_pitch_slc->Write("gr_pitch_slc");
+   gr_effint_slc->Write("gr_effint_slc");
+   gr_effinc_slc->Write("gr_effinc_slc");
+   gr_pur_slc->Write("gr_pur_slc");
+   gr_xs_incE->Write("gr_xs_incE");
+   gr_xsabs_incE->Write("gr_xsabs_incE");
    f.Close();
 
 }
