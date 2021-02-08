@@ -43,6 +43,7 @@
 #include <TStyle.h>
 #include <TH1D.h>
 #include <TH2D.h>
+#include <TH3F.h>
 #include <TLatex.h>
 #include <TCanvas.h>
 #include "TMath.h"
@@ -94,6 +95,7 @@ namespace Main{
     /// Sets the name of the UBXSec input file (the file needs to contain a UBXSec/tree TTree)
     void SetInputFile(std::string);
 
+    void SetInputFileSCE(std::string);
 
     void SetInputFile_add(std::string);
 
@@ -228,7 +230,7 @@ namespace Main{
                        std::map<std::string,std::vector<UBTH2Poly*>> bs_poly_reco_per_true, 
                        std::vector<std::string> fname, 
                        std::vector<double> wgts);
-    
+        
     // void FillBootstrap(double fill_value1, // reco value x (costheta)
     //                    double fill_value2, // reco value y (momentum)
     //                    int n, // true bin n (1 number, unrolled)
@@ -251,6 +253,9 @@ namespace Main{
                        std::string channel_namel, 
                        std::vector<std::string> fname, 
                        std::vector<double> wgts_genie);
+
+
+    double Sce_Corrected_endZ(double a, double b, double c);
 
     void AddPolyBins(UBTH2Poly * h);
 
@@ -285,6 +290,8 @@ namespace Main{
     double _gainCalib       = 198;  // e-/ADC
 
     std::string filen     = "ubxsec_output.root";
+
+
     std::string filen_add = "";
     std::string fileoutn  = "ubxsecana_output.root";
 
@@ -351,11 +358,16 @@ namespace Main{
     double Density = 1.39; // g/cm^3
 
 
-
+    TH1D *dslcID = new TH1D("dslcID","reco slice ID - true slice ID",20,-10,10);
  
     double interaction[nslices];
+    double signal[nslices];
     double incident[nslices];
 
+    double true_incident[nslices];
+    double true_interaction[nslices];
+    double true_abs[nslices];
+ 
     double interaction_sel[nslices];
     double incident_sel[nslices];
 
