@@ -1,5 +1,5 @@
-#define ana_cxx
-#include "ana.h"
+#define ananew_cxx
+#include "ananew.h"
 #include <TH2.h>
 #include <TStyle.h>
 #include <TCanvas.h>
@@ -52,7 +52,7 @@ bool endAPA3(double reco_beam_endZ){
   return(reco_beam_endZ < cutAPA3_Z);
 }
 
-void ana::LoadHist(){
+void ananew::LoadHist(){
 
   TFile *infile = TFile::Open("/cvmfs/dune.opensciencegrid.org/products/dune/dune_pardata/v01_66_00/SpaceChargeProtoDUNE/SCE_DataDriven_180kV_v4.root");
 
@@ -125,7 +125,7 @@ void ana::LoadHist(){
   }
 }
 
-TSpline3* ana::MakeSpline(TH3F* spline_hist, int dim1, int dim2_bin, int dim3_bin, int maptype, int driftvol) const
+TSpline3* ananew::MakeSpline(TH3F* spline_hist, int dim1, int dim2_bin, int dim3_bin, int maptype, int driftvol) const
 {
   TSpline3 *spline = 0;
   
@@ -211,7 +211,7 @@ TSpline3* ana::MakeSpline(TH3F* spline_hist, int dim1, int dim2_bin, int dim3_bi
   return spline;
 }
 
-double ana::InterpolateSplines(TH3F* interp_hist, double xVal, double yVal, double zVal, int dim, int maptype, int driftvol) const
+double ananew::InterpolateSplines(TH3F* interp_hist, double xVal, double yVal, double zVal, int dim, int maptype, int driftvol) const
 {
   int bin_x = interp_hist->GetXaxis()->FindBin(xVal);
   int bin_y = interp_hist->GetYaxis()->FindBin(yVal);
@@ -489,7 +489,7 @@ double ana::InterpolateSplines(TH3F* interp_hist, double xVal, double yVal, doub
   return interp_val;
 }
 
-bool ana::IsInsideBoundaries(TVector3 const& point) const
+bool ananew::IsInsideBoundaries(TVector3 const& point) const
 {
   return !(
            (TMath::Abs(point.X()) <= 0.0) || (TMath::Abs(point.X()) >= 360.0)
@@ -498,7 +498,7 @@ bool ana::IsInsideBoundaries(TVector3 const& point) const
            );
 } 
   
-bool ana::IsTooFarFromBoundaries(TVector3 const& point) const
+bool ananew::IsTooFarFromBoundaries(TVector3 const& point) const
 {
   return (
           (TMath::Abs(point.X()) < -20.0) || (TMath::Abs(point.X())  >= 360.0)
@@ -507,7 +507,7 @@ bool ana::IsTooFarFromBoundaries(TVector3 const& point) const
           );
 }
 
-TVector3 ana::PretendAtBoundary(TVector3 const& point) const
+TVector3 ananew::PretendAtBoundary(TVector3 const& point) const
 {
   double x = point.X(), y = point.Y(), z = point.Z();
   
@@ -526,11 +526,11 @@ TVector3 ana::PretendAtBoundary(TVector3 const& point) const
 }
 
 
-void ana::Loop()
+void ananew::Loop()
 {
 //   In a ROOT session, you can do:
-//      root> .L ana.C
-//      root> ana t
+//      root> .L ananew.C
+//      root> ananew t
 //      root> t.GetEntry(12); // Fill t data members with entry number 12
 //      root> t.Show();       // Show values of entry 12
 //      root> t.Show(16);     // Read and show values of entry 16
@@ -568,7 +568,7 @@ void ana::Loop()
    double MAr=35.95; //gmol
    double Density = 1.39; // g/cm^3
 
-   TFile f("hist.root","recreate");
+   TFile f("histnew.root","recreate");
    double interaction[nslices];
    double true_interaction[nslices];
    double true_abs[nslices];
@@ -603,6 +603,7 @@ void ana::Loop()
       nb = fChain->GetEntry(jentry);   nbytes += nb;
       // if (Cut(ientry) < 0) continue;
       if(abs(true_beam_PDG) != 211) continue;
+      //std::cout<<reco_beam_type<<std::endl;
       //if(abs(true_beam_PDG) != 211 && abs(true_beam_PDG) !=13) continue;
 //      if(!manual_beamPos_mc(reco_beam_startX, reco_beam_startY, reco_beam_startZ, 
 //                            reco_beam_trackDirX, reco_beam_trackDirY, reco_beam_trackDirZ,
@@ -678,7 +679,7 @@ void ana::Loop()
         if (this_sliceID>sliceID) continue;
 
         double this_incE = (*reco_beam_incidentEnergies)[i];
-        double this_pitch = (*reco_beam_TrkPitch)[i];
+        double this_pitch = (*reco_beam_TrkPitch_SCE)[i];
         //std::cout<<this_pitch<<std::endl;
         vpitch[this_sliceID].push_back(this_pitch);
         vincE[this_sliceID].push_back(this_incE);
