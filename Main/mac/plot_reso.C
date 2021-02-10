@@ -76,12 +76,14 @@ void plot_reso(){
   if(tune==1){
   if (cosmicCut){
     //input0 = new TFile("output_test_data.root");
-    input0 = new TFile("output_test.root");
-    input1 = new TFile("output_test.root");
+    input0 = new TFile("output_graphs.root");
+    input1 = new TFile("output_graphs.root");
   }
   } 
 
-
+  TFile *input2;
+  input2 = new TFile("/dune/app/users/jiang/geant4reweight-dev/npi0_xsec.root");
+  TGraph *abs_KE = (TGraph*)input2->Get("abs_KE");
 
   //----------------------------------------------------------------------
     gStyle->SetOptStat(0000);
@@ -118,14 +120,14 @@ void plot_reso(){
   gROOT->SetBatch(1);
 
    TCanvas *cgr = new TCanvas("cgr","cgr", 900, 700);
-   TGraph *gr=(TGraph*)input0->Get("gr_tempxsec_test_slc");
+   TGraph *gr=(TGraph*)input0->Get("gr_tempxsec_slc");
    gr->GetXaxis()->SetTitle("slice ID");
    gr->GetYaxis()->SetTitle("#sigma(mb)");
    gr->SetTitle("");
    gr->SetMaximum(300); 
    gr->Draw("AP*");
    cgr->SaveAs("h_temp_xsec.png");
-
+   
    TCanvas *cgr1 = new TCanvas("cgr1","cgr1", 900, 700);
    TGraph *gr1=(TGraph*)input0->Get("gr_inc_slc");
    gr1->GetXaxis()->SetTitle("slice ID");
@@ -164,7 +166,7 @@ void plot_reso(){
    gr4->SetTitle(""); 
    gr4->Draw("AP*");
    cgr4->SaveAs("h_temp_incidentEnergy.png");
- 
+   
    TCanvas *cgr5 = new TCanvas("cgr5","cgr5", 900, 700);
    TGraph *gr5=(TGraph*)input0->Get("gr_tempxsec_vs_incE_slc");
    gr5->GetYaxis()->SetTitle("#sigma (mb)");
@@ -192,5 +194,42 @@ void plot_reso(){
    gr7->Draw("AP*");
    cgr7->SaveAs("h_temp_efficiency.png");
 
+   Double_t xsec_temp[16];
+   Double_t incE_temp[16];
+   Double_t a[24];
+   Double_t b[24];
+   Double_t c[24];
+   Double_t d[24];
 
+   for(int i=0; i<gr4->GetN(); i++){
+     gr4->GetPoint(i,a[i], b[i]);
+     gr->GetPoint(i, c[i], d[i]);
+   }
+   for(int j=0; j<16; j++){
+         xsec_temp[j]=d[j+4];
+         incE_temp[j]=b[j+4];
+   }
+
+
+   TGraph *temp_xs = new TGraph(16, incE_temp, xsec_temp);
+
+   TCanvas *cgr8 = new TCanvas("cgr8","cgr8", 900, 700);
+   TMultiGraph *mg = new TMultiGraph();
+   temp_xs->SetMarkerColor(kRed);
+   temp_xs->SetMarkerStyle(20);
+   abs_KE->SetLineWidth(2);
+   mg->Add(abs_KE);
+   mg->Add(temp_xs);
+   TLegend *legxs = new TLegend(0.5, 0.7, 0.85, 0.85);
+   legxs->SetBorderSize(0);
+   legxs->SetFillStyle(0);
+   legxs->AddEntry(abs_KE, "G4 Prediction");
+   legxs->AddEntry(temp_xs, "Measured (MC)");
+   mg->Draw("ap");
+   legxs->Draw("same");
+   gPad->Update();
+   mg->GetXaxis()->SetTitle("Beam Kinetic Energy[MeV]");
+   mg->GetYaxis()->SetTitle("#sigma(mb)");
+   gPad->Modified();
+   cgr8->SaveAs("h_tempxsec_vs_incE_G4.png");
  } //========================================================
