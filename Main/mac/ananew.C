@@ -565,7 +565,7 @@ void ananew::Loop()
    Int_t nbinsthickness = 100;
 
    double NA=6.02214076e23;
-   double MAr=35.95; //gmol
+   double MAr=39.95; //gmol
    double Density = 1.39; // g/cm^3
 
    TFile f("histnew.root","recreate");
@@ -614,6 +614,7 @@ void ananew::Loop()
 
       int true_sliceID = -1;
 
+      //std::cout<<(*true_beam_endProcess)<<std::endl;
       if ((*true_beam_endProcess) == "pi+Inelastic" && abs(true_beam_PDG) == 211){  //std::cout<<"signal"<<std::endl;
         double true_endz = true_beam_endZ;
         double offset_z = 0;
@@ -639,7 +640,7 @@ void ananew::Loop()
           if (true_daughter_nPi0 == 0 && true_daughter_nPiPlus == 0 && true_daughter_nPiMinus == 0){//true absorption
             ++true_abs[true_sliceID];
           }
-          if (true_daughter_nPi0 > 0 && true_daughter_nPiPlus == 0  && true_daughter_nPiMinus == 0){//true absorption
+          if (true_daughter_nPi0 == 1 && true_daughter_nPiPlus == 0  && true_daughter_nPiMinus == 0){//true absorption
             ++true_cex[true_sliceID];
           }
         }
@@ -740,17 +741,17 @@ void ananew::Loop()
      //std::cout<<MAr<<" "<<Density<<" "<<NA<<" "<<avg_pitch[i]<<" "<<signal[i]<<" "<<incident[i]<<" "<<xs[i]<<std::endl;
    }
 
-   TGraph *gr_int_slc = new TGraph(nslices, &(slcid[0]), &(interaction[0]));
-   TGraph *gr_trueint_slc = new TGraph(nslices, &(slcid[0]), &(true_interaction[0]));
-   TGraph *gr_inc_slc = new TGraph(nslices, &(slcid[0]), &(incident[0]));
-   TGraph *gr_incE_slc = new TGraph(nslices, &(slcid[0]), &(avg_incE[0]));
-   TGraph *gr_pitch_slc = new TGraph(nslices, &(slcid[0]), &(avg_pitch[0]));
-   TGraph *gr_effint_slc = new TGraph(nslices, &(slcid[0]), &(eff_int[0]));
-   TGraph *gr_effinc_slc = new TGraph(nslices, &(slcid[0]), &(eff_inc[0]));
-   TGraph *gr_pur_slc = new TGraph(nslices, &(slcid[0]), &(pur[0]));
-   TGraphErrors *gr_xs_incE = new TGraphErrors(nslices, &(avg_incE[0]), &(xs[0]), 0, &exs[0]);
-   TGraphErrors *gr_xsabs_incE = new TGraphErrors(nslices, &(avg_incE[0]), &(xs_abs[0]), 0, &exs_abs[0]);
-   TGraphErrors *gr_xscex_incE = new TGraphErrors(nslices, &(avg_incE[0]), &(xs_cex[0]), 0, &exs_cex[0]);
+   TGraph *gr_int_slc = new TGraph(nslices-3, &(slcid[3]), &(interaction[3]));
+   TGraph *gr_trueint_slc = new TGraph(nslices-3, &(slcid[3]), &(true_interaction[3]));
+   TGraph *gr_inc_slc = new TGraph(nslices-3, &(slcid[3]), &(incident[3]));
+   TGraph *gr_incE_slc = new TGraph(nslices-3, &(slcid[3]), &(avg_incE[3]));
+   TGraph *gr_pitch_slc = new TGraph(nslices-3, &(slcid[3]), &(avg_pitch[3]));
+   TGraph *gr_effint_slc = new TGraph(nslices-3, &(slcid[3]), &(eff_int[3]));
+   TGraph *gr_effinc_slc = new TGraph(nslices-3, &(slcid[3]), &(eff_inc[3]));
+   TGraph *gr_pur_slc = new TGraph(nslices-3, &(slcid[3]), &(pur[3]));
+   TGraphErrors *gr_xs_incE = new TGraphErrors(nslices-3, &(avg_incE[3]), &(xs[3]), 0, &exs[3]);
+   TGraphErrors *gr_xsabs_incE = new TGraphErrors(nslices-3, &(avg_incE[3]), &(xs_abs[3]), 0, &exs_abs[3]);
+   TGraphErrors *gr_xscex_incE = new TGraphErrors(nslices-3, &(avg_incE[3]), &(xs_cex[3]), 0, &exs_cex[3]);
    f.Write();
    gr_int_slc->Write("gr_int_slc");
    gr_trueint_slc->Write("gr_trueint_slc");
