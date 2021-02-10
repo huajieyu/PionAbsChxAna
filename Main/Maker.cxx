@@ -1236,8 +1236,13 @@ void Main::Maker::MakeFile()
 
 
   TH1D* h_Evttot = new TH1D("h_Evttot", "h_Evttot", 1, 0.5, 1.5);
-  TH1D *dslcID = new TH1D("dslcID","reco slice ID - true slice ID",20,-9.5,10.5);
+  TH1D *dabsintE = new TH1D("dabsintE","#DeltaE(Reco - True)/True ",100, -3.0,2.0);
+  TH1D *dchxintE = new TH1D("dchxintE",   "#DeltaE(Reco - True)/True",100, -3.0,2.0);
+  
+  TH1D *dsizewire_abs[nslices];
+  TH1D *dsizewire_chx[nslices]; 
 
+  TH1D *dslcID[nslices];  
 
   TH1D *incE[nslices];
   TH1D *pitch[nslices];
@@ -1246,11 +1251,18 @@ void Main::Maker::MakeFile()
 
   TH1D *incE_sel[nslices];
 
+  TH1D *h_energetic_pmom_gen[nslices];
+  TH1D *h_energetic_pcostheta_gen[nslices];
+  TH1D *h_energetic_pphi_gen[nslices];
+  
+
+
   TGraph *gr_inc0_slc;
 
   TGraph *gr_int_slc;
  
   TGraph *gr_intabs_slc;
+  TGraph *gr_intchx_slc;
 
   TGraph *gr_inc_slc;
 
@@ -1267,15 +1279,25 @@ void Main::Maker::MakeFile()
   TGraph *gr_efficiency_slc;
 
   TGraph *gr_tempxsec_slc;
+  TGraph *gr_tempxsec_chx_slc;
+
+
+
+
 
   TGraph *gr_tempxsec_test_slc;
   TGraph *gr_tempxsec_test2_slc;
   TGraph *gr_tempxsec_test3_slc;
   TGraph *gr_tempxsec_test4_slc;
 
+  TGraph *gr_tempxsec_chx_test_slc;
+  TGraph *gr_tempxsec_abs_test_slc;
+
   TGraph *gr_tempxsec_vs_incE_slc;
 
   TGraph *gr_tempxsec_test_vs_incE_slc;
+
+  TGraph *gr_tempxsec_chx_vs_incE_slc;
 
   TGraph *gr_selected_tot_slc;
 
@@ -1324,7 +1346,7 @@ void Main::Maker::MakeFile()
      true_incident[i]=0;
      true_interaction[i]=0;
      true_abs[i]=0;
-
+     true_chx[i]=0;
      interaction_gen[i] = 0;
      interaction_sel[i] = 0;
 
@@ -1334,10 +1356,28 @@ void Main::Maker::MakeFile()
 
      incident_gen[i] = 0;
      incident_sel[i] = 0;
+
+     dslcID[i] = new TH1D(Form("dslcID_%d", i),Form("dslcID, %d<wire #<%d", i*nwires_in_slice, (i+1)*nwires_in_slice),30,-14.5,15.5);
+     dslcID[i]->SetDirectory(file_out);
      incE[i] = new TH1D(Form("incE_%d",i),Form("Incident energy, %d<wire #<%d",i*nwires_in_slice, (i+1)*nwires_in_slice), nbinse, 0, 1200.);
+     incE[i]->SetDirectory(file_out);
      pitch[i] = new TH1D(Form("pitch_%d",i),Form("Slice thickness, %d<wire #<%d",i*nwires_in_slice, (i+1)*nwires_in_slice), nbinsthickness, 0, 20.);
+     pitch[i]->SetDirectory(file_out);
      incE_gen[i] = new TH1D(Form("incE_gen_%d",i),Form("Incident energy, %d<wire #<%d",i*nwires_in_slice, (i+1)*nwires_in_slice), nbinse, 0, 1200.);
+     incE_gen[i]->SetDirectory(file_out);
      incE_sel[i] = new TH1D(Form("incE_sel_%d",i),Form("Incident energy, %d<wire #<%d",i*nwires_in_slice, (i+1)*nwires_in_slice), nbinse, 0, 1200.);
+     incE_sel[i]->SetDirectory(file_out);
+     h_energetic_pmom_gen[i] = new TH1D(Form("h_energetic_pmom_gen_%d",i),Form("Incident energy, %d<wire #<%d",i*nwires_in_slice, (i+1)*nwires_in_slice), nbinspmom, 0, 1.200);
+     h_energetic_pmom_gen[i]->SetDirectory(file_out);
+     h_energetic_pcostheta_gen[i] = new TH1D(Form("h_energetic_pcostheta_gen_%d",i),Form("Incident energy, %d<wire #<%d",i*nwires_in_slice, (i+1)*nwires_in_slice), nbinspcostheta, -1.0, 1.0);
+     h_energetic_pcostheta_gen[i]->SetDirectory(file_out);
+     h_energetic_pphi_gen[i] = new TH1D(Form("h_energetic_pphi_gen_%d",i),Form("Incident energy, %d<wire #<%d",i*nwires_in_slice, (i+1)*nwires_in_slice), nbinspphi, -TMath::Pi(), TMath::Pi());
+     h_energetic_pphi_gen[i]->SetDirectory(file_out);
+     dsizewire_abs[i] = new TH1D(Form("dsizewire_abs_%d", i), Form("dsizewire_abs_%d", i), 26, -5.5, 20.5); 
+     dsizewire_abs[i]->SetDirectory(file_out);
+     dsizewire_chx[i] = new TH1D(Form("dsizewire_chx_%d", i), Form("dsizewire_chx_%d", i), 26, -5.5, 20.5); 
+     dsizewire_chx[i]->SetDirectory(file_out);
+
   } 
 
 
@@ -1422,12 +1462,8 @@ void Main::Maker::MakeFile()
         //set the map of wire number and incident particles
         //hit-by-hit wire z position
         for(unsigned int ih=0; ih<t->reco_beam_calo_wire_z->size(); ih++){
-            //if there is a hit, then there is a incident particle
             _event_histo->htotinc_reco_beamz->Fill(t->reco_beam_calo_wire_z->at(ih));
             _event_histo->htotinc_reco_beamwire->Fill(t->reco_beam_calo_wire->at(ih));
-            //check the resolution of the wire number or position of each hit
-
-
         }
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         double true_endz = Sce_Corrected_endZ(t->true_beam_endX, t->true_beam_endY, t->true_beam_endZ);
@@ -1437,18 +1473,23 @@ void Main::Maker::MakeFile()
         if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211){  //std::cout<<"signal"<<std::endl;
 
            true_sliceID = int((true_endz-0.5603500-0.479/2)/0.479/nwires_in_slice); //z=0.56 is z coordinate for wire 0
-           //std::cout<<"true_sliceID =    "<<true_sliceID<<std::endl;
+           _event_histo->htotinc_true_beamwire->Fill((true_endz-0.5603500-0.479/2)/0.479);           
            if (true_sliceID <0) true_sliceID = 0;
            if (true_sliceID < nslices){
               ++true_interaction[true_sliceID];
               if (t->true_daughter_nPi0 == 0 && t->true_daughter_nPiPlus == 0 && t->true_daughter_nPiMinus ==0){//true absorption
-              ++true_abs[true_sliceID];
-           }
+                  ++true_abs[true_sliceID];
+                  dabsintE -> Fill((t->reco_beam_interactingEnergy - t->true_beam_interactingEnergy)/t->true_beam_interactingEnergy);
+              }
+              if (t->true_daughter_nPi0 > 0 && t->true_daughter_nPiPlus == 0 && t->true_daughter_nPiMinus ==0){
+                  ++true_chx[true_sliceID];
+                  dchxintE -> Fill((t->reco_beam_interactingEnergy - t->true_beam_interactingEnergy)/t->true_beam_interactingEnergy);
+              } 
            }
            for (int i = 0; i<=true_sliceID; ++i){
               if (i<nslices) ++true_incident[i];
            }
-        }
+        }//end of selecting pion inclusive events
         
         //LOG_NORMAL()<<"Start to calculate the average energy and thickness with Tingjun's method"<<std::endl;
         //interaction slice ID based on the track end wire number
@@ -1457,7 +1498,7 @@ void Main::Maker::MakeFile()
         //double reco_endz = t->reco_beam_endZ; 
         //sliceID = int((reco_endz-0.5603500-0.479/2)/0.479/nwires_in_slice); 
         if (true_sliceID!=-1){
-          dslcID->Fill(sliceID - true_sliceID);
+          dslcID[true_sliceID]->Fill(sliceID - true_sliceID);
         }
         //increment interaction counter
         if(sliceID<=nslices){
@@ -1738,6 +1779,15 @@ void Main::Maker::MakeFile()
         //increment incident counter
         //std::cout<<"interaction number (slice 15 ) is "<<interaction_gen[15]<<std::endl;
         for (int i = 0; i<=sliceID; ++i) ++incident_gen[i];
+        if(true_sliceID>=0 && true_sliceID<nslices){
+          h_energetic_pmom_gen[true_sliceID]->Fill(temp_genpmom);
+          h_energetic_pcostheta_gen[true_sliceID]->Fill(temp_genpcostheta);
+          h_energetic_pphi_gen[true_sliceID]->Fill(temp_genpphi);
+        }
+
+
+
+
 
         //-------------------------------------------------------------------------------
         }//end of if this is a generated signal event
@@ -3398,7 +3448,16 @@ void Main::Maker::MakeFile()
   h_true_reco_costheta->Write();
   h_true_reco_phi->Write();
 
-
+  dabsintE->Write();
+  dchxintE->Write();
+  for(int ig=0; ig<nslices; ig++){
+      dsizewire_abs[ig]->Write();
+      dsizewire_chx[ig]->Write();
+      dslcID[ig]->Write();
+      incE[ig]->Write();
+      pitch[ig]->Write();
+  }
+ 
   LOG_NORMAL() << "1D Event Histo saved." << std::endl;
   
  
@@ -3410,17 +3469,31 @@ void Main::Maker::MakeFile()
   double efficiency_tj_err[nslices];
  
   double tempxsec[nslices];
+  double tempxsec_chx[nslices];
+
+  double tempxsec_pmom[nslices][nbinspmom];
+  double tempxsec_pcostheta[nslices][nbinspcostheta];
+  double tempxsec_pphi[nslices][nbinspphi];
+
 
   double tempxsec_test[nslices];
   double tempxsec_test2[nslices];
   double tempxsec_test3[nslices];
   double tempxsec_test4[nslices];
+
+  double tempxsec_chx_test[nslices];
+  double tempxsec_abs_test[nslices];
   double bkgsuberr[nslices];
 
   double rms_incE[nslices];
   double rms_pitch[nslices];
   double unverr[nslices];
-  TEfficiency* pEff = new TEfficiency("eff", ";sliceID;Efficiency", nslices, -0.5, nslices-0.5);
+  TEfficiency* pEff = 0;
+
+
+
+
+
 
   for (int i = 0; i<nslices; ++i){
      slcid[i] = i;
@@ -3431,9 +3504,9 @@ void Main::Maker::MakeFile()
 
      avg_pitch[i] = pitch[i]->GetMean();
 
-     rms_incE[i] = 0.5*incE[i]->GetRMS();
+     rms_incE[i] = incE[i]->GetRMS()/TMath::Sqrt(incE[i]->GetEntries());;
 
-     rms_pitch[i] = 0.5*pitch[i]->GetRMS();
+     rms_pitch[i] = pitch[i]->GetRMS()/TMath::Sqrt(pitch[i]->GetEntries());
 
      efficiency_tj[i]=interaction_sel[i]/interaction_gen[i];
 
@@ -3455,29 +3528,56 @@ void Main::Maker::MakeFile()
 
      tempxsec[i]          =MAr/(Density*NA*avg_pitch[i])*true_abs[i]/true_incident[i];
 
+     for(int nb=0; nb<nbinspmom; nb++){
+          tempxsec_pmom[i][nb]=(1/1e-27)*MAr/(Density*NA*avg_pitch[i])*h_energetic_pmom_gen[i]->GetBinContent(nb+1)/true_incident[i];
+     }
+     for(int nb=0; nb<nbinspcostheta; nb++){
+          tempxsec_pcostheta[i][nb]=(1/1e-27)*MAr/(Density*NA*avg_pitch[i])*h_energetic_pcostheta_gen[i]->GetBinContent(nb+1)/true_incident[i];
+     }
+     for(int nb=0; nb<nbinspphi; nb++){
+          tempxsec_pphi[i][nb]=(1/1e-27)*MAr/(Density*NA*avg_pitch[i])*h_energetic_pphi_gen[i]->GetEntries()/true_incident[i];
+     }
+          
+     tempxsec_chx[i]      =MAr/(Density*NA*avg_pitch[i])*true_chx[i]/true_incident[i];         
 
+     double avgthickness = 12;
+     tempxsec_chx_test[i] = true_chx[i]/true_incident[i];
+     tempxsec_abs_test[i] = true_abs[i]/true_incident[i];
      bkgsuberr[i] = TMath::Sqrt(selected_tot[i]+selected_bkg[i]);
    
           
 
 
 
-     } else {tempxsec[i]=0.0; tempxsec_test[i]=0.0; tempxsec_test2[i]=0.0; tempxsec_test3[i]=0.0; tempxsec_test4[i]=0.0;}
+     } else {tempxsec[i]=0.0; tempxsec_chx[i]=0.0; tempxsec_chx_test[i]=0.0; tempxsec_abs_test[i] = 0.0; tempxsec_test[i]=0.0; tempxsec_test2[i]=0.0; tempxsec_test3[i]=0.0; tempxsec_test4[i]=0.0;}
            
      tempxsec[i] = tempxsec[i]/1e-27;  
+     tempxsec_chx[i] = tempxsec_chx[i]/1e-27;
+
      tempxsec_test[i] = tempxsec_test[i]/1e-27;
      tempxsec_test2[i] = tempxsec_test2[i]/1e-27;
      tempxsec_test3[i] = tempxsec_test3[i]/1e-27;
      tempxsec_test4[i] = tempxsec_test4[i]/1e-27;
      
-     pEff->Fill(interaction_sel[i], interaction_gen[i]);
 
+  }//end of loop over all the nslices
+
+  TH1D* h_pass_sel = new TH1D("h_pass_sel", "h_pass_sel", nslices, -0.5, nslices-0.5);
+  TH1D* h_total_gen = new TH1D("h_total_gen", "h_total_gen", nslices, -0.5, nslices-0.5);
+  for(int ig=0; ig<nslices; ig++){
+        h_pass_sel->SetBinContent(ig+1, interaction_sel[ig]);
+        h_total_gen->SetBinContent(ig+1, interaction_gen[ig]);
   }
 
+  h_pass_sel->Write();
+  h_total_gen->Write();
 
+  pEff = new TEfficiency(*h_pass_sel, *h_total_gen);
 
   pEff->Write();
-  dslcID ->Write();
+
+
+
   file_out->Write();
 
   LOG_NORMAL() << "All saved." << std::endl;
@@ -3487,7 +3587,7 @@ void Main::Maker::MakeFile()
   LOG_NORMAL() << "Output file closed." << std::endl;
 
 
-  string outfilename="output_graphs.root";
+  string outfilename="/dune/app/users/jiang/dunetpc_analysis/PionAbsChxAna/UBAna/Main/mac/output_graphs.root";
 
   TFile output_newsf(outfilename.c_str(), "RECREATE");
 
@@ -3496,6 +3596,7 @@ void Main::Maker::MakeFile()
   gr_int_slc = new TGraph(nslices, slcid, true_interaction);
   
   gr_intabs_slc = new TGraph(nslices, slcid, true_abs);
+  gr_intchx_slc = new TGraph(nslices, slcid, true_chx);
 
   gr_inc_slc = new TGraph(nslices, slcid, true_incident);
 
@@ -3512,13 +3613,54 @@ void Main::Maker::MakeFile()
   gr_efficiency_slc = new TGraph(nslices, slcid, efficiency_tj);
 
   gr_tempxsec_slc = new TGraph(nslices, slcid, tempxsec);
+  gr_tempxsec_chx_slc = new TGraph(nslices, slcid, tempxsec_chx);
 
+  gr_tempxsec_chx_test_slc = new TGraph(nslices, slcid, tempxsec_chx_test);
+  gr_tempxsec_abs_test_slc = new TGraph(nslices, slcid, tempxsec_abs_test);
+
+
+  TGraph *gr_tempxsec_pmom_slc[nslices];
+
+  TGraph *gr_tempxsec_pcostheta_slc[nslices];
+
+  for(int idx=0; idx<nslices; idx++){
+       double pxmom[nbinspmom];
+       double xsecmom[nbinspmom];
+       double pxcostheta[nbinspcostheta];
+       double xseccostheta[nbinspcostheta];
+       double binwidthpmom=1.2/nbinspmom;
+       double binwidthpcostheta=1.2/nbinspcostheta;
+
+       for(int jk=0; jk<nbinspmom; jk++){
+          pxmom[jk] = (jk+0.5)*binwidthpmom;
+          xsecmom[jk]=tempxsec_pmom[idx][jk];
+       } 
+       for(int jk=0; jk<nbinspcostheta; jk++){
+          pxcostheta[jk] = (jk+0.5)*binwidthpcostheta;
+          xseccostheta[jk]=tempxsec_pcostheta[idx][jk];
+       } 
+
+       /*TGraph *gr_libo_xsecvspmom = new TGraph(nbinspmom, pxmom,  xsecmom);
+       gr_libo_xsecvspmom->Write(Form("gr_tempxsec_pmom_slc_%d",idx));
+
+       TGraph *gr_libo_xsecvspcostheta = new TGraph(nbinspcostheta, pxcostheta,  xseccostheta);
+       gr_libo_xsecvspcostheta->Write(Form("gr_tempxsec_pcostheta_slc_%d",idx));
+       */
+
+       gr_tempxsec_pmom_slc[idx]=new TGraph(nbinspmom, pxmom,  xsecmom);
+       gr_tempxsec_pmom_slc[idx]->Write(Form("gr_tempxsec_pmom_%d",idx));
+       gr_tempxsec_pcostheta_slc[idx]=new TGraph(nbinspcostheta, pxcostheta, xseccostheta);
+       gr_tempxsec_pcostheta_slc[idx]->Write(Form("gr_tempxsec_pcostheta_%d",idx));
+
+  }
   gr_tempxsec_test_slc = new TGraph(nslices, slcid, tempxsec_test);
   gr_tempxsec_test2_slc = new TGraph(nslices, slcid, tempxsec_test2);
   gr_tempxsec_test3_slc = new TGraph(nslices, slcid, tempxsec_test3);
   gr_tempxsec_test4_slc = new TGraph(nslices, slcid, tempxsec_test4);
 
   gr_tempxsec_vs_incE_slc = new TGraph(nslices, avg_incE, tempxsec);
+
+  gr_tempxsec_chx_vs_incE_slc = new TGraph(nslices, avg_incE, tempxsec_chx);
 
   gr_tempxsec_test_vs_incE_slc = new TGraph(nslices, avg_incE, tempxsec_test);
 
@@ -3531,6 +3673,8 @@ void Main::Maker::MakeFile()
   gr_inc0_slc->Write("gr_inc0_slc");
    
   gr_int_slc->Write("gr_int_slc");
+  gr_intabs_slc->Write("gr_intabs_slc");
+  gr_intchx_slc->Write("gr_intchx_slc");
   gr_intsel_slc->Write("gr_intsel_slc");
   gr_intgen_slc->Write("gr_intgen_slc");
 
@@ -3542,13 +3686,20 @@ void Main::Maker::MakeFile()
   gr_efficiency_slc->Write("gr_efficiency_slc");
 
   gr_tempxsec_slc->Write("gr_tempxsec_slc");
+  gr_tempxsec_chx_slc->Write("gr_tempxsec_chx_slc");
+
+  gr_tempxsec_chx_test_slc->Write("gr_tempxsec_chx_test_slc");
+  gr_tempxsec_abs_test_slc->Write("gr_tempxsec_abs_test_slc");
 
   gr_tempxsec_vs_incE_slc->SetName("gr_tempxsec_vs_incE_slc");
   gr_tempxsec_vs_incE_slc->Write();
 
   gr_tempxsec_test_vs_incE_slc->SetName("gr_test_tempxsec_vs_incE_slc");
   gr_tempxsec_test_vs_incE_slc->Write();
-  
+
+  gr_tempxsec_chx_vs_incE_slc->SetName("gr_chx_tempxsec_vs_incE_slc");
+  gr_tempxsec_chx_vs_incE_slc->Write();
+   
   gr_tempxsec_test_slc->Write("gr_tempxsec_test_slc");
   gr_tempxsec_test2_slc->Write("gr_tempxsec_test2_slc");
   gr_tempxsec_test3_slc->Write("gr_tempxsec_test3_slc");
@@ -3557,8 +3708,6 @@ void Main::Maker::MakeFile()
  
   gr_selected_tot_slc->Write("gr_selected_tot_slc");
   gr_selected_bkg_slc->Write("gr_selected_bkg_slc");
-
-  
   output_newsf.Write();
 
 

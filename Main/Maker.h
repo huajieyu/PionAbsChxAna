@@ -352,6 +352,11 @@ namespace Main{
 
     Int_t nbinse=12; 
     Int_t nbinsthickness = 100;
+    Int_t nbinspmom=10;
+    Int_t nbinspcostheta=12;
+    Int_t nbinspphi=12;
+
+
 
     double NA=6.02214076e23;
     double MAr=35.95; //gmol
@@ -367,6 +372,7 @@ namespace Main{
     double true_incident[nslices];
     double true_interaction[nslices];
     double true_abs[nslices];
+    double true_chx[nslices];
  
     double interaction_sel[nslices];
     double incident_sel[nslices];
@@ -380,8 +386,6 @@ namespace Main{
 
 
 
-    //TH1D *incE[nslices];
-    //TH1D *pitch[nslices];
 
     double slicebins[nslices+1];
 
