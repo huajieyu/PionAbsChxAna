@@ -11,15 +11,13 @@
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
+#include <TVector3.h>
 
 // Header file for the classes stored in the TTree if any.
-#include "vector"
-#include "vector"
-#include "vector"
-#include "vector"
-#include "vector"
 #include "string"
 #include "vector"
+#include "TSpline.h"
+#include "TH3F.h"
 
 class ana {
 public :
@@ -744,9 +742,40 @@ public :
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
+   virtual void     LoadHist();
+   virtual TSpline3 *MakeSpline(TH3F* spline_hist, int dim1, int dim2_bin, int dim3_bin, int maptype, int driftvol) const;
+   virtual double   InterpolateSplines(TH3F* interp_hist, double xVal, double yVal, double zVal, int dim, int maptype, int driftvol) const;
+   virtual bool IsInsideBoundaries(TVector3 const& point) const;
+   virtual bool IsTooFarFromBoundaries(TVector3 const& point) const;
+   virtual TVector3 PretendAtBoundary(TVector3 const& point) const;
    virtual void     Loop();
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
+
+   TSpline3 *spline_dx_fwd_neg[31][37];
+   TSpline3 *spline_dy_fwd_neg[19][37];
+   TSpline3 *spline_dz_fwd_neg[19][31];
+   
+   TSpline3 *spline_dx_bkwd_neg[31][37];
+   TSpline3 *spline_dy_bkwd_neg[19][37];
+   TSpline3 *spline_dz_bkwd_neg[19][31];
+   
+   TSpline3 *spline_dEx_neg[31][37];
+   TSpline3 *spline_dEy_neg[19][37];
+   TSpline3 *spline_dEz_neg[19][31];
+   
+   TSpline3 *spline_dx_fwd_pos[31][37];
+   TSpline3 *spline_dy_fwd_pos[19][37];
+   TSpline3 *spline_dz_fwd_pos[19][31];
+   
+   TSpline3 *spline_dx_bkwd_pos[31][37];
+   TSpline3 *spline_dy_bkwd_pos[19][37];
+   TSpline3 *spline_dz_bkwd_pos[19][31];
+   
+   TSpline3 *spline_dEx_pos[31][37];
+   TSpline3 *spline_dEy_pos[19][37];
+   TSpline3 *spline_dEz_pos[19][31];
+
 };
 
 #endif
@@ -763,9 +792,10 @@ ana::ana(TTree *tree) : fChain(0)
       }
       TDirectory * dir = (TDirectory*)f->Get("/dune/data/users/fstocker/ANALYSIS/prod4_files/pionana_Prod4_mc_1GeV_1_14_21.root:/pionana");
       dir->GetObject("beamana",tree);
-
    }
    Init(tree);
+
+
 }
 
 ana::~ana()

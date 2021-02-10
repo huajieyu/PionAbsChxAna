@@ -6,6 +6,7 @@
 #include <TH1D.h>
 #include <TH3F.h>
 #include <TGraph.h>
+#include <TGraphErrors.h>
 #include <iostream>
 #include <vector>
 
@@ -51,6 +52,479 @@ bool endAPA3(double reco_beam_endZ){
   return(reco_beam_endZ < cutAPA3_Z);
 }
 
+void ana::LoadHist(){
+
+  TFile *infile = TFile::Open("/cvmfs/dune.opensciencegrid.org/products/dune/dune_pardata/v01_66_00/SpaceChargeProtoDUNE/SCE_DataDriven_180kV_v4.root");
+
+  //Load in files
+  TH3F* hDx_sim_pos_orig = (TH3F*)infile->Get("RecoFwd_Displacement_X_Pos");
+  TH3F* hDy_sim_pos_orig = (TH3F*)infile->Get("RecoFwd_Displacement_Y_Pos");
+  TH3F* hDz_sim_pos_orig = (TH3F*)infile->Get("RecoFwd_Displacement_Z_Pos");
+  TH3F* hEx_sim_pos_orig = (TH3F*)infile->Get("Reco_ElecField_X_Pos");
+  TH3F* hEy_sim_pos_orig = (TH3F*)infile->Get("Reco_ElecField_Y_Pos");
+  TH3F* hEz_sim_pos_orig = (TH3F*)infile->Get("Reco_ElecField_Z_Pos");
+  
+  TH3F* hDx_sim_neg_orig = (TH3F*)infile->Get("RecoFwd_Displacement_X_Neg");
+  TH3F* hDy_sim_neg_orig = (TH3F*)infile->Get("RecoFwd_Displacement_Y_Neg");
+  TH3F* hDz_sim_neg_orig = (TH3F*)infile->Get("RecoFwd_Displacement_Z_Neg");
+  TH3F* hEx_sim_neg_orig = (TH3F*)infile->Get("Reco_ElecField_X_Neg");
+  TH3F* hEy_sim_neg_orig = (TH3F*)infile->Get("Reco_ElecField_Y_Neg");
+  TH3F* hEz_sim_neg_orig = (TH3F*)infile->Get("Reco_ElecField_Z_Neg");
+  
+  TH3F* hDx_sim_pos = (TH3F*)hDx_sim_pos_orig->Clone("hDx_pos");
+  TH3F* hDy_sim_pos = (TH3F*)hDy_sim_pos_orig->Clone("hDy_pos");
+  TH3F* hDz_sim_pos = (TH3F*)hDz_sim_pos_orig->Clone("hDz_pos");
+  TH3F* hEx_sim_pos = (TH3F*)hEx_sim_pos_orig->Clone("hEx_pos");
+  TH3F* hEy_sim_pos = (TH3F*)hEy_sim_pos_orig->Clone("hEy_pos");
+  TH3F* hEz_sim_pos = (TH3F*)hEz_sim_pos_orig->Clone("hEz_pos");
+  
+  TH3F* hDx_sim_neg = (TH3F*)hDx_sim_neg_orig->Clone("hDx_neg");
+  TH3F* hDy_sim_neg = (TH3F*)hDy_sim_neg_orig->Clone("hDy_neg");
+  TH3F* hDz_sim_neg = (TH3F*)hDz_sim_neg_orig->Clone("hDz_neg");
+  TH3F* hEx_sim_neg = (TH3F*)hEx_sim_neg_orig->Clone("hEx_neg");
+  TH3F* hEy_sim_neg = (TH3F*)hEy_sim_neg_orig->Clone("hEy_neg");
+  TH3F* hEz_sim_neg = (TH3F*)hEz_sim_neg_orig->Clone("hEz_neg");
+  
+  hDx_sim_pos->SetDirectory(0);
+  hDy_sim_pos->SetDirectory(0);
+  hDz_sim_pos->SetDirectory(0);
+  hEx_sim_pos->SetDirectory(0);
+  hEy_sim_pos->SetDirectory(0);
+  hEz_sim_pos->SetDirectory(0);
+  
+  hDx_sim_neg->SetDirectory(0);
+  hDy_sim_neg->SetDirectory(0);
+  hDz_sim_neg->SetDirectory(0);
+  hEx_sim_neg->SetDirectory(0);
+  hEy_sim_neg->SetDirectory(0);
+  hEz_sim_neg->SetDirectory(0);
+  
+  for(int y = 1; y <= 31; y++){
+    for(int z = 1; z <= 37; z++){
+      spline_dx_fwd_neg[y-1][z-1] = MakeSpline(hDx_sim_neg,1,y,z,1,1);
+      spline_dx_fwd_pos[y-1][z-1] = MakeSpline(hDx_sim_pos,1,y,z,1,2);
+      spline_dEx_neg[y-1][z-1] = MakeSpline(hEx_sim_neg,1,y,z,3,1);
+      spline_dEx_pos[y-1][z-1] = MakeSpline(hEx_sim_pos,1,y,z,3,2);
+    }
+  }
+  for(int x = 1; x <= 19; x++){
+    for(int z = 1; z <= 37; z++){
+      spline_dy_fwd_neg[x-1][z-1] = MakeSpline(hDy_sim_neg,2,x,z,1,1);
+      spline_dy_fwd_pos[x-1][z-1] = MakeSpline(hDy_sim_pos,2,x,z,1,2);
+      spline_dEy_neg[x-1][z-1] = MakeSpline(hEy_sim_neg,2,x,z,3,1);
+      spline_dEy_pos[x-1][z-1] = MakeSpline(hEy_sim_pos,2,x,z,3,2);
+    }
+  }
+  for(int x = 1; x <= 19; x++){
+    for(int y = 1; y <= 31; y++){
+      spline_dz_fwd_neg[x-1][y-1] = MakeSpline(hDz_sim_neg,3,x,y,1,1);
+      spline_dz_fwd_pos[x-1][y-1] = MakeSpline(hDz_sim_pos,3,x,y,1,2);
+      spline_dEz_neg[x-1][y-1] = MakeSpline(hEz_sim_neg,3,x,y,3,1);
+      spline_dEz_pos[x-1][y-1] = MakeSpline(hEz_sim_pos,3,x,y,3,2);
+    }
+  }
+}
+
+TSpline3* ana::MakeSpline(TH3F* spline_hist, int dim1, int dim2_bin, int dim3_bin, int maptype, int driftvol) const
+{
+  TSpline3 *spline = 0;
+  
+  if(dim1 == 1)
+  {
+    double a[19];
+    double b[19];
+    for(int x = 1; x <= 19; x++)
+    {
+      a[x-1] = spline_hist->GetXaxis()->GetBinCenter(x);
+      b[x-1] = spline_hist->GetBinContent(x,dim2_bin,dim3_bin);
+    }
+
+    if(maptype == 1)
+    {
+      spline = new TSpline3(Form("spline_%d_%d_%d_%d_%d",dim1,dim2_bin,dim3_bin,maptype,driftvol),a,b,19,"b2e2",0,0);
+      spline->SetName(Form("spline_%d_%d_%d_%d_%d",dim1,dim2_bin,dim3_bin,maptype,driftvol));
+    }
+    else if(maptype == 2)
+    {
+      spline = new TSpline3(Form("spline_%d_%d_%d_%d_%d",dim1,dim2_bin,dim3_bin,maptype,driftvol),a,b,19,"b2e2",0,0);
+      spline->SetName(Form("spline_%d_%d_%d_%d_%d",dim1,dim2_bin,dim3_bin,maptype,driftvol));
+    }
+    else if(maptype == 3)
+    {
+      spline = new TSpline3(Form("spline_%d_%d_%d_%d_%d",dim1,dim2_bin,dim3_bin,maptype,driftvol),a,b,19,"b2e2",0,0);
+      spline->SetName(Form("spline_%d_%d_%d_%d_%d",dim1,dim2_bin,dim3_bin,maptype,driftvol));
+    }
+  }
+  else if(dim1 == 2)
+  {
+    double a[31];
+    double b[31];
+    for(int y = 1; y <= 31; y++)
+    {
+      a[y-1] = spline_hist->GetYaxis()->GetBinCenter(y);
+      b[y-1] = spline_hist->GetBinContent(dim2_bin,y,dim3_bin);
+    }
+
+    if(maptype == 1)
+    {
+      spline = new TSpline3(Form("spline_%d_%d_%d_%d_%d",dim1,dim2_bin,dim3_bin,maptype,driftvol),a,b,31,"b2e2",0,0);
+      spline->SetName(Form("spline_%d_%d_%d_%d_%d",dim1,dim2_bin,dim3_bin,maptype,driftvol));
+    }
+    else if(maptype == 2)
+    {
+      spline = new TSpline3(Form("spline_%d_%d_%d_%d_%d",dim1,dim2_bin,dim3_bin,maptype,driftvol),a,b,31,"b2e2",0,0);
+      spline->SetName(Form("spline_%d_%d_%d_%d_%d",dim1,dim2_bin,dim3_bin,maptype,driftvol));
+    }
+    else if(maptype == 3)
+    {
+      spline = new TSpline3(Form("spline_%d_%d_%d_%d_%d",dim1,dim2_bin,dim3_bin,maptype,driftvol),a,b,31,"b2e2",0,0);
+      spline->SetName(Form("spline_%d_%d_%d_%d_%d",dim1,dim2_bin,dim3_bin,maptype,driftvol));
+    }
+  }
+  else if(dim1 == 3)
+  {
+    double a[37];
+    double b[37];
+    for(int z = 1; z <= 37; z++)
+    {
+      a[z-1] = spline_hist->GetZaxis()->GetBinCenter(z);
+      b[z-1] = spline_hist->GetBinContent(dim2_bin,dim3_bin,z);
+    }
+
+    if(maptype == 1)
+    {
+      spline = new TSpline3(Form("spline_%d_%d_%d_%d_%d",dim1,dim2_bin,dim3_bin,maptype,driftvol),a,b,37,"b2e2",0,0);
+      spline->SetName(Form("spline_%d_%d_%d_%d_%d",dim1,dim2_bin,dim3_bin,maptype,driftvol));
+    }
+    else if(maptype == 2)
+    {
+      spline = new TSpline3(Form("spline_%d_%d_%d_%d_%d",dim1,dim2_bin,dim3_bin,maptype,driftvol),a,b,37,"b2e2",0,0);
+      spline->SetName(Form("spline_%d_%d_%d_%d_%d",dim1,dim2_bin,dim3_bin,maptype,driftvol));
+    }
+    else if(maptype == 3)
+    {
+      spline = new TSpline3(Form("spline_%d_%d_%d_%d_%d",dim1,dim2_bin,dim3_bin,maptype,driftvol),a,b,37,"b2e2",0,0);
+      spline->SetName(Form("spline_%d_%d_%d_%d_%d",dim1,dim2_bin,dim3_bin,maptype,driftvol));
+    }
+  }
+
+  return spline;
+}
+
+double ana::InterpolateSplines(TH3F* interp_hist, double xVal, double yVal, double zVal, int dim, int maptype, int driftvol) const
+{
+  int bin_x = interp_hist->GetXaxis()->FindBin(xVal);
+  int bin_y = interp_hist->GetYaxis()->FindBin(yVal);
+  int bin_z = interp_hist->GetZaxis()->FindBin(zVal);
+
+  int bincenter_x = interp_hist->GetXaxis()->GetBinCenter(bin_x);
+  int bincenter_y = interp_hist->GetYaxis()->GetBinCenter(bin_y);
+  int bincenter_z = interp_hist->GetZaxis()->GetBinCenter(bin_z);
+
+  int max_x = interp_hist->GetNbinsX();
+  int max_y = interp_hist->GetNbinsY();
+  int max_z = interp_hist->GetNbinsZ();
+  
+  int low_x;
+  int high_x;
+  if(bin_x <= 1)
+  {
+    low_x = 1;
+    high_x = 2;
+  }
+  else if(bin_x >= max_x)
+  {
+    low_x = max_x-1;
+    high_x = max_x;
+  }
+  else if(xVal > bincenter_x)
+  {
+    low_x = bin_x;
+    high_x = bin_x+1;
+  }
+  else
+  {
+    low_x = bin_x-1;
+    high_x = bin_x;
+  }
+
+  int low_y;
+  int high_y;
+  if(bin_y <= 1)
+  {
+    low_y = 1;
+    high_y = 2;
+  }
+  else if(bin_y >= max_y)
+  {
+    low_y = max_y-1;
+    high_y = max_y;
+  }
+  else if(yVal > bincenter_y)
+  {
+    low_y = bin_y;
+    high_y = bin_y+1;
+  }
+  else
+  {
+    low_y = bin_y-1;
+    high_y = bin_y;
+  }
+
+  int low_z;
+  int high_z;
+  if(bin_z <= 1)
+  {
+    low_z = 1;
+    high_z = 2;
+  }
+  else if(bin_z >= max_z)
+  {
+    low_z = max_z-1;
+    high_z = max_z;
+  }
+  else if(zVal > bincenter_z)
+  {
+    low_z = bin_z;
+    high_z = bin_z+1;
+  }
+  else
+  {
+    low_z = bin_z-1;
+    high_z = bin_z;
+  }
+
+  double interp_val = 0.0;
+  
+  if(dim == 1)
+  {
+    double a_1 = interp_hist->GetYaxis()->GetBinCenter(low_y);
+    double a_2 = interp_hist->GetYaxis()->GetBinCenter(high_y);
+
+    double b_1 = interp_hist->GetZaxis()->GetBinCenter(low_z);
+    double b_2 = interp_hist->GetZaxis()->GetBinCenter(high_z);
+
+    double f_11 = 0.0;
+    double f_12 = 0.0;
+    double f_21 = 0.0;
+    double f_22 = 0.0;
+    if(driftvol == 1)
+    {
+      if(maptype == 1)
+      {
+        f_11 = spline_dx_fwd_neg[low_y-1][low_z-1]->Eval(xVal);
+        f_12 = spline_dx_fwd_neg[low_y-1][high_z-1]->Eval(xVal);
+        f_21 = spline_dx_fwd_neg[high_y-1][low_z-1]->Eval(xVal);
+        f_22 = spline_dx_fwd_neg[high_y-1][high_z-1]->Eval(xVal);
+      }
+      else if(maptype == 2)
+      {
+        f_11 = spline_dx_bkwd_neg[low_y-1][low_z-1]->Eval(xVal);
+        f_12 = spline_dx_bkwd_neg[low_y-1][high_z-1]->Eval(xVal);
+        f_21 = spline_dx_bkwd_neg[high_y-1][low_z-1]->Eval(xVal);
+        f_22 = spline_dx_bkwd_neg[high_y-1][high_z-1]->Eval(xVal);
+      }
+      else if(maptype == 3)
+      {
+        f_11 = spline_dEx_neg[low_y-1][low_z-1]->Eval(xVal);
+        f_12 = spline_dEx_neg[low_y-1][high_z-1]->Eval(xVal);
+        f_21 = spline_dEx_neg[high_y-1][low_z-1]->Eval(xVal);
+        f_22 = spline_dEx_neg[high_y-1][high_z-1]->Eval(xVal);
+      }
+    }
+    else if(driftvol == 2)
+    {
+      if(maptype == 1)
+      {
+        f_11 = spline_dx_fwd_pos[low_y-1][low_z-1]->Eval(xVal);
+        f_12 = spline_dx_fwd_pos[low_y-1][high_z-1]->Eval(xVal);
+        f_21 = spline_dx_fwd_pos[high_y-1][low_z-1]->Eval(xVal);
+        f_22 = spline_dx_fwd_pos[high_y-1][high_z-1]->Eval(xVal);
+      }
+      else if(maptype == 2)
+      {
+        f_11 = spline_dx_bkwd_pos[low_y-1][low_z-1]->Eval(xVal);
+        f_12 = spline_dx_bkwd_pos[low_y-1][high_z-1]->Eval(xVal);
+        f_21 = spline_dx_bkwd_pos[high_y-1][low_z-1]->Eval(xVal);
+        f_22 = spline_dx_bkwd_pos[high_y-1][high_z-1]->Eval(xVal);
+      }
+      else if(maptype == 3)
+      {
+        f_11 = spline_dEx_pos[low_y-1][low_z-1]->Eval(xVal);
+        f_12 = spline_dEx_pos[low_y-1][high_z-1]->Eval(xVal);
+        f_21 = spline_dEx_pos[high_y-1][low_z-1]->Eval(xVal);
+        f_22 = spline_dEx_pos[high_y-1][high_z-1]->Eval(xVal);
+      }
+    }
+
+    interp_val = (f_11*(a_2-yVal)*(b_2-zVal) + f_21*(yVal-a_1)*(b_2-zVal) + f_12*(a_2-yVal)*(zVal-b_1) + f_22*(yVal-a_1)*(zVal-b_1))/((a_2-a_1)*(b_2-b_1));
+  }
+  else if(dim == 2)
+  {
+    double a_1 = interp_hist->GetXaxis()->GetBinCenter(low_x);
+    double a_2 = interp_hist->GetXaxis()->GetBinCenter(high_x);
+
+    double b_1 = interp_hist->GetZaxis()->GetBinCenter(low_z);
+    double b_2 = interp_hist->GetZaxis()->GetBinCenter(high_z);
+
+    double f_11 = 0.0;
+    double f_12 = 0.0;
+    double f_21 = 0.0;
+    double f_22 = 0.0;
+    if(driftvol == 1)
+    {
+      if(maptype == 1)
+      {
+        f_11 = spline_dy_fwd_neg[low_x-1][low_z-1]->Eval(yVal);
+        f_12 = spline_dy_fwd_neg[low_x-1][high_z-1]->Eval(yVal);
+        f_21 = spline_dy_fwd_neg[high_x-1][low_z-1]->Eval(yVal);
+        f_22 = spline_dy_fwd_neg[high_x-1][high_z-1]->Eval(yVal);
+      }
+      else if(maptype == 2)
+      {
+        f_11 = spline_dy_bkwd_neg[low_x-1][low_z-1]->Eval(yVal);
+        f_12 = spline_dy_bkwd_neg[low_x-1][high_z-1]->Eval(yVal);
+        f_21 = spline_dy_bkwd_neg[high_x-1][low_z-1]->Eval(yVal);
+        f_22 = spline_dy_bkwd_neg[high_x-1][high_z-1]->Eval(yVal);
+      }
+      else if(maptype == 3)
+      {
+        f_11 = spline_dEy_neg[low_x-1][low_z-1]->Eval(yVal);
+        f_12 = spline_dEy_neg[low_x-1][high_z-1]->Eval(yVal);
+        f_21 = spline_dEy_neg[high_x-1][low_z-1]->Eval(yVal);
+        f_22 = spline_dEy_neg[high_x-1][high_z-1]->Eval(yVal);
+      }
+    }
+    else if(driftvol == 2)
+    {
+      if(maptype == 1)
+      {
+        f_11 = spline_dy_fwd_pos[low_x-1][low_z-1]->Eval(yVal);
+        f_12 = spline_dy_fwd_pos[low_x-1][high_z-1]->Eval(yVal);
+        f_21 = spline_dy_fwd_pos[high_x-1][low_z-1]->Eval(yVal);
+        f_22 = spline_dy_fwd_pos[high_x-1][high_z-1]->Eval(yVal);
+      }
+      else if(maptype == 2)
+      {
+        f_11 = spline_dy_bkwd_pos[low_x-1][low_z-1]->Eval(yVal);
+        f_12 = spline_dy_bkwd_pos[low_x-1][high_z-1]->Eval(yVal);
+        f_21 = spline_dy_bkwd_pos[high_x-1][low_z-1]->Eval(yVal);
+        f_22 = spline_dy_bkwd_pos[high_x-1][high_z-1]->Eval(yVal);
+      }
+      else if(maptype == 3)
+      {
+        f_11 = spline_dEy_pos[low_x-1][low_z-1]->Eval(yVal);
+        f_12 = spline_dEy_pos[low_x-1][high_z-1]->Eval(yVal);
+        f_21 = spline_dEy_pos[high_x-1][low_z-1]->Eval(yVal);
+        f_22 = spline_dEy_pos[high_x-1][high_z-1]->Eval(yVal);
+      }
+    }
+
+    interp_val = (f_11*(a_2-xVal)*(b_2-zVal) + f_21*(xVal-a_1)*(b_2-zVal) + f_12*(a_2-xVal)*(zVal-b_1) + f_22*(xVal-a_1)*(zVal-b_1))/((a_2-a_1)*(b_2-b_1));
+  }
+  else if(dim == 3)
+  {
+    double a_1 = interp_hist->GetXaxis()->GetBinCenter(low_x);
+    double a_2 = interp_hist->GetXaxis()->GetBinCenter(high_x);
+
+    double b_1 = interp_hist->GetYaxis()->GetBinCenter(low_y);
+    double b_2 = interp_hist->GetYaxis()->GetBinCenter(high_y);
+
+    double f_11 = 0.0;
+    double f_12 = 0.0;
+    double f_21 = 0.0;
+    double f_22 = 0.0;
+    if(driftvol == 1)
+    {
+      if(maptype == 1)
+      {
+        f_11 = spline_dz_fwd_neg[low_x-1][low_y-1]->Eval(zVal);
+        f_12 = spline_dz_fwd_neg[low_x-1][high_y-1]->Eval(zVal);
+        f_21 = spline_dz_fwd_neg[high_x-1][low_y-1]->Eval(zVal);
+        f_22 = spline_dz_fwd_neg[high_x-1][high_y-1]->Eval(zVal);
+      }
+      else if(maptype == 2)
+      {
+        f_11 = spline_dz_bkwd_neg[low_x-1][low_y-1]->Eval(zVal);
+        f_12 = spline_dz_bkwd_neg[low_x-1][high_y-1]->Eval(zVal);
+        f_21 = spline_dz_bkwd_neg[high_x-1][low_y-1]->Eval(zVal);
+        f_22 = spline_dz_bkwd_neg[high_x-1][high_y-1]->Eval(zVal);
+      }
+      else if(maptype == 3)
+      {
+        f_11 = spline_dEz_neg[low_x-1][low_y-1]->Eval(zVal);
+        f_12 = spline_dEz_neg[low_x-1][high_y-1]->Eval(zVal);
+        f_21 = spline_dEz_neg[high_x-1][low_y-1]->Eval(zVal);
+        f_22 = spline_dEz_neg[high_x-1][high_y-1]->Eval(zVal);
+      }
+    }
+    else if(driftvol == 2)
+    {
+      if(maptype == 1)
+      {
+        f_11 = spline_dz_fwd_pos[low_x-1][low_y-1]->Eval(zVal);
+        f_12 = spline_dz_fwd_pos[low_x-1][high_y-1]->Eval(zVal);
+        f_21 = spline_dz_fwd_pos[high_x-1][low_y-1]->Eval(zVal);
+        f_22 = spline_dz_fwd_pos[high_x-1][high_y-1]->Eval(zVal);
+      }
+      else if(maptype == 2)
+      {
+        f_11 = spline_dz_bkwd_pos[low_x-1][low_y-1]->Eval(zVal);
+        f_12 = spline_dz_bkwd_pos[low_x-1][high_y-1]->Eval(zVal);
+        f_21 = spline_dz_bkwd_pos[high_x-1][low_y-1]->Eval(zVal);
+        f_22 = spline_dz_bkwd_pos[high_x-1][high_y-1]->Eval(zVal);
+      }
+      else if(maptype == 3)
+      {
+        f_11 = spline_dEz_pos[low_x-1][low_y-1]->Eval(zVal);
+        f_12 = spline_dEz_pos[low_x-1][high_y-1]->Eval(zVal);
+        f_21 = spline_dEz_pos[high_x-1][low_y-1]->Eval(zVal);
+        f_22 = spline_dEz_pos[high_x-1][high_y-1]->Eval(zVal);
+      }
+    }
+
+    interp_val = (f_11*(a_2-xVal)*(b_2-yVal) + f_21*(xVal-a_1)*(b_2-yVal) + f_12*(a_2-xVal)*(yVal-b_1) + f_22*(xVal-a_1)*(yVal-b_1))/((a_2-a_1)*(b_2-b_1));
+  }
+
+  return interp_val;
+}
+
+bool ana::IsInsideBoundaries(TVector3 const& point) const
+{
+  return !(
+           (TMath::Abs(point.X()) <= 0.0) || (TMath::Abs(point.X()) >= 360.0)
+           || (point.Y()             <= 5.2) || (point.Y()             >= 604.0)
+           || (point.Z()             <= -0.5) || (point.Z()             >= 695.3)
+           );
+} 
+  
+bool ana::IsTooFarFromBoundaries(TVector3 const& point) const
+{
+  return (
+          (TMath::Abs(point.X()) < -20.0) || (TMath::Abs(point.X())  >= 360.0)
+          || (point.Y()             < -14.8) || (point.Y()              >  624.0)
+          || (point.Z()             < -20.5) || (point.Z()              >  715.3)
+          );
+}
+
+TVector3 ana::PretendAtBoundary(TVector3 const& point) const
+{
+  double x = point.X(), y = point.Y(), z = point.Z();
+  
+  
+  if      (TMath::Abs(point.X()) ==    0.0    ) x =                           -0.00001;
+  else if (TMath::Abs(point.X()) <	 0.00001) x =   TMath::Sign(point.X(),1)*0.00001; 
+  else if (TMath::Abs(point.X()) >=    360.0  ) x = TMath::Sign(point.X(),1)*359.99999;
+  
+  if      (point.Y() <=   5.2) y =   5.20001;
+  else if (point.Y() >= 604.0) y = 603.99999;
+  
+  if      (point.Z() <=   -0.5) z =   -0.49999;
+  else if (point.Z() >= 695.3) z = 695.29999;
+  
+  return {x, y, z};
+}
+
 
 void ana::Loop()
 {
@@ -79,6 +553,8 @@ void ana::Loop()
 //by  b_branchname->GetEntry(ientry); //read only this branch
    if (fChain == 0) return;
 
+   LoadHist();
+
    TFile f2("/cvmfs/dune.opensciencegrid.org/products/dune/dune_pardata/v01_66_00/SpaceChargeProtoDUNE/SCE_DataDriven_180kV_v4.root");
    TH3F *RecoFwd_Displacement_Z_Neg = (TH3F*)f2.Get("RecoFwd_Displacement_Z_Neg");
    TH3F *RecoFwd_Displacement_Z_Pos = (TH3F*)f2.Get("RecoFwd_Displacement_Z_Pos");
@@ -96,15 +572,18 @@ void ana::Loop()
    double interaction[nslices];
    double true_interaction[nslices];
    double true_abs[nslices];
+   double true_cex[nslices];
    double signal[nslices];
    double incident[nslices];
    double true_incident[nslices];
    TH1D *incE[nslices];
    TH1D *pitch[nslices];
+   TH2D *wirenum = new TH2D("wirenum","wirenum",480,0,480,480,0,480);
    for (int i = 0; i<nslices; ++i){
      interaction[i] = 0;
      true_interaction[i] = 0;
      true_abs[i] = 0;
+     true_cex[i] = 0;
      signal[i] = 0;
      incident[i] = 0;
      true_incident[i] = 0;
@@ -125,10 +604,10 @@ void ana::Loop()
       // if (Cut(ientry) < 0) continue;
       if(abs(true_beam_PDG) != 211) continue;
       //if(abs(true_beam_PDG) != 211 && abs(true_beam_PDG) !=13) continue;
-      if(!manual_beamPos_mc(reco_beam_startX, reco_beam_startY, reco_beam_startZ, 
-                            reco_beam_trackDirX, reco_beam_trackDirY, reco_beam_trackDirZ,
-                            true_beam_startDirX, true_beam_startDirY, true_beam_startDirZ,
-                            true_beam_startX, true_beam_startY, true_beam_startZ)) continue;
+//      if(!manual_beamPos_mc(reco_beam_startX, reco_beam_startY, reco_beam_startZ, 
+//                            reco_beam_trackDirX, reco_beam_trackDirY, reco_beam_trackDirZ,
+//                            true_beam_startDirX, true_beam_startDirY, true_beam_startDirZ,
+//                            true_beam_startX, true_beam_startY, true_beam_startZ)) continue;
       //if(!endAPA3(reco_beam_endZ) )continue;
       //std::cout<<*true_beam_endProcess<<" "<<true_beam_endX<<" "<<true_beam_endY<<" "<<true_beam_endZ<<std::endl;
 
@@ -136,21 +615,35 @@ void ana::Loop()
 
       if ((*true_beam_endProcess) == "pi+Inelastic" && abs(true_beam_PDG) == 211){  //std::cout<<"signal"<<std::endl;
         double true_endz = true_beam_endZ;
-        if (true_beam_endX>0){
-          true_endz += RecoFwd_Displacement_Z_Pos->GetBinContent(RecoFwd_Displacement_Z_Pos->FindBin(true_beam_endX, true_beam_endY, true_beam_endZ));
+        double offset_z = 0;
+        TVector3 point(true_beam_endX, true_beam_endY, true_beam_endZ);
+        if(!IsInsideBoundaries(point)&&!IsTooFarFromBoundaries(point)) point = PretendAtBoundary(point);
+
+        if (point.X()>0){
+          //true_endz += RecoFwd_Displacement_Z_Pos->GetBinContent(RecoFwd_Displacement_Z_Pos->FindBin(true_beam_endX, true_beam_endY, true_beam_endZ));
+          offset_z = InterpolateSplines(RecoFwd_Displacement_Z_Pos, point.X(), point.Y(), point.Z(), 3, 1, 2);
         }
         else{
-          true_endz += RecoFwd_Displacement_Z_Neg->GetBinContent(RecoFwd_Displacement_Z_Neg->FindBin(true_beam_endX, true_beam_endY, true_beam_endZ));
+          //true_endz += RecoFwd_Displacement_Z_Neg->GetBinContent(RecoFwd_Displacement_Z_Neg->FindBin(true_beam_endX, true_beam_endY, true_beam_endZ));
+          offset_z = InterpolateSplines(RecoFwd_Displacement_Z_Neg, point.X(), point.Y(), point.Z(), 3, 1, 1);
         }
+        //std::cout<<true_beam_endX<<" "<<true_beam_endY<<" "<<true_beam_endZ<<" "<<offset_z<<std::endl;
+        true_endz += offset_z;
         true_sliceID = int((true_endz-0.5603500-0.479/2)/0.479/nwires_in_slice); //z=0.56 is z coordinate for wire 0
+        wirenum->Fill(int(true_endz-0.5603500-0.479/2)/0.479, reco_beam_calo_wire->back());
         if (true_sliceID <0) true_sliceID = 0;
+        //if (true_sliceID == 0) std::cout<<true_beam_endZ<<std::endl;
         if (true_sliceID < nslices){
           ++true_interaction[true_sliceID];
-          if (true_daughter_nPi0 == 0 && true_daughter_nPiPlus == 0){//true absorption
+          if (true_daughter_nPi0 == 0 && true_daughter_nPiPlus == 0 && true_daughter_nPiMinus == 0){//true absorption
             ++true_abs[true_sliceID];
+          }
+          if (true_daughter_nPi0 > 0 && true_daughter_nPiPlus == 0  && true_daughter_nPiMinus == 0){//true absorption
+            ++true_cex[true_sliceID];
           }
         }
         for (int i = 0; i<=true_sliceID; ++i){
+          //for (int i = 0; i<true_sliceID; ++i){
           if (i<nslices) ++true_incident[i];
         }
       }
@@ -220,10 +713,15 @@ void ana::Loop()
    double pur[nslices];
    double xs[nslices];
    double xs_abs[nslices];
+   double xs_cex[nslices];
+   double exs[nslices];
+   double exs_abs[nslices];
+   double exs_cex[nslices];
    for (int i = 0; i<nslices; ++i){
      slcid[i] = i;
      avg_incE[i] = incE[i]->GetMean();
      avg_pitch[i] = pitch[i]->GetMean();
+     //avg_pitch[i] = 11;
      if (interaction[i]){
        eff_int[i] = signal[i]/true_interaction[i];
        eff_inc[i] = true_incident[i]/incident[i];
@@ -232,21 +730,26 @@ void ana::Loop()
      if (avg_pitch[i]&&true_incident[i]){
        xs[i] = MAr/(Density*NA*avg_pitch[i])*true_interaction[i]/true_incident[i]*1e27;
        xs_abs[i] = MAr/(Density*NA*avg_pitch[i])*true_abs[i]/true_incident[i]*1e27;
+       xs_cex[i] = MAr/(Density*NA*avg_pitch[i])*true_cex[i]/true_incident[i]*1e27;
+       exs[i] = MAr/(Density*NA*avg_pitch[i])*1e27*sqrt(true_interaction[i]+pow(true_interaction[i],2)/true_incident[i])/true_incident[i];
+       exs_abs[i] = MAr/(Density*NA*avg_pitch[i])*1e27*sqrt(true_abs[i]+pow(true_abs[i],2)/true_incident[i])/true_incident[i];
+       exs_cex[i] = MAr/(Density*NA*avg_pitch[i])*1e27*sqrt(true_cex[i]+pow(true_cex[i],2)/true_incident[i])/true_incident[i];
      }
      else xs[i] = 0;
-     std::cout<<MAr<<" "<<Density<<" "<<NA<<" "<<avg_pitch[i]<<" "<<signal[i]<<" "<<incident[i]<<" "<<xs[i]<<std::endl;
+     //std::cout<<MAr<<" "<<Density<<" "<<NA<<" "<<avg_pitch[i]<<" "<<signal[i]<<" "<<incident[i]<<" "<<xs[i]<<std::endl;
    }
 
-   TGraph *gr_int_slc = new TGraph(nslices, slcid, interaction);
-   TGraph *gr_trueint_slc = new TGraph(nslices, slcid, true_interaction);
-   TGraph *gr_inc_slc = new TGraph(nslices, slcid, incident);
-   TGraph *gr_incE_slc = new TGraph(nslices, slcid, avg_incE);
-   TGraph *gr_pitch_slc = new TGraph(nslices, slcid, avg_pitch);
-   TGraph *gr_effint_slc = new TGraph(nslices, slcid, eff_int);
-   TGraph *gr_effinc_slc = new TGraph(nslices, slcid, eff_inc);
-   TGraph *gr_pur_slc = new TGraph(nslices, slcid, pur);
-   TGraph *gr_xs_incE = new TGraph(nslices, avg_incE, xs);
-   TGraph *gr_xsabs_incE = new TGraph(nslices, avg_incE, xs_abs);
+   TGraph *gr_int_slc = new TGraph(nslices, &(slcid[0]), &(interaction[0]));
+   TGraph *gr_trueint_slc = new TGraph(nslices, &(slcid[0]), &(true_interaction[0]));
+   TGraph *gr_inc_slc = new TGraph(nslices, &(slcid[0]), &(incident[0]));
+   TGraph *gr_incE_slc = new TGraph(nslices, &(slcid[0]), &(avg_incE[0]));
+   TGraph *gr_pitch_slc = new TGraph(nslices, &(slcid[0]), &(avg_pitch[0]));
+   TGraph *gr_effint_slc = new TGraph(nslices, &(slcid[0]), &(eff_int[0]));
+   TGraph *gr_effinc_slc = new TGraph(nslices, &(slcid[0]), &(eff_inc[0]));
+   TGraph *gr_pur_slc = new TGraph(nslices, &(slcid[0]), &(pur[0]));
+   TGraphErrors *gr_xs_incE = new TGraphErrors(nslices, &(avg_incE[0]), &(xs[0]), 0, &exs[0]);
+   TGraphErrors *gr_xsabs_incE = new TGraphErrors(nslices, &(avg_incE[0]), &(xs_abs[0]), 0, &exs_abs[0]);
+   TGraphErrors *gr_xscex_incE = new TGraphErrors(nslices, &(avg_incE[0]), &(xs_cex[0]), 0, &exs_cex[0]);
    f.Write();
    gr_int_slc->Write("gr_int_slc");
    gr_trueint_slc->Write("gr_trueint_slc");
@@ -258,6 +761,7 @@ void ana::Loop()
    gr_pur_slc->Write("gr_pur_slc");
    gr_xs_incE->Write("gr_xs_incE");
    gr_xsabs_incE->Write("gr_xsabs_incE");
+   gr_xscex_incE->Write("gr_xscex_incE");
    f.Close();
 
 }
