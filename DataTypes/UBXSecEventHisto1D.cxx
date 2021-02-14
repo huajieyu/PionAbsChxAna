@@ -206,18 +206,18 @@ namespace DataTypes {
             h_PiAbs_reabac_pcostheta = new TH1D ("h_PiAbs_reabac_pcostheta", "h_PiAbs_reabac_pcostheta", 50, -1.0, 1.0);
             h_PiAbs_other_pcostheta = new TH1D ("h_PiAbs_other_pcostheta", "h_PiAbs_other_pcostheta", 50, -1.0, 1.0);
 
-            h_PiAbs_sel_ptheta = new TH1D ("h_PiAbs_sel_ptheta", "h_PiAbs_sel_ptheta", 50, -0., 3.14);
-            h_PiAbs_sig_ptheta = new TH1D ("h_PiAbs_sig_ptheta", "h_PiAbs_sig_ptheta", 50, -0., 3.14);
-            h_PiAbs_chxbac_ptheta = new TH1D ("h_PiAbs_chxbac_ptheta", "h_PiAbs_chxbac_ptheta", 50, -0., 3.14);
-            h_PiAbs_reabac_ptheta = new TH1D ("h_PiAbs_reabac_ptheta", "h_PiAbs_reabac_ptheta", 50, -0., 3.14);
-            h_PiAbs_other_ptheta = new TH1D ("h_PiAbs_other_ptheta", "h_PiAbs_other_ptheta", 50, -0., 3.14);
+            h_PiAbs_sel_ptheta = new TH1D ("h_PiAbs_sel_ptheta", "h_PiAbs_sel_ptheta", 50, -0., TMath::Pi());
+            h_PiAbs_sig_ptheta = new TH1D ("h_PiAbs_sig_ptheta", "h_PiAbs_sig_ptheta", 50, -0., TMath::Pi());
+            h_PiAbs_chxbac_ptheta = new TH1D ("h_PiAbs_chxbac_ptheta", "h_PiAbs_chxbac_ptheta", 50, -0., TMath::Pi());
+            h_PiAbs_reabac_ptheta = new TH1D ("h_PiAbs_reabac_ptheta", "h_PiAbs_reabac_ptheta", 50, -0., TMath::Pi());
+            h_PiAbs_other_ptheta = new TH1D ("h_PiAbs_other_ptheta", "h_PiAbs_other_ptheta", 50, -0., TMath::Pi());
 
 
-            h_PiAbs_sel_pphi = new TH1D ("h_PiAbs_sel_pphi", "h_PiAbs_sel_pphi", 50, -3.14, 3.14);
-            h_PiAbs_sig_pphi = new TH1D ("h_PiAbs_sig_pphi", "h_PiAbs_sig_pphi", 50, -3.14, 3.14);
-            h_PiAbs_chxbac_pphi = new TH1D ("h_PiAbs_chxbac_pphi", "h_PiAbs_chxbac_pphi", 50, -3.14, 3.14);
-            h_PiAbs_reabac_pphi = new TH1D ("h_PiAbs_reabac_pphi", "h_PiAbs_reabac_pphi", 50, -3.14, 3.14);
-            h_PiAbs_other_pphi = new TH1D ("h_PiAbs_other_pphi", "h_PiAbs_other_pphi", 50, -3.14, 3.14);
+            h_PiAbs_sel_pphi = new TH1D ("h_PiAbs_sel_pphi", "h_PiAbs_sel_pphi", 50, -TMath::Pi(), TMath::Pi());
+            h_PiAbs_sig_pphi = new TH1D ("h_PiAbs_sig_pphi", "h_PiAbs_sig_pphi", 50, -TMath::Pi(), TMath::Pi());
+            h_PiAbs_chxbac_pphi = new TH1D ("h_PiAbs_chxbac_pphi", "h_PiAbs_chxbac_pphi", 50, -TMath::Pi(), TMath::Pi());
+            h_PiAbs_reabac_pphi = new TH1D ("h_PiAbs_reabac_pphi", "h_PiAbs_reabac_pphi", 50, -TMath::Pi(), TMath::Pi());
+            h_PiAbs_other_pphi = new TH1D ("h_PiAbs_other_pphi", "h_PiAbs_other_pphi", 50, -TMath::Pi(), TMath::Pi());
 
             h_PiAbs_sel_pcosthetax= new TH1D("h_PiAbs_sel_pcosthetax", "h_PiAbs_sel_pcosthetax", 20, -1., 1.);
 

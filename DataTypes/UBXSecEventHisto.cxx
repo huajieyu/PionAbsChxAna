@@ -49,6 +49,8 @@ namespace DataTypes {
         
       htotinc_reco_beamz = new TH1D("htotinc_reco_beamz", "htotinc_reco_beamz", 300, 0.0, 300);
       htotinc_reco_beamwire = new TH1D("htotinc_reco_beamwire", "htotinc_reco_beamwire", 601, -0.5, 600.5);
+      htotinc_true_beamwire = new TH1D("htotinc_true_beamwire", "htotinc_true_beamwire", 601, -0.5, 600.5);
+
 
       hsel_reco_beamz = new TH1D("hsel_reco_beamz", "hsel_reco_beamz", 300, 0.0, 300.0);
       hsel_reco_beamwire = new TH1D("hsel_reco_beamwire", "hsel_reco_beamwire", 601, -0.5, 600.5);

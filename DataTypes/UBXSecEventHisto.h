@@ -82,6 +82,8 @@ namespace DataTypes {
 
     TH1D*  htotinc_reco_beamz;
     TH1D*  htotinc_reco_beamwire;
+    TH1D*  htotinc_true_beamwire;
+
     TH1D*  hsel_reco_beamz;
     TH1D*  hsel_reco_beamwire;
     TH2D*  h_gen_recovstrue_beamz; 
