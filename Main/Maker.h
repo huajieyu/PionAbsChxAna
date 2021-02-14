@@ -47,6 +47,7 @@
 #include <TLatex.h>
 #include <TCanvas.h>
 #include "TMath.h"
+#include "TSpline.h"
 #include "TH2Poly.h"
 #include "TVector3.h"
 #include "TLorentzVector.h"
@@ -169,6 +170,41 @@ namespace Main{
     /// Sets the target used for extra systematics
     void SetTargetExtraSystematic(std::string s) { _extra_syst_target_syst = s; }
 
+    void LoadHist();
+    TSpline3* MakeSpline(TH3F* spline_hist, int dim1, int dim2_bin, int dim3_bin, int maptype, int driftvol) const;
+    double InterpolateSplines(TH3F* interp_hist, double xVal, double yVal, double zVal, int dim, int maptype, int driftvol) const;
+    bool IsInsideBoundaries(TVector3 const& point) const;
+    bool IsTooFarFromBoundaries(TVector3 const& point) const;
+    TVector3 PretendAtBoundary(TVector3 const& point) const;
+
+    TH3F *hDz_sim_pos_orig_new;
+    TH3F *hDz_sim_neg_orig_new;
+
+    TSpline3 *spline_dx_fwd_neg[31][37];
+    TSpline3 *spline_dy_fwd_neg[19][37];
+    TSpline3 *spline_dz_fwd_neg[19][31];
+   
+    TSpline3 *spline_dx_bkwd_neg[31][37];
+    TSpline3 *spline_dy_bkwd_neg[19][37];
+    TSpline3 *spline_dz_bkwd_neg[19][31];
+   
+    TSpline3 *spline_dEx_neg[31][37];
+    TSpline3 *spline_dEy_neg[19][37];
+    TSpline3 *spline_dEz_neg[19][31];
+   
+    TSpline3 *spline_dx_fwd_pos[31][37];
+    TSpline3 *spline_dy_fwd_pos[19][37];
+    TSpline3 *spline_dz_fwd_pos[19][31];
+   
+    TSpline3 *spline_dx_bkwd_pos[31][37];
+    TSpline3 *spline_dy_bkwd_pos[19][37];
+    TSpline3 *spline_dz_bkwd_pos[19][31];
+   
+    TSpline3 *spline_dEx_pos[31][37];
+    TSpline3 *spline_dEy_pos[19][37];
+    TSpline3 *spline_dEz_pos[19][31];
+    
+
     //UBXSecEventHisto1D * _event_histo_1d;
     //UBXSecEventHisto   * _event_histo;
 
@@ -256,6 +292,7 @@ namespace Main{
 
 
     double Sce_Corrected_endZ(double a, double b, double c);
+    double Sce_Corrected_endZ_2nd(double a, double b, double c);
 
     void AddPolyBins(UBTH2Poly * h);
 
@@ -263,6 +300,7 @@ namespace Main{
 
     UBXSecEventHisto1D * _event_histo_1d;
     UBXSecEventHisto   * _event_histo;
+
 
 
 
@@ -312,16 +350,6 @@ namespace Main{
 
     const double targetPOT = 4.95e19;
 
-    double bins_mumom[7] = {0.00, 0.18, 0.30, 0.45, 0.77, 1.28, 2.50};
-    double bins_mucostheta[10] = {-1.00, -0.50, 0.00, 0.27, 0.45, 0.62, 0.76, 0.86, 0.94, 1.00};
-
-    int n_bins_mumom = 6;
-    int n_bins_mucostheta = 9;
-
-    int n_bins_double_mumom = 6; ///< Number of momentum bins for double differential
-    double bins_double_mumom[7] = {0.00, 0.18, 0.30, 0.45, 0.77, 1.28, 2.50}; ///< Momentum bins for double differential
-    int n_bins_double_mucostheta = 9; ///< Number of costheta bins for double differential
-    double bins_double_mucostheta[10] = {-1.00, -0.50, 0.00, 0.27, 0.45, 0.62, 0.76, 0.86, 0.94, 1.00}; ///< costheta bins for double differential
 
     int _n_poly_bins = 43;
     std::map<int, std::pair<int, int>> _exclusion_map = { {0, std::make_pair(4, 5)},
@@ -350,6 +378,12 @@ namespace Main{
     const static int nwires_in_slice = 20;
     const static int nslices = 480/nwires_in_slice;
 
+    double intabs_array_den[nslices+1][nslices+1];  
+    double intchx_array_den[nslices+1][nslices+1];
+
+    double intabs_array_num[nslices+1][nslices+1];  
+    double intchx_array_num[nslices+1][nslices+1];
+
     Int_t nbinse=12; 
     Int_t nbinsthickness = 100;
     Int_t nbinspmom=10;
@@ -359,30 +393,45 @@ namespace Main{
 
 
     double NA=6.02214076e23;
-    double MAr=35.95; //gmol
+    double MAr=39.95; //gmol
     double Density = 1.39; // g/cm^3
 
 
     TH1D *dslcID = new TH1D("dslcID","reco slice ID - true slice ID",20,-10,10);
+
+    TH2D *sliceIDmat_den = new TH2D("sliceIDmat_den", "sliceIDmat_den", 25, -0.5, 24.5, 25, -0.5, 24.5);
+    TH2D *sliceIDmat_num = new TH2D("sliceIDmat_num", "sliceIDmat_num", 25, -0.5, 24.5, 25, -0.5, 24.5);
+    
+    
+
  
-    double interaction[nslices];
-    double signal[nslices];
-    double incident[nslices];
+    double interaction[nslices+1];
+    double signal[nslices+1];
+    double incident[nslices+1];
 
-    double true_incident[nslices];
-    double true_interaction[nslices];
-    double true_abs[nslices];
-    double true_chx[nslices];
+    double true_incident[nslices+1];
+    double true_interaction[nslices+1];
+    double true_abs[nslices+1];
+    double true_abs_test[nslices+1];
+    double reco_abs[nslices+1];
+
+    double true_chx[nslices+1];
+    double reco_chx[nslices+1];
  
-    double interaction_sel[nslices];
-    double incident_sel[nslices];
+    double interaction_sel[nslices+1];
+    double interaction_recosel[nslices+1];
 
-    double selected_tot[nslices];
-    double selected_bkg[nslices];
+    double incident_sel[nslices+1];
 
 
-    double interaction_gen[nslices];
-    double incident_gen[nslices];
+    double selected_tot[nslices+1];
+    double selected_bkg[nslices+1];
+
+
+    double interaction_gen[nslices+1];
+    double interaction_recogen[nslices+1];
+
+    double incident_gen[nslices+1];
 
 
 

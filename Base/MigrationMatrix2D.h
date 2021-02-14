@@ -52,7 +52,6 @@
 #include "TMatrix.h"
 #include "TLine.h"
 #include "TGaxis.h"
-#include "TMatrix.h"
 
 #include "Types.h"
 #include "LoggerFeature.h"
@@ -78,6 +77,8 @@ namespace Base {
 
     ///
     TMatrix CalculateMigrationMatrix(); 
+
+    TMatrix CalculateMigrationMatrix_uf(); 
 
     ///
     void SetTrueRecoHistogram(TH2D *h);

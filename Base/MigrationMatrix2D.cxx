@@ -42,7 +42,55 @@ namespace Base {
      _m = n_var2_bins;
     
   }
+  TMatrix MigrationMatrix2D::CalculateMigrationMatrix_uf(){
+      _S.Clear();
+      _S.ResizeTo(_n+1, _m+1);
 
+      for(int i=0; i<_n+2; i++){   //Reco bin
+        int true_idy = i-1;
+        if(i==0) true_idy = _n;
+        if(i==_n+1) true_idy = _n;
+        std::vector<double> p_v;
+        p_v.resize(_m+2);
+        double sum = 0;
+        for(int j=0; j<_m+2; j++){  //True bin
+            p_v.at(j)=_h_true_reco_mom->GetBinContent(j, i);
+            sum += p_v.at(j);
+            LOG_DEBUG() << "\tValue is " << p_v.at(j) << std::endl;
+        }
+
+
+        LOG_DEBUG() << "\t>>> Sum is " << sum << std::endl;
+
+        double tot_prob = 0;
+
+        for (int j = 1; j < _m + 1; j++) {
+
+          if (sum == 0 || std::isnan(sum))
+              p_v.at(j) = 0;
+          else
+              p_v.at(j) /= sum;
+
+          LOG_DEBUG() << "\t\tProbability at " << j << " is " << p_v.at(j) << std::endl;
+          tot_prob += p_v.at(j);
+
+          _S[true_idy][j-1] += p_v.at(j);
+        }
+        // Add over/under-flow
+        _S[true_idy][_m] = p_v.at(0) / sum + p_v.at(_m + 1) / sum;
+
+        LOG_DEBUG() << "\t\t> Total Probability is " << tot_prob << std::endl;
+
+      } // Reco bin
+    
+
+      LOG_DEBUG() << _name << "Migration Matrix: " << std::endl;
+      if(_verbose) _S.Print();
+
+      return _S;
+
+ 
+  }
 
   TMatrix MigrationMatrix2D::CalculateMigrationMatrix() 
   {
