@@ -1881,15 +1881,14 @@ void Main::Maker::MakeFile()
      true_interaction[i]=0;
      true_abs[i]=0;
      true_chx[i]=0;
-     interaction_gen[i] = 0;
-     interaction_sel[i] = 0;
+     true_abs_sel[i]=0;
+     true_chx_sel[i]=0;
+
 
      selected_tot[i]=0;
      selected_bkg[i]=0;
 
 
-     incident_gen[i] = 0;
-     incident_sel[i] = 0;
      if(i<nslices){
      dslcID[i] = new TH1D(Form("dslcID_%d", i),Form("dslcID, %d<wire #<%d", i*nwires_in_slice, (i+1)*nwires_in_slice),30,-14.5,15.5);
      dslcID[i]->SetDirectory(file_out);
@@ -2316,11 +2315,7 @@ void Main::Maker::MakeFile()
           }//end of loop over all the slices
 
 
-        //increment interaction counter
-        ++interaction_gen[true_sliceID];
-        //increment incident counter
 
-        for (int i = 0; i<=sliceID; ++i) ++incident_gen[i];
         if(true_sliceID>=0 && true_sliceID<nslices){
           h_energetic_pmom_gen[true_sliceID]->Fill(temp_genpmom);
           h_energetic_pcostheta_gen[true_sliceID]->Fill(temp_genpcostheta);
@@ -3285,8 +3280,13 @@ void Main::Maker::MakeFile()
         if(sel_chx) if(trkscoreref.size()==0) continue;
         if(sel_chx) if(!has_shower_energy_distance(trkscoreref, shwengref, daughter_shwdis_ptr)) continue;
         */  
- 
-
+        if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211){  //std::cout<<"signal"<<std::endl;
+              if (t->true_daughter_nPi0 == 0 && t->true_daughter_nPiPlus == 0 && t->true_daughter_nPiMinus ==0){//true absorption
+                 ++true_abs_sel[true_sliceID];
+                 ++intabs_array_num[true_sliceID][sliceID];
+              } 
+        }
+        //=======================================================================
  
         Ntotal_shwid++;
 
@@ -3701,13 +3701,6 @@ void Main::Maker::MakeFile()
             } 
 
 
-        //increment interaction counter
-        ++interaction_sel[true_sliceID];
-   
-        //increment incident counter
-        for (int i = 0; i<=sliceID; ++i) ++incident_sel[i];
-
-
 
 
         }//end of if this is a signal event
@@ -4031,9 +4024,9 @@ void Main::Maker::MakeFile()
 
      rms_pitch[i] = pitch[i]->GetRMS()/TMath::Sqrt(pitch[i]->GetEntries());
 
-     efficiency_tj[i]=interaction_sel[i]/interaction_gen[i];
+     efficiency_tj[i]=true_abs_sel[i]/true_abs[i];
 
-     efficiency_tj_err[i]=efficiency_tj[i]*TMath::Sqrt(1/interaction_sel[i]+1/interaction_gen[i]);
+     efficiency_tj_err[i]=efficiency_tj[i]*TMath::Sqrt(1/true_abs_sel[i]+1/true_abs[i]);
 
      if( incident[i]>0 && avg_pitch[i]>0 && efficiency_tj[i]>0 ){
 
@@ -4041,10 +4034,10 @@ void Main::Maker::MakeFile()
      tempxsec_test4[i]  =MAr/(Density*NA*avg_pitch[i])*(selected_tot[i]-selected_bkg[i])/incident[i]/efficiency_tj[i];
    
 
-     tempxsec_test3[i]  =MAr/(Density*NA*avg_pitch[i])*interaction_sel[i]/incident[i];
+     tempxsec_test3[i]  =MAr/(Density*NA*avg_pitch[i])*true_abs_sel[i]/incident[i];
 
 
-     tempxsec_test2[i]  =MAr/(Density*NA*avg_pitch[i])*interaction_gen[i]/incident[i];
+     tempxsec_test2[i]  =MAr/(Density*NA*avg_pitch[i])*true_abs[i]/incident[i];
 
 
      tempxsec_test[i]     =MAr/(Density*NA*avg_pitch[i])*true_abs[i]/incident[i];
@@ -4118,11 +4111,13 @@ void Main::Maker::MakeFile()
   std::cout<<"nslices+1 = "<<nslices+1<<std::endl;
   for(int k=0; k<nslices+1; k++){
       for(int l=0; l<nslices+1; l++){ 
-         sliceIDmat_den->SetBinContent(k+1, l+1, intabs_array_den[k][l]); 
+         sliceIDmat_abs_den->SetBinContent(k+1, l+1, intabs_array_den[k][l]); 
+         sliceIDmat_abs_num->SetBinContent(k+1, l+1, intabs_array_num[k][l]); 
       }
   }
 
-  //sliceIDmat_den->Write();
+  sliceIDmat_abs_den->Write();
+  sliceIDmat_abs_num->Write();
 
 
   output_sliceIDmat.Close();
@@ -4146,9 +4141,9 @@ void Main::Maker::MakeFile()
   gr_pitch_slc = new TGraphAsymmErrors(nslices, slcid, avg_pitch, unverr, unverr, rms_pitch, rms_pitch);
 
 
-  gr_intsel_slc = new TGraph(nslices, slcid, interaction_sel);
+  gr_intsel_slc = new TGraph(nslices, slcid, true_abs_sel);
 
-  gr_intgen_slc = new TGraph(nslices, slcid, interaction_gen);
+  gr_intgen_slc = new TGraph(nslices, slcid, true_abs);
 
   gr_efficiency_slc = new TGraph(nslices, slcid, efficiency_tj);
 
