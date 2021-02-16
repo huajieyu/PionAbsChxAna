@@ -1762,18 +1762,18 @@ void Main::Maker::MakeFile()
   TH1D *dabsintE = new TH1D("dabsintE","#DeltaE(Reco - True)/True ",100, -3.0,2.0);
   TH1D *dchxintE = new TH1D("dchxintE",   "#DeltaE(Reco - True)/True",100, -3.0,2.0);
   
-  TH1D *dsizewire_abs[nslices];
-  TH1D *dsizewire_chx[nslices]; 
+  TH1D *dsizewire_abs[nslices+2];
+  TH1D *dsizewire_chx[nslices+2]; 
 
-  TH1D *dslcID[nslices];  
+  TH1D *dslcID[nslices+2];  
 
-  TH1D *incE[nslices];
-  TH1D *pitch[nslices];
+  TH1D *incE[nslices+2];
+  TH1D *pitch[nslices+2];
 
 
-  TH1D *h_energetic_pmom_gen[nslices];
-  TH1D *h_energetic_pcostheta_gen[nslices];
-  TH1D *h_energetic_pphi_gen[nslices];
+  TH1D *h_energetic_pmom_gen[nslices+2];
+  TH1D *h_energetic_pcostheta_gen[nslices+2];
+  TH1D *h_energetic_pphi_gen[nslices+2];
   
 
 
@@ -1857,8 +1857,8 @@ void Main::Maker::MakeFile()
   double event_weight = 1.0;
 
   Evttot = 0;
-  for(int ix=0; ix<nslices+1; ix++){
-      for(int iy=0; iy<nslices+1; iy++){
+  for(int ix=0; ix<=nslices+1; ix++){
+      for(int iy=0; iy<=nslices+1; iy++){
         intabs_array_den[ix][iy]=0.0;
         intchx_array_den[ix][iy]=0.0;
         intabs_array_num[ix][iy]=0.0;
@@ -1868,7 +1868,7 @@ void Main::Maker::MakeFile()
 
 
 
-  for (int i = 0; i<nslices+1; ++i){
+  for (int i = 0; i<=nslices+1; ++i){
      interaction[i] = 0;
      incident[i] = 0;
      true_incident[i]=0;
@@ -1888,9 +1888,8 @@ void Main::Maker::MakeFile()
      selected_bkg[i]=0;
 
 
-     if(i<nslices){
      dslcID[i] = new TH1D(Form("dslcID_%d", i),Form("dslcID, %d<wire #<%d", i*nwires_in_slice, (i+1)*nwires_in_slice),30,-14.5,15.5);
-     dslcID[i]->SetDirectory(file_out);
+     //dslcID[i]->SetDirectory(file_out);
      incE[i] = new TH1D(Form("incE_%d",i),Form("Incident energy, %d<wire #<%d",i*nwires_in_slice, (i+1)*nwires_in_slice), nbinse, 0, 1200.);
      //incE[i]->SetDirectory(file_out);
      pitch[i] = new TH1D(Form("pitch_%d",i),Form("Slice thickness, %d<wire #<%d",i*nwires_in_slice, (i+1)*nwires_in_slice), nbinsthickness, 0, 20.);
@@ -1906,7 +1905,6 @@ void Main::Maker::MakeFile()
      //dsizewire_abs[i]->SetDirectory(file_out);
      dsizewire_chx[i] = new TH1D(Form("dsizewire_chx_%d", i), Form("dsizewire_chx_%d", i), 26, -5.5, 20.5); 
      //dsizewire_chx[i]->SetDirectory(file_out);
-     }
   } 
 
 
@@ -2008,13 +2006,15 @@ void Main::Maker::MakeFile()
         double true_endz = Sce_Corrected_endZ_2nd(t->true_beam_endX, t->true_beam_endY, t->true_beam_endZ);
         //std::cout<<"Sce_Corrected "<<t->true_beam_endZ<<"  to   "<<true_endz<<std::endl;
         int true_sliceID = -1;
+        true_sliceID = int((true_endz-0.5603500-0.479/2)/0.479/nwires_in_slice); //z=0.56 is z coordinate for wire 0
+        if (true_sliceID <0) true_sliceID = 0;
+        if (true_sliceID >= nslices) true_sliceID = nslices;
+
+
         string *temp_Ptr0 = t->true_beam_endProcess;
         if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211){  //std::cout<<"signal"<<std::endl;
 
-           true_sliceID = int((true_endz-0.5603500-0.479/2)/0.479/nwires_in_slice); //z=0.56 is z coordinate for wire 0
            _event_histo->htotinc_true_beamwire->Fill((true_endz-0.5603500-0.479/2)/0.479);           
-           if (true_sliceID <0) true_sliceID = 0;
-           if (true_sliceID >= nslices) sliceID = nslices;
            if (true_sliceID <= nslices){
               ++true_interaction[true_sliceID];
               if (t->true_daughter_nPi0 == 0 && t->true_daughter_nPiPlus == 0 && t->true_daughter_nPiMinus ==0){//true absorption
@@ -2031,7 +2031,7 @@ void Main::Maker::MakeFile()
               } 
            }
            for (int i = 0; i<=true_sliceID; ++i){
-              if (i<nslices) ++true_incident[i];
+              if (i<=nslices) ++true_incident[i];
            }
         }//end of selecting pion inclusive events
         
@@ -2041,14 +2041,18 @@ void Main::Maker::MakeFile()
         //double reco_endz = Sce_Corrected_endZ(t->reco_beam_endX, t->reco_beam_endY, t->reco_beam_endZ);
         //double reco_endz = t->reco_beam_endZ; 
         //sliceID = int((reco_endz-0.5603500-0.479/2)/0.479/nwires_in_slice); 
+
+   
         if (true_sliceID!=-1){
           dslcID[true_sliceID]->Fill(sliceID - true_sliceID);
         }
+        //std::cout<<"filled dslcID"<<std::endl;
         //increment interaction counter
         if(sliceID<=nslices){
             ++interaction[sliceID];
         }
-            //increment incident counter
+        //std::cout<<"filled interaction array"<<std::endl;
+        //increment incident counter
         for (int i = 0; i<=sliceID; ++i) {
            if(i<=nslices){
               ++incident[i];
@@ -2057,8 +2061,8 @@ void Main::Maker::MakeFile()
 
         //LOG_NORMAL()<<"Start to Fill Vector to store energy and thickness"<<std::endl;
 
-        std::vector<std::vector<double>> vpitch(nslices);
-        std::vector<std::vector<double>> vincE(nslices); 
+        std::vector<std::vector<double>> vpitch(nslices+2);
+        std::vector<std::vector<double>> vincE(nslices+2); 
 
         
 
@@ -2067,12 +2071,13 @@ void Main::Maker::MakeFile()
         //            <<t->reco_beam_TrkPitch->size()<<std::endl;
 
         //if (sliceID>=nslices) continue;
+
         if(t->reco_beam_incidentEnergies->size()>0){
         for (size_t i = 0; i<t->reco_beam_calo_wire->size(); ++i){
           int this_wire = t->reco_beam_calo_wire->at(i);
           int this_sliceID = this_wire/nwires_in_slice;
           //ignore the last slice for pitch and incident energy calculations
-          if (this_sliceID>sliceID || sliceID>=nslices) continue;
+          if (this_sliceID>sliceID || sliceID>=nslices+2) continue;
           
           double this_incE = t->reco_beam_incidentEnergies->at(i);
           double this_pitch = t->reco_beam_TrkPitch->at(i);
@@ -2081,6 +2086,8 @@ void Main::Maker::MakeFile()
           vincE[this_sliceID].push_back(this_incE);
         }
         }
+
+        if(vpitch.size()>0 && vincE.size()>0) {
         //LOG_NORMAL()<<"Calculate the pitch in each slice "<<vpitch.size()<<std::endl;
         for (size_t i = 0; i<vpitch.size(); ++i){
           //std::cout<<"vpitch[i] size = "<<vpitch[i].size()<<std::endl;
@@ -2104,6 +2111,10 @@ void Main::Maker::MakeFile()
           }
           incE[i]->Fill(sum_incE/vincE[i].size());
           }
+        }
+        }
+        if(vpitch.size()==0 || vincE.size()==0){
+        LOG_NORMAL()<<"The size of pitch is "<<vpitch.size()<<"   "<<vincE.size()<<std::endl;
         }
         //LOG_NORMAL()<<"End of calculating the thickness and energy with Tingjun's method"<<std::endl;
  
@@ -2197,6 +2208,8 @@ void Main::Maker::MakeFile()
  		     ngen_proton++;
         }
         }//end of if isdata==0 
+
+        //LOG_NORMAL()<<"Start to check the categories of the events"<<std::endl;
 
         bool isSignal = false;
         bool isChxBKG = false;
@@ -3857,7 +3870,7 @@ void Main::Maker::MakeFile()
   
         }//end of if this is a reabac event
         else if(isdata==0)  { 
-             std::cout<<"this is nonpion beam event"<<std::endl;
+             //std::cout<<"this is nonpion beam event"<<std::endl;
              for(unsigned int tmk=0; tmk<t->reco_daughter_PFP_true_byHits_PDG->size(); tmk++){
                  _event_histo_1d->h_PiAbs_other_pcostheta->Fill(TMath::Cos(t->reco_daughter_allTrack_Theta->at(tmk)));
                  _event_histo_1d->h_PiAbs_other_pphi->Fill(t->reco_daughter_allTrack_Phi->at(tmk));
@@ -3871,7 +3884,7 @@ void Main::Maker::MakeFile()
                       _event_histo_1d->h_other_Plongit->Fill(reco_Pz);
              }
  
-        for(long unsigned int is=0; is<sizeof(slicebins)/sizeof(slicebins[0])-1; is++){
+        /*for(long unsigned int is=0; is<sizeof(slicebins)/sizeof(slicebins[0])-1; is++){
 
             if(t->reco_beam_calo_wire->back()>=slicebins[is] && t->reco_beam_calo_wire->back()<slicebins[is+1]){
                 double eincident = 0.0;
@@ -3901,7 +3914,7 @@ void Main::Maker::MakeFile()
                 } 
  
             } 
-        }
+        }*/
         }//end of if this is an other background event
         //-----------------------------------------------------------------------------------
         //------------------------------------------------------------
@@ -4062,19 +4075,19 @@ void Main::Maker::MakeFile()
   /*h_true_reco_mom->Write();
   h_true_reco_costheta->Write();
   h_true_reco_phi->Write();
+  */
+  //h_Evttot->Write();
 
-  h_Evttot->Write();
-  dabsintE->Write();
-  dchxintE->Write();
-  for(int ig=0; ig<nslices; ig++){
-      dsizewire_abs[ig]->Write();
-      dsizewire_chx[ig]->Write();
-      dslcID[ig]->Write();
-      incE[ig]->Write();
-      pitch[ig]->Write();
-  }
-  */ 
-  std::cout<<"nslices+1 = "<<nslices+1<<std::endl;
+  //for(int ig=0; ig<nslices; ig++){
+      //std::cout<<"ig = "<<ig<<" size of the {dslcID, incE, pitch} are   "<<dslcID[ig]->GetNbinsX()<<"    "<<incE[ig]->GetNbinsX()<<"   "<<pitch[ig]->GetNbinsX()<<std::endl;
+
+      //dsizewire_abs[ig]->Write();
+      //dsizewire_chx[ig]->Write();
+      //dslcID[ig]->Write();
+      //incE[ig]->Write();
+      //pitch[ig]->Write();
+  //}
+   
   for(int k=0; k<nslices+1; k++){
       for(int l=0; l<nslices+1; l++){ 
          sliceIDmat_abs_den->SetBinContent(k+1, l+1, intabs_array_den[k][l]); 
