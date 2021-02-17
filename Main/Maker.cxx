@@ -1786,6 +1786,11 @@ void Main::Maker::MakeFile()
   
   TGraph *gr_intabs_sel_slc;  //abs in true slice - selected
 
+  TGraph *gr_recoabs_slc;    //abs in true slice - generated
+  
+  TGraph *gr_recoabs_sel_slc;  //abs in true slice - selected
+
+
   TGraph *gr_intchx_slc;      //chx in true slice -generated
 
 
@@ -3956,33 +3961,33 @@ void Main::Maker::MakeFile()
   LOG_NORMAL() << "1D Event Histo saved." << std::endl;
   
  
-  double slcid[nslices];
-  double avg_incE[nslices];
-  double avg_pitch[nslices];
+  double slcid[nslices+1];
+  double avg_incE[nslices+1];
+  double avg_pitch[nslices+1];
 
-  double efficiency_tj[nslices];
-  double efficiency_tj_err[nslices];
+  double efficiency_tj[nslices+1];
+  double efficiency_tj_err[nslices+1];
  
-  double tempxsec[nslices];
-  double tempxsec_chx[nslices];
+  double tempxsec[nslices+1];
+  double tempxsec_chx[nslices+1];
 
-  double tempxsec_pmom[nslices][nbinspmom];
-  double tempxsec_pcostheta[nslices][nbinspcostheta];
-  double tempxsec_pphi[nslices][nbinspphi];
+  double tempxsec_pmom[nslices+1][nbinspmom];
+  double tempxsec_pcostheta[nslices+1][nbinspcostheta];
+  double tempxsec_pphi[nslices+1][nbinspphi];
 
 
-  double tempxsec_test[nslices];
-  double tempxsec_test2[nslices];
-  double tempxsec_test3[nslices];
-  double tempxsec_test4[nslices];
+  double tempxsec_test[nslices+1];
+  double tempxsec_test2[nslices+1];
+  double tempxsec_test3[nslices+1];
+  double tempxsec_test4[nslices+1];
 
-  double tempxsec_chx_test[nslices];
-  double tempxsec_abs_test[nslices];
-  double bkgsuberr[nslices];
+  double tempxsec_chx_test[nslices+1];
+  double tempxsec_abs_test[nslices+1];
+  double bkgsuberr[nslices+1];
 
-  double rms_incE[nslices];
-  double rms_pitch[nslices];
-  double unverr[nslices];
+  double rms_incE[nslices+1];
+  double rms_pitch[nslices+1];
+  double unverr[nslices+1];
   TEfficiency* pEff = 0;
 
 
@@ -3990,7 +3995,7 @@ void Main::Maker::MakeFile()
 
 
 
-  for (int i = 0; i<nslices; ++i){
+  for (int i = 0; i<nslices+1; ++i){
      slcid[i] = i;
      
      unverr[i] = 0;
@@ -4087,8 +4092,23 @@ void Main::Maker::MakeFile()
       //incE[ig]->Write();
       //pitch[ig]->Write();
   //}
-   
+  Double_t true_abs_new[nslices+1];  
+  Double_t reco_abs_new[nslices+1];  
+  Double_t true_abs_sel_new[nslices+1];  
+  Double_t reco_abs_sel_new[nslices+1];  
+
+
+
+
+
   for(int k=0; k<nslices+1; k++){
+      true_abs_new[k]=true_abs[k];
+      reco_abs_new[k]=reco_abs[k];
+      true_abs_sel_new[k]=true_abs_sel[k];
+      reco_abs_sel_new[k]=reco_abs_sel[k];
+
+
+     
       for(int l=0; l<nslices+1; l++){ 
          sliceIDmat_abs_den->SetBinContent(k+1, l+1, intabs_array_den[k][l]); 
          sliceIDmat_abs_num->SetBinContent(k+1, l+1, intabs_array_num[k][l]); 
@@ -4105,36 +4125,41 @@ void Main::Maker::MakeFile()
 
   TFile output_newsf(outfilename.c_str(), "RECREATE");
 
-  gr_inc_reco_slc = new TGraph(nslices, slcid, incident);
-       gr_inc_slc = new TGraph(nslices, slcid, true_incident);
+  gr_inc_reco_slc = new TGraph(nslices+1, slcid, incident);
+       gr_inc_slc = new TGraph(nslices+1, slcid, true_incident);
 
-  gr_int_slc = new TGraph(nslices, slcid, true_interaction);
-  gr_intabs_slc = new TGraph(nslices, slcid, true_abs);
-  gr_intabs_sel_slc = new TGraph(nslices, slcid, true_abs_sel);
+  gr_int_slc = new TGraph(nslices+1, slcid, true_interaction);
 
-  gr_intchx_slc = new TGraph(nslices, slcid, true_chx);
+  gr_intabs_slc = new TGraph(nslices+1, slcid, true_abs_new);
+  gr_intabs_sel_slc = new TGraph(nslices+1, slcid, true_abs_sel_new);
 
-
-  gr_incE_slc = new TGraphAsymmErrors(nslices, slcid, avg_incE, unverr, unverr, rms_incE, rms_incE);
-  gr_pitch_slc = new TGraphAsymmErrors(nslices, slcid, avg_pitch, unverr, unverr, rms_pitch, rms_pitch);
+  gr_recoabs_slc = new TGraph(nslices+1, slcid, reco_abs_new);
+  gr_recoabs_sel_slc = new TGraph(nslices+1, slcid, reco_abs_sel_new);
 
 
-  gr_efficiency_slc = new TGraph(nslices, slcid, efficiency_tj);
+  gr_intchx_slc = new TGraph(nslices+1, slcid, true_chx);
 
 
-  gr_tempxsec_slc = new TGraph(nslices, slcid, tempxsec);
-  gr_tempxsec_chx_slc = new TGraph(nslices, slcid, tempxsec_chx);
+  gr_incE_slc = new TGraphAsymmErrors(nslices+1, slcid, avg_incE, unverr, unverr, rms_incE, rms_incE);
+  gr_pitch_slc = new TGraphAsymmErrors(nslices+1, slcid, avg_pitch, unverr, unverr, rms_pitch, rms_pitch);
 
 
-  gr_tempxsec_chx_test_slc = new TGraph(nslices, slcid, tempxsec_chx_test);
-  gr_tempxsec_abs_test_slc = new TGraph(nslices, slcid, tempxsec_abs_test);
+  gr_efficiency_slc = new TGraph(nslices+1, slcid, efficiency_tj);
 
 
-  TGraph *gr_tempxsec_pmom_slc[nslices];
+  gr_tempxsec_slc = new TGraph(nslices+1, slcid, tempxsec);
+  gr_tempxsec_chx_slc = new TGraph(nslices+1, slcid, tempxsec_chx);
 
-  TGraph *gr_tempxsec_pcostheta_slc[nslices];
 
-  for(int idx=0; idx<nslices; idx++){
+  gr_tempxsec_chx_test_slc = new TGraph(nslices+1, slcid, tempxsec_chx_test);
+  gr_tempxsec_abs_test_slc = new TGraph(nslices+1, slcid, tempxsec_abs_test);
+
+
+  TGraph *gr_tempxsec_pmom_slc[nslices+1];
+
+  TGraph *gr_tempxsec_pcostheta_slc[nslices+1];
+
+  for(int idx=0; idx<nslices+1; idx++){
        double pxmom[nbinspmom];
        double xsecmom[nbinspmom];
        double pxcostheta[nbinspcostheta];
@@ -4164,21 +4189,21 @@ void Main::Maker::MakeFile()
        gr_tempxsec_pcostheta_slc[idx]->Write(Form("gr_tempxsec_pcostheta_%d",idx));
 
   }
-  gr_tempxsec_test_slc = new TGraph(nslices, slcid, tempxsec_test);
-  gr_tempxsec_test2_slc = new TGraph(nslices, slcid, tempxsec_test2);
-  gr_tempxsec_test3_slc = new TGraph(nslices, slcid, tempxsec_test3);
-  gr_tempxsec_test4_slc = new TGraph(nslices, slcid, tempxsec_test4);
+  gr_tempxsec_test_slc = new TGraph(nslices+1, slcid, tempxsec_test);
+  gr_tempxsec_test2_slc = new TGraph(nslices+1, slcid, tempxsec_test2);
+  gr_tempxsec_test3_slc = new TGraph(nslices+1, slcid, tempxsec_test3);
+  gr_tempxsec_test4_slc = new TGraph(nslices+1, slcid, tempxsec_test4);
 
-  gr_tempxsec_vs_incE_slc = new TGraph(nslices, avg_incE, tempxsec);
+  gr_tempxsec_vs_incE_slc = new TGraph(nslices+1, avg_incE, tempxsec);
 
-  gr_tempxsec_chx_vs_incE_slc = new TGraph(nslices, avg_incE, tempxsec_chx);
+  gr_tempxsec_chx_vs_incE_slc = new TGraph(nslices+1, avg_incE, tempxsec_chx);
 
-  gr_tempxsec_test_vs_incE_slc = new TGraph(nslices, avg_incE, tempxsec_test);
+  gr_tempxsec_test_vs_incE_slc = new TGraph(nslices+1, avg_incE, tempxsec_test);
 
-  gr_selected_tot_slc = new TGraph(nslices, slcid, selected_tot);
+  gr_selected_tot_slc = new TGraph(nslices+1, slcid, selected_tot);
 
 
-  gr_selected_bkg_slc = new TGraph(nslices, slcid, selected_bkg);
+  gr_selected_bkg_slc = new TGraph(nslices+1, slcid, selected_bkg);
 
 
   gr_inc_reco_slc->Write("gr_inc_reco_slc");   
@@ -4186,6 +4211,10 @@ void Main::Maker::MakeFile()
 
   gr_intabs_slc->Write("gr_intabs_slc");
   gr_intabs_sel_slc->Write("gr_intabs_sel_slc");
+
+  gr_recoabs_slc->Write("gr_recoabs_slc");
+  gr_recoabs_sel_slc->Write("gr_recoabs_sel_slc");
+
   gr_intchx_slc->Write("gr_intchx_slc");
 
   gr_inc_slc->Write("gr_inc_slc");

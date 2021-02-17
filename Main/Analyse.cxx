@@ -284,21 +284,6 @@ namespace Main {
     h_true_reco_phi = (TH2D*)mc_bnbcosmic_file->Get("h_true_reco_phi");
 
     std::string varcalc[3] = {"mom", "costheta", "phi"}; 
-
-
-    //
-    // Proton Momentum  Momentum Cross Section
-    //
-    TMatrix _S_mom; _S_mom.Clear(); _S_mom.ResizeTo(n_bins_mumom + 1, n_bins_mumom + 1);
-    MigrationMatrix2D migrationmatrix2d;
-    migrationmatrix2d.SetOutDir("migration_matrix_2d_trkmom");
-    migrationmatrix2d.SetNBins(n_bins_mumom, n_bins_mumom);
-    migrationmatrix2d.SetTrueRecoHistogram(h_true_reco_mom);
-    _S_mom = migrationmatrix2d.CalculateMigrationMatrix();
-    migrationmatrix2d.PlotMatrix();
-    migrationmatrix2d.SetOutputFileName("migration_matrix_2d_trkmom.tex");
-    migrationmatrix2d.PrintSmearingMatrixLatex();
-
     //Set Migration Matrix and print out
     TLatex *prelim_Right = new TLatex(0.9, 0.93, "protoDUNE Simulation");
  
@@ -315,6 +300,23 @@ namespace Main {
     prelim_Left->SetNDC(); 
     prelim_Left->SetTextSize(0.05); 
     prelim_Left->SetTextAlign(32); 
+ 
+ 
+  if(_do_reweighting_plots){ 
+
+    //
+    // Proton Momentum  Momentum Cross Section
+    //
+    TMatrix _S_mom; _S_mom.Clear(); _S_mom.ResizeTo(n_bins_mumom + 1, n_bins_mumom + 1);
+    MigrationMatrix2D migrationmatrix2d;
+    migrationmatrix2d.SetOutDir("migration_matrix_2d_trkmom");
+    migrationmatrix2d.SetNBins(n_bins_mumom, n_bins_mumom);
+    migrationmatrix2d.SetTrueRecoHistogram(h_true_reco_mom);
+    _S_mom = migrationmatrix2d.CalculateMigrationMatrix();
+    migrationmatrix2d.PlotMatrix();
+    migrationmatrix2d.SetOutputFileName("migration_matrix_2d_trkmom.tex");
+    migrationmatrix2d.PrintSmearingMatrixLatex();
+
  
     TCanvas *c_mom=new TCanvas("c_mom", "c_mom", 900, 900);
     h_true_reco_mom->Draw("colz");
@@ -451,10 +453,124 @@ namespace Main {
     _xsec_calc_phi.Smear(n_bins_muphi, n_bins_muphi);
  
     //_xsec_calc_phi.SetBkgToSubtract(bkg_names);
-
+  }//end of if _do_reweighting_plots
     //------------------------------------------------------------------------------------------
+   TGraph* gr_intabs_slc = (TGraph*)mc_dirt_file->Get("gr_intabs_slc");
+   TGraph* gr_recoabs_slc = (TGraph*)mc_dirt_file->Get("gr_recoabs_slc");
+
+   TGraph* gr_intabs_sel_slc = (TGraph*)mc_dirt_file->Get("gr_intabs_sel_slc");
+   TGraph* gr_recoabs_sel_slc = (TGraph*)mc_dirt_file->Get("gr_recoabs_sel_slc");
+
+   Double_t intabs[nslices+1]; Double_t intabs_sel[nslices+1]; 
+   Double_t recoabs[nslices+1]; Double_t recoabs_sel[nslices+1]; 
+
+   Int_t recoabs_nbins = gr_recoabs_slc->GetN();
+
+   Double_t slcid[nslices+1];
+   Double_t rslcid[nslices+1];
 
 
+   for(int ind=0; ind<recoabs_nbins; ind++){ 
+            gr_recoabs_slc->GetPoint(ind, slcid[ind], recoabs[ind]);   
+            gr_intabs_slc->GetPoint(ind, rslcid[ind], intabs[ind]);   
+
+
+   }
+
+   
+
+
+
+   TH2D *sliceIDmat_abs_den = (TH2D*)mc_intimecosmic_file->Get("sliceIDmat_abs_den");
+
+ 
+    TMatrix _S_sliceIDmat_den; _S_sliceIDmat_den.Clear(); _S_sliceIDmat_den.ResizeTo(nslices + 2, nslices + 2);
+    MigrationMatrix2D migrationmatrix2d;
+    migrationmatrix2d.SetOutDir("migration_matrix_2d_sliceIDmat");
+    migrationmatrix2d.SetNBins(nslices+1, nslices+1);
+    migrationmatrix2d.SetTrueRecoHistogram(sliceIDmat_abs_den);
+    _S_sliceIDmat_den = migrationmatrix2d.CalculateMigrationMatrix_uf();
+    migrationmatrix2d.PlotMatrix();
+    migrationmatrix2d.SetOutputFileName("migration_matrix_2d_sliceIDmat_den.tex");
+    migrationmatrix2d.PrintSmearingMatrixLatex();
+
+
+    TCanvas *c_sliceIDmat_den=new TCanvas("c_sliceIDmat_den", "c_sliceIDmat_den", 1800, 1200);
+    sliceIDmat_abs_den->Draw("colz");
+
+
+    int bins_x = sliceIDmat_abs_den->GetNbinsX()+1;
+    int bins_y = sliceIDmat_abs_den->GetNbinsY()+1;
+    int _m = bins_x - 1;
+    int _n = bins_y - 1;
+    TH2D * smearing_matrix_sliceIDmat_den= new TH2D("smearing_matrix_sliceIDmat_den", "", nslices+1, -0.5, 24.5, nslices+1, -0.5, 24.5);
+    smearing_matrix_sliceIDmat_den->GetXaxis()->SetTitle("#sliceID (Truth)");
+    smearing_matrix_sliceIDmat_den->GetYaxis()->SetTitle("#sliceID (Reco)");
+    smearing_matrix_sliceIDmat_den->GetYaxis()->SetTitleOffset(1.4);
+    for (int i = 0; i < _n; i++) {
+      for (int j = 0; j < _m; j++) {
+
+        smearing_matrix_sliceIDmat_den->SetBinContent(j+1, i+1, _S_sliceIDmat_den[i][j]);
+
+      }
+    }
+    smearing_matrix_sliceIDmat_den->Draw("colz, TEXT");
+    prelim_Right->Draw("same");
+    c_sliceIDmat_den->SaveAs("Fractional_MigrationMatrix_sliceIDmat_den.png");
+    Double_t trueabs_test[nslices+1];
+    for(int idx=0; idx<nslices+1; idx++){
+        trueabs_test[idx]=0;
+        for(int idy=0; idy<nslices+1; idy++){
+             trueabs_test[idx] +=recoabs[idy]*smearing_matrix_sliceIDmat_den->GetBinContent(idx+1, idy+1);   
+        }
+        std::cout<<"test value is "<<trueabs_test[idx] <<"       true value is  "<<intabs[idx]<<std::endl;
+
+    }
+
+
+
+    TH2D *sliceIDmat_abs_num = (TH2D*)mc_intimecosmic_file->Get("sliceIDmat_abs_num");
+
+ 
+    TMatrix _S_sliceIDmat_num; _S_sliceIDmat_num.Clear(); _S_sliceIDmat_num.ResizeTo(nslices + 2, nslices + 2);
+    //MigrationMatrix2D migrationmatrix2d;
+    migrationmatrix2d.SetOutDir("migration_matrix_2d_sliceIDmat");
+    migrationmatrix2d.SetNBins(nslices+1, nslices+1);
+    migrationmatrix2d.SetTrueRecoHistogram(sliceIDmat_abs_num);
+    _S_sliceIDmat_num = migrationmatrix2d.CalculateMigrationMatrix_uf();
+    migrationmatrix2d.PlotMatrix();
+    migrationmatrix2d.SetOutputFileName("migration_matrix_2d_sliceIDmat_num.tex");
+    migrationmatrix2d.PrintSmearingMatrixLatex();
+
+
+    TCanvas *c_sliceIDmat_num=new TCanvas("c_sliceIDmat_num", "c_sliceIDmat_num", 1800, 1200);
+    sliceIDmat_abs_num->Draw("colz");
+
+
+    bins_x = sliceIDmat_abs_num->GetNbinsX()+1;
+    bins_y = sliceIDmat_abs_num->GetNbinsY()+1;
+    _m = bins_x - 1;
+    _n = bins_y - 1;
+    TH2D * smearing_matrix_sliceIDmat_num= new TH2D("smearing_matrix_sliceIDmat_num", "", nslices+1, -0.5, 24.5, nslices+1, -0.5, 24.5);
+    smearing_matrix_sliceIDmat_num->GetXaxis()->SetTitle("#sliceID (Truth)");
+    smearing_matrix_sliceIDmat_num->GetYaxis()->SetTitle("#sliceID (Reco)");
+    smearing_matrix_sliceIDmat_num->GetYaxis()->SetTitleOffset(1.4);
+    for (int i = 0; i < _n; i++) {
+      for (int j = 0; j < _m; j++) {
+
+        smearing_matrix_sliceIDmat_num->SetBinContent(j+1, i+1, _S_sliceIDmat_num[i][j]);
+
+      }
+    }
+    smearing_matrix_sliceIDmat_num->Draw("colz,TEXT");
+    prelim_Right->Draw("same");
+    c_sliceIDmat_num->SaveAs("Fractional_MigrationMatrix_sliceIDmat_num.png");
+ 
+
+
+
+
+  //=======================================================================================
   LOG_NORMAL() << "Preparing to load Event Histo from BNBCosmic file." << std::endl;
   /*
   UBXSecEventHisto1D * _event_histo_1d_mc = 0;

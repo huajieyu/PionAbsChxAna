@@ -197,9 +197,9 @@ namespace Main {
 
     
 
-    bool _calculate_xsec = true;
-    bool _do_pm1sigma_plots = true;
-    bool _do_reweighting_plots = true;
+    bool _calculate_xsec = false;
+    bool _do_pm1sigma_plots = false;
+    bool _do_reweighting_plots = false;
 
     std::string mc_bnbcosmic_file_name     = "ubxsecana_output.root";
     std::string mc_intimecosmic_file_name  = "ubxsecana_output.root";
@@ -256,6 +256,8 @@ namespace Main {
     int n_bins_mumom = 50;
     int n_bins_mucostheta = 50;
     int n_bins_muphi = 50;
+
+    int nslices = 24;
   };
 }
 
