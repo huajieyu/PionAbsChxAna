@@ -44,11 +44,15 @@ namespace DataTypes {
 
       h_true_pphi_test = new TH1D("h_true_pphi_test", "h_true_pphi_test", n_bins_pphi, -TMath::Pi(), TMath::Pi());
 
-
-
-        
-      htotinc_reco_beamz = new TH1D("htotinc_reco_beamz", "htotinc_reco_beamz", 300, 0.0, 300);
       htotinc_reco_beamwire = new TH1D("htotinc_reco_beamwire", "htotinc_reco_beamwire", 601, -0.5, 600.5);
+ 
+
+      htotinc_pion_reco_beamz = new TH1D("htotinc_pion_reco_beamz", "htotinc_pion_reco_beamz", 300, 0.0, 300);
+      htotinc_pion_reco_beamwire = new TH1D("htotinc_pion_reco_beamwire", "htotinc_pion_reco_beamwire", 601, -0.5, 600.5);
+         
+      htotinc_muon_reco_beamz = new TH1D("htotinc_muon_reco_beamz", "htotinc_muon_reco_beamz", 300, 0.0, 300);
+      htotinc_muon_reco_beamwire = new TH1D("htotinc_muon_reco_beamwire", "htotinc_muon_reco_beamwire", 601, -0.5, 600.5);
+
       htotinc_true_beamwire = new TH1D("htotinc_true_beamwire", "htotinc_true_beamwire", 601, -0.5, 600.5);
 
 

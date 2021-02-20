@@ -80,9 +80,15 @@ namespace DataTypes {
    
     TH1D*  h_true_pphi_test;
 
-    TH1D*  htotinc_reco_beamz;
     TH1D*  htotinc_reco_beamwire;
+
+    TH1D*  htotinc_pion_reco_beamz;
+    TH1D*  htotinc_pion_reco_beamwire;
+    TH1D*  htotinc_muon_reco_beamz;
+    TH1D*  htotinc_muon_reco_beamwire;
+
     TH1D*  htotinc_true_beamwire;
+
 
     TH1D*  hsel_reco_beamz;
     TH1D*  hsel_reco_beamwire;

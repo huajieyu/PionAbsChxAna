@@ -1762,8 +1762,6 @@ void Main::Maker::MakeFile()
   TH1D *dabsintE = new TH1D("dabsintE","#DeltaE(Reco - True)/True ",100, -3.0,2.0);
   TH1D *dchxintE = new TH1D("dchxintE",   "#DeltaE(Reco - True)/True",100, -3.0,2.0);
   
-  TH1D *dsizewire_abs[nslices+2];
-  TH1D *dsizewire_chx[nslices+2]; 
 
   TH1D *dslcID[nslices+2];  
 
@@ -1793,38 +1791,30 @@ void Main::Maker::MakeFile()
 
   TGraph *gr_intchx_slc;      //chx in true slice -generated
 
+  TGraph *gr_selected_tot_slc;
+  
+  TGraph *gr_selected_pibkg_slc;
+
+  TGraph *gr_selected_pibkg_elastic_slc;
+
+  TGraph *gr_selected_mubkg_slc;
+
 
   TGraphAsymmErrors *gr_incE_slc;
 
-
   TGraphAsymmErrors *gr_pitch_slc;
-
-
-  TGraph *gr_efficiency_slc;
 
   TGraph *gr_tempxsec_slc;
   TGraph *gr_tempxsec_chx_slc;
 
-
-
-
-
-  TGraph *gr_tempxsec_test_slc;
-  TGraph *gr_tempxsec_test2_slc;
-  TGraph *gr_tempxsec_test3_slc;
-  TGraph *gr_tempxsec_test4_slc;
 
   TGraph *gr_tempxsec_chx_test_slc;
   TGraph *gr_tempxsec_abs_test_slc;
 
   TGraph *gr_tempxsec_vs_incE_slc;
 
-  TGraph *gr_tempxsec_test_vs_incE_slc;
-
   TGraph *gr_tempxsec_chx_vs_incE_slc;
 
-  TGraph *gr_selected_tot_slc;
-  TGraph *gr_selected_bkg_slc;
 
 
    
@@ -1890,7 +1880,9 @@ void Main::Maker::MakeFile()
 
 
      selected_tot[i]=0;
-     selected_bkg[i]=0;
+     selected_pibkg[i]=0;
+     selected_mubkg[i]=0;
+     selected_pibkg_elastic[i]=0;
 
 
      dslcID[i] = new TH1D(Form("dslcID_%d", i),Form("dslcID, %d<wire #<%d", i*nwires_in_slice, (i+1)*nwires_in_slice),30,-14.5,15.5);
@@ -1906,10 +1898,6 @@ void Main::Maker::MakeFile()
      h_energetic_pcostheta_gen[i]->SetDirectory(file_out);
      h_energetic_pphi_gen[i] = new TH1D(Form("h_energetic_pphi_gen_%d",i),Form("Incident energy, %d<wire #<%d",i*nwires_in_slice, (i+1)*nwires_in_slice), nbinspphi, -TMath::Pi(), TMath::Pi());
      h_energetic_pphi_gen[i]->SetDirectory(file_out);
-     dsizewire_abs[i] = new TH1D(Form("dsizewire_abs_%d", i), Form("dsizewire_abs_%d", i), 26, -5.5, 20.5); 
-     //dsizewire_abs[i]->SetDirectory(file_out);
-     dsizewire_chx[i] = new TH1D(Form("dsizewire_chx_%d", i), Form("dsizewire_chx_%d", i), 26, -5.5, 20.5); 
-     //dsizewire_chx[i]->SetDirectory(file_out);
   } 
 
 
@@ -1972,8 +1960,8 @@ void Main::Maker::MakeFile()
 	//select muon and pion beam events
 	if(isdata==0){
 	
-          //if(abs(t->true_beam_PDG) != 211 && abs(t->true_beam_PDG) !=13) continue;
-          if(abs(t->true_beam_PDG) != 211) continue;
+          if(abs(t->true_beam_PDG) != 211 && abs(t->true_beam_PDG) !=13) continue;
+          //if(abs(t->true_beam_PDG) != 211) continue;
           //Evttot += event_weight; 
           //h_Evttot->Fill(event_weight);
           if(!isBeamType(t->reco_beam_type)) continue;
@@ -1998,10 +1986,26 @@ void Main::Maker::MakeFile()
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         //set the map of wire number and incident particles
         //hit-by-hit wire z position
-        for(unsigned int ih=0; ih<t->reco_beam_calo_wire_z->size(); ih++){
-            _event_histo->htotinc_reco_beamz->Fill(t->reco_beam_calo_wire_z->at(ih));
-            _event_histo->htotinc_reco_beamwire->Fill(t->reco_beam_calo_wire->at(ih));
+
+       
+        
+
+        if(abs(t->true_beam_PDG)==211){
+            for(size_t ih=0; ih<t->reco_beam_calo_wire_z->size(); ih++){
+                _event_histo->htotinc_reco_beamwire->Fill(t->reco_beam_calo_wire_z->at(ih));
+            }
+
+            _event_histo->htotinc_pion_reco_beamz->Fill(t->reco_beam_calo_wire_z->back());
+            _event_histo->htotinc_pion_reco_beamwire->Fill(t->reco_beam_calo_wire->back());
         }
+        if(abs(t->true_beam_PDG)==13){
+            _event_histo->htotinc_muon_reco_beamz->Fill(t->reco_beam_calo_wire_z->back());
+            _event_histo->htotinc_muon_reco_beamwire->Fill(t->reco_beam_calo_wire->back());
+        }
+
+
+
+
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
         int sliceID = t->reco_beam_calo_wire->back()/nwires_in_slice;
@@ -2009,7 +2013,6 @@ void Main::Maker::MakeFile()
         if(sliceID>=nslices) sliceID = nslices;
 
         double true_endz = Sce_Corrected_endZ_2nd(t->true_beam_endX, t->true_beam_endY, t->true_beam_endZ);
-        //std::cout<<"Sce_Corrected "<<t->true_beam_endZ<<"  to   "<<true_endz<<std::endl;
         int true_sliceID = -1;
         true_sliceID = int((true_endz-0.5603500-0.479/2)/0.479/nwires_in_slice); //z=0.56 is z coordinate for wire 0
         if (true_sliceID <0) true_sliceID = 0;
@@ -3304,8 +3307,22 @@ void Main::Maker::MakeFile()
                  ++intabs_array_num[true_sliceID][sliceID];
                  ++reco_abs_sel[sliceID];
               } 
-              else { ++selected_bkg[sliceID];}
-        } else {++selected_bkg[sliceID];}
+              else { ++selected_pibkg[sliceID];}
+        } else if(abs(t->true_beam_PDG) == 211){
+              ++selected_pibkg_elastic[sliceID];
+        }  
+        else if(abs(t->true_beam_PDG) == 13){
+             ++selected_mubkg[sliceID];
+             /*std::cout<<"total number of true daughters are "<<t->true_beam_daughter_PDG->size()<<std::endl;
+             for(size_t imu=0; imu<t->true_beam_daughter_PDG->size(); imu++){
+                   std::cout<<"<<<<< imu = "<<imu<<"   PDG code of daughter is "<<t->true_beam_daughter_PDG->at(imu)<<std::endl;
+             }*/
+             std::cout<<"total number of reco daughters are "<<t->reco_daughter_allTrack_ID->size()<<"   test   "<<t->reco_daughter_PFP_true_byHits_PDG->size()<<std::endl;
+             for(size_t imu=0; imu<t->reco_daughter_allTrack_ID->size(); imu++){
+                   std::cout<<"<<<<< imu = "<<imu<<"   PDG code of daughter is "<<t->reco_daughter_PFP_true_byHits_PDG->at(imu)<<std::endl;
+             }     
+             std::cout<<"--------------------------------"<<std::endl;
+        }
         //=======================================================================
  
         Ntotal_shwid++;
@@ -3964,9 +3981,6 @@ void Main::Maker::MakeFile()
   double slcid[nslices+1];
   double avg_incE[nslices+1];
   double avg_pitch[nslices+1];
-
-  double efficiency_tj[nslices+1];
-  double efficiency_tj_err[nslices+1];
  
   double tempxsec[nslices+1];
   double tempxsec_chx[nslices+1];
@@ -3975,20 +3989,12 @@ void Main::Maker::MakeFile()
   double tempxsec_pcostheta[nslices+1][nbinspcostheta];
   double tempxsec_pphi[nslices+1][nbinspphi];
 
-
-  double tempxsec_test[nslices+1];
-  double tempxsec_test2[nslices+1];
-  double tempxsec_test3[nslices+1];
-  double tempxsec_test4[nslices+1];
-
   double tempxsec_chx_test[nslices+1];
   double tempxsec_abs_test[nslices+1];
-  double bkgsuberr[nslices+1];
 
   double rms_incE[nslices+1];
   double rms_pitch[nslices+1];
   double unverr[nslices+1];
-  TEfficiency* pEff = 0;
 
 
 
@@ -4008,23 +4014,9 @@ void Main::Maker::MakeFile()
 
      rms_pitch[i] = pitch[i]->GetRMS()/TMath::Sqrt(pitch[i]->GetEntries());
 
-     efficiency_tj[i]=true_abs_sel[i]/true_abs[i];
 
-     efficiency_tj_err[i]=efficiency_tj[i]*TMath::Sqrt(1/true_abs_sel[i]+1/true_abs[i]);
+     if( incident[i]>0 && avg_pitch[i]>0){
 
-     if( incident[i]>0 && avg_pitch[i]>0 && efficiency_tj[i]>0 ){
-
-
-     tempxsec_test4[i]    =MAr/(Density*NA*avg_pitch[i])*(selected_tot[i]-selected_bkg[i])/true_incident[i]/efficiency_tj[i];
-   
-
-     tempxsec_test3[i]    =MAr/(Density*NA*avg_pitch[i])*true_abs_sel[i]/incident[i];
-
-
-     tempxsec_test2[i]    =MAr/(Density*NA*avg_pitch[i])*true_abs[i]/incident[i];
-
-
-     tempxsec_test[i]     =MAr/(Density*NA*avg_pitch[i])*true_abs[i]/incident[i];
 
      tempxsec[i]          =MAr/(Density*NA*avg_pitch[i])*true_abs[i]/true_incident[i];
 
@@ -4040,24 +4032,14 @@ void Main::Maker::MakeFile()
           
      tempxsec_chx[i]      =MAr/(Density*NA*avg_pitch[i])*true_chx[i]/true_incident[i];         
 
-     double avgthickness = 12;
      tempxsec_chx_test[i] = true_chx[i]/true_incident[i];
      tempxsec_abs_test[i] = true_abs[i]/true_incident[i];
-     bkgsuberr[i] = TMath::Sqrt(selected_tot[i]+selected_bkg[i]);
-   
-          
 
 
-
-     } else {tempxsec[i]=0.0; tempxsec_chx[i]=0.0; tempxsec_chx_test[i]=0.0; tempxsec_abs_test[i] = 0.0; tempxsec_test[i]=0.0; tempxsec_test2[i]=0.0; tempxsec_test3[i]=0.0; tempxsec_test4[i]=0.0;}
+     } else {tempxsec[i]=0.0; tempxsec_chx[i]=0.0; tempxsec_chx_test[i]=0.0; tempxsec_abs_test[i] = 0.0; }
            
      tempxsec[i] = tempxsec[i]/1e-27;  
      tempxsec_chx[i] = tempxsec_chx[i]/1e-27;
-
-     tempxsec_test[i] = tempxsec_test[i]/1e-27;
-     tempxsec_test2[i] = tempxsec_test2[i]/1e-27;
-     tempxsec_test3[i] = tempxsec_test3[i]/1e-27;
-     tempxsec_test4[i] = tempxsec_test4[i]/1e-27;
      
 
   }//end of loop over all the nslices
@@ -4086,8 +4068,6 @@ void Main::Maker::MakeFile()
   //for(int ig=0; ig<nslices; ig++){
       //std::cout<<"ig = "<<ig<<" size of the {dslcID, incE, pitch} are   "<<dslcID[ig]->GetNbinsX()<<"    "<<incE[ig]->GetNbinsX()<<"   "<<pitch[ig]->GetNbinsX()<<std::endl;
 
-      //dsizewire_abs[ig]->Write();
-      //dsizewire_chx[ig]->Write();
       //dslcID[ig]->Write();
       //incE[ig]->Write();
       //pitch[ig]->Write();
@@ -4097,18 +4077,20 @@ void Main::Maker::MakeFile()
   Double_t true_abs_sel_new[nslices+1];  
   Double_t reco_abs_sel_new[nslices+1];  
 
-
-
-
+  Double_t selected_tot_new[nslices+1];
+  Double_t selected_pibkg_new[nslices+1];
+  Double_t selected_mubkg_new[nslices+1];
+  Double_t selected_pibkg_elastic_new[nslices+1];
 
   for(int k=0; k<nslices+1; k++){
       true_abs_new[k]=true_abs[k];
       reco_abs_new[k]=reco_abs[k];
       true_abs_sel_new[k]=true_abs_sel[k];
       reco_abs_sel_new[k]=reco_abs_sel[k];
-
-
-     
+      selected_tot_new[k]=selected_tot[k];
+      selected_pibkg_new[k]=selected_pibkg[k];
+      selected_mubkg_new[k]=selected_mubkg[k];
+      selected_pibkg_elastic_new[k]=selected_pibkg_elastic[k];
       for(int l=0; l<nslices+1; l++){ 
          sliceIDmat_abs_den->SetBinContent(k+1, l+1, intabs_array_den[k][l]); 
          sliceIDmat_abs_num->SetBinContent(k+1, l+1, intabs_array_num[k][l]); 
@@ -4136,6 +4118,13 @@ void Main::Maker::MakeFile()
   gr_recoabs_slc = new TGraph(nslices+1, slcid, reco_abs_new);
   gr_recoabs_sel_slc = new TGraph(nslices+1, slcid, reco_abs_sel_new);
 
+  gr_selected_tot_slc = new TGraph(nslices+1, slcid, selected_tot_new);
+  gr_selected_pibkg_slc = new TGraph(nslices+1, slcid, selected_pibkg_new);
+  gr_selected_pibkg_elastic_slc = new TGraph(nslices+1, slcid, selected_pibkg_elastic_new);
+  gr_selected_mubkg_slc = new TGraph(nslices+1, slcid, selected_mubkg_new);
+ 
+
+
 
   gr_intchx_slc = new TGraph(nslices+1, slcid, true_chx);
 
@@ -4143,8 +4132,6 @@ void Main::Maker::MakeFile()
   gr_incE_slc = new TGraphAsymmErrors(nslices+1, slcid, avg_incE, unverr, unverr, rms_incE, rms_incE);
   gr_pitch_slc = new TGraphAsymmErrors(nslices+1, slcid, avg_pitch, unverr, unverr, rms_pitch, rms_pitch);
 
-
-  gr_efficiency_slc = new TGraph(nslices+1, slcid, efficiency_tj);
 
 
   gr_tempxsec_slc = new TGraph(nslices+1, slcid, tempxsec);
@@ -4189,22 +4176,14 @@ void Main::Maker::MakeFile()
        gr_tempxsec_pcostheta_slc[idx]->Write(Form("gr_tempxsec_pcostheta_%d",idx));
 
   }
-  gr_tempxsec_test_slc = new TGraph(nslices+1, slcid, tempxsec_test);
-  gr_tempxsec_test2_slc = new TGraph(nslices+1, slcid, tempxsec_test2);
-  gr_tempxsec_test3_slc = new TGraph(nslices+1, slcid, tempxsec_test3);
-  gr_tempxsec_test4_slc = new TGraph(nslices+1, slcid, tempxsec_test4);
 
   gr_tempxsec_vs_incE_slc = new TGraph(nslices+1, avg_incE, tempxsec);
 
   gr_tempxsec_chx_vs_incE_slc = new TGraph(nslices+1, avg_incE, tempxsec_chx);
 
-  gr_tempxsec_test_vs_incE_slc = new TGraph(nslices+1, avg_incE, tempxsec_test);
-
-  gr_selected_tot_slc = new TGraph(nslices+1, slcid, selected_tot);
 
 
-  gr_selected_bkg_slc = new TGraph(nslices+1, slcid, selected_bkg);
-
+  gr_inc_slc->Write("gr_inc_slc");
 
   gr_inc_reco_slc->Write("gr_inc_reco_slc");   
   gr_int_slc->Write("gr_int_slc");
@@ -4217,11 +4196,15 @@ void Main::Maker::MakeFile()
 
   gr_intchx_slc->Write("gr_intchx_slc");
 
-  gr_inc_slc->Write("gr_inc_slc");
+  gr_selected_tot_slc->Write("gr_selected_tot_slc");
+  gr_selected_pibkg_slc->Write("gr_selected_pibkg_slc");
+  gr_selected_mubkg_slc->Write("gr_selected_mubkg_slc");
+  gr_selected_pibkg_elastic_slc->Write("gr_selected_pibkg_elastic_slc");
+
+
   gr_incE_slc->Write("gr_incE_slc");
   gr_pitch_slc->Write("gr_pitch_slc");
 
-  gr_efficiency_slc->Write("gr_efficiency_slc");
 
   gr_tempxsec_slc->Write("gr_tempxsec_slc");
   gr_tempxsec_chx_slc->Write("gr_tempxsec_chx_slc");
@@ -4232,22 +4215,10 @@ void Main::Maker::MakeFile()
   gr_tempxsec_vs_incE_slc->SetName("gr_tempxsec_vs_incE_slc");
   gr_tempxsec_vs_incE_slc->Write();
 
-  gr_tempxsec_test_vs_incE_slc->SetName("gr_test_tempxsec_vs_incE_slc");
-  gr_tempxsec_test_vs_incE_slc->Write();
 
   gr_tempxsec_chx_vs_incE_slc->SetName("gr_chx_tempxsec_vs_incE_slc");
   gr_tempxsec_chx_vs_incE_slc->Write();
    
-  gr_tempxsec_test_slc->Write("gr_tempxsec_test_slc");
-  gr_tempxsec_test2_slc->Write("gr_tempxsec_test2_slc");
-  gr_tempxsec_test3_slc->Write("gr_tempxsec_test3_slc");
-  gr_tempxsec_test4_slc->Write("gr_tempxsec_test4_slc");
-
- 
-  gr_selected_tot_slc->Write("gr_selected_tot_slc");
-  gr_selected_bkg_slc->Write("gr_selected_bkg_slc");
-
-  
 
 
   output_newsf.Write();

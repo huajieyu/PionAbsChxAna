@@ -378,11 +378,11 @@ namespace Main{
     const static int nwires_in_slice = 20;
     const static int nslices = 480/nwires_in_slice;
 
-    double intabs_array_den[nslices+1][nslices+1];  
-    double intchx_array_den[nslices+1][nslices+1];
+    double intabs_array_den[nslices+2][nslices+2];  
+    double intchx_array_den[nslices+2][nslices+2];
 
-    double intabs_array_num[nslices+1][nslices+1];  
-    double intchx_array_num[nslices+1][nslices+1];
+    double intabs_array_num[nslices+2][nslices+2];  
+    double intchx_array_num[nslices+2][nslices+2];
 
     Int_t nbinse=12; 
     Int_t nbinsthickness = 100;
@@ -399,44 +399,41 @@ namespace Main{
 
     TH1D *dslcID = new TH1D("dslcID","reco slice ID - true slice ID",20,-10,10);
 
-    TH2D *sliceIDmat_den = new TH2D("sliceIDmat_den", "sliceIDmat_den", 25, -0.5, 24.5, 25, -0.5, 24.5);
-    TH2D *sliceIDmat_num = new TH2D("sliceIDmat_num", "sliceIDmat_num", 25, -0.5, 24.5, 25, -0.5, 24.5);
+    TH2D *sliceIDmat_abs_den = new TH2D("sliceIDmat_abs_den", "sliceIDmat_abs_den", 25, -0.5, 24.5, 25, -0.5, 24.5);
+    TH2D *sliceIDmat_abs_num = new TH2D("sliceIDmat_abs_num", "sliceIDmat_abs_num", 25, -0.5, 24.5, 25, -0.5, 24.5);
     
-    
+    TH2D *sliceIDmat_chx_den = new TH2D("sliceIDmat_chx_den", "sliceIDmat_chx_den", 25, -0.5, 24.5, 25, -0.5, 24.5);
+    TH2D *sliceIDmat_chx_num = new TH2D("sliceIDmat_chx_num", "sliceIDmat_chx_num", 25, -0.5, 24.5, 25, -0.5, 24.5);
+     
 
  
-    double interaction[nslices+1];
-    double signal[nslices+1];
-    double incident[nslices+1];
+    double interaction[nslices+2];
+    double signal[nslices+2];
+    double incident[nslices+2];
 
-    double true_incident[nslices+1];
-    double true_interaction[nslices+1];
-    double true_abs[nslices+1];
-    double true_abs_test[nslices+1];
-    double reco_abs[nslices+1];
+    double true_incident[nslices+2];
+    double true_interaction[nslices+2];
 
-    double true_chx[nslices+1];
-    double reco_chx[nslices+1];
+    double true_abs[nslices+2];
+    double true_abs_test[nslices+2];
+    double reco_abs[nslices+2];
+
+    double true_chx[nslices+2];
+    double reco_chx[nslices+2];
+
+    double true_abs_sel[nslices+2];
+    double reco_abs_sel[nslices+2];
+  
+    double true_chx_sel[nslices+2];
+    double reco_chx_sel[nslices+2];
  
-    double interaction_sel[nslices+1];
-    double interaction_recosel[nslices+1];
 
-    double incident_sel[nslices+1];
+    double selected_tot[nslices+2];
+    double selected_mubkg[nslices+2];
+    double selected_pibkg[nslices+2];
+    double selected_pibkg_elastic[nslices+2];
 
-
-    double selected_tot[nslices+1];
-    double selected_bkg[nslices+1];
-
-
-    double interaction_gen[nslices+1];
-    double interaction_recogen[nslices+1];
-
-    double incident_gen[nslices+1];
-
-
-
-
-    double slicebins[nslices+1];
+    double slicebins[nslices+2];
 
 
     bool _fill_bootstrap_mc_stat = false; ///< If true, fills bootstrap with poisson weights (mc stat)

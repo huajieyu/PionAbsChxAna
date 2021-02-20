@@ -455,12 +455,21 @@ namespace Main {
     //_xsec_calc_phi.SetBkgToSubtract(bkg_names);
   }//end of if _do_reweighting_plots
     //------------------------------------------------------------------------------------------
+
+   LOG_NORMAL()<<"Start to get the basic graphs and do calculation "<<std::endl;
+
+   TGraph* gr_selected_tot_slc = (TGraph*)mc_dirt_file->Get("gr_selected_tot_slc");
+   TGraph* gr_selected_pibkg_slc = (TGraph*)mc_dirt_file->Get("gr_selected_pibkg_slc");
+   TGraph* gr_selected_mubkg_slc = (TGraph*)mc_dirt_file->Get("gr_selected_mubkg_slc");
+   TGraph* gr_selected_pibkg_elastic_slc = (TGraph*)mc_dirt_file->Get("gr_selected_pibkg_elastic_slc");
+
+
    TGraph* gr_intabs_slc = (TGraph*)mc_dirt_file->Get("gr_intabs_slc");
    TGraph* gr_recoabs_slc = (TGraph*)mc_dirt_file->Get("gr_recoabs_slc");
 
    TGraph* gr_intabs_sel_slc = (TGraph*)mc_dirt_file->Get("gr_intabs_sel_slc");
    TGraph* gr_recoabs_sel_slc = (TGraph*)mc_dirt_file->Get("gr_recoabs_sel_slc");
-
+   LOG_NORMAL()<<"Successfully got the graphs for further calculation"<<std::endl;
    Double_t intabs[nslices+1]; Double_t intabs_sel[nslices+1]; 
    Double_t recoabs[nslices+1]; Double_t recoabs_sel[nslices+1]; 
 
@@ -468,19 +477,151 @@ namespace Main {
 
    Double_t slcid[nslices+1];
    Double_t rslcid[nslices+1];
+   Double_t sslcid[nslices+1];
+   Double_t tslcid[nslices+1];
+   Double_t uslcid[nslices+1];
 
 
+   Double_t Purity_reco[nslices+1];
+
+   Double_t Purity_reco_err[nslices+1];
+
+
+   Double_t selected_tot[nslices+1];
+   Double_t selected_pibkg[nslices+1];
+   Double_t selected_mubkg[nslices+1];
+   Double_t selected_pibkg_elastic[nslices+1];
+   Double_t Err_x[nslices+1];
+
+   TH1D *h_Purity=new TH1D("h_Purity", "h_Purity", nslices+1, -0.5, 24.5);
+   TH1D *h_Selected=new TH1D("h_Selected", "h_Selected", nslices+1, -0.5, 24.5);
+   TH1D *h_Selected_BKG=new TH1D("h_Selected_BKG", "h_Selected_BKG", nslices+1, -0.5, 24.5);
+
+   Double_t total_mubkg=0.0;
+   Double_t total_pibkg=0.0;   
+   Double_t total_pibkg_elastic = 0.0;
+   Double_t total_signal_true=0.0;
+   Double_t total_signal_reco=0.0;
+   Double_t total_sel=0.0;
    for(int ind=0; ind<recoabs_nbins; ind++){ 
+            Err_x[ind]=0;
             gr_recoabs_slc->GetPoint(ind, slcid[ind], recoabs[ind]);   
             gr_intabs_slc->GetPoint(ind, rslcid[ind], intabs[ind]);   
 
+            gr_recoabs_sel_slc->GetPoint(ind, uslcid[ind], recoabs_sel[ind]);
+            gr_intabs_sel_slc->GetPoint(ind, rslcid[ind], intabs_sel[ind]);   
 
+            gr_selected_tot_slc->GetPoint(ind, sslcid[ind], selected_tot[ind]);
+            h_Selected->SetBinContent(ind+1, selected_tot[ind]);
+            h_Selected->SetBinError(ind+1, TMath::Sqrt(selected_tot[ind]));
+ 
+            gr_selected_pibkg_slc->GetPoint(ind, tslcid[ind], selected_pibkg[ind]);
+            gr_selected_mubkg_slc->GetPoint(ind, tslcid[ind], selected_mubkg[ind]);
+            gr_selected_pibkg_elastic_slc->GetPoint(ind, tslcid[ind], selected_pibkg_elastic[ind]);
+
+            h_Selected_BKG->SetBinContent(ind+1, selected_mubkg[ind]+selected_pibkg[ind]);
+            h_Selected_BKG->SetBinError(ind+1, TMath::Sqrt(selected_mubkg[ind])+selected_pibkg[ind]);
+
+            total_sel +=selected_tot[ind];
+            total_pibkg +=selected_pibkg[ind];
+            total_pibkg_elastic +=selected_pibkg_elastic[ind];
+            total_mubkg +=selected_mubkg[ind];
+            total_signal_true +=intabs_sel[ind];
+            total_signal_reco +=recoabs_sel[ind];
+            Purity_reco[ind]=recoabs_sel[ind]/selected_tot[ind];
+
+            Purity_reco_err[ind] = Purity_reco[ind]*TMath::Sqrt(1/selected_tot[ind]+1/recoabs_sel[ind]);
+            h_Purity->SetBinContent(ind+1, Purity_reco[ind]);
+            h_Purity->SetBinError(ind+1, Purity_reco_err[ind]);
    }
 
+   LOG_NORMAL()<<"Total Selected "<<total_sel<<std::endl;
+   LOG_NORMAL()<<"Total Pion Background is "<<total_pibkg<<" Total Muon Background is "<<total_mubkg<<"   Total Pion Elastic Background is "<<total_pibkg_elastic<<std::endl;
+   LOG_NORMAL()<<"Total True Signal is "<<total_signal_true<<" Total Reco Signal is "<<total_signal_reco<<std::endl;
+
+
+   TH1D *h_efficiency_reco_num = new TH1D("h_efficiency_reco_num", "h_efficiency_reco_num", nslices+1, -0.5, 24.5);
+   TH1D *h_efficiency_reco_den = new TH1D("h_efficiency_reco_den", "h_efficiency_reco_den", nslices+1, -0.5, 24.5);
+    
+   TH1D *h_efficiency_true_num = new TH1D("h_efficiency_true_num", "h_efficiency_true_num", nslices+1, -0.5, 24.5);
+   TH1D *h_efficiency_true_den = new TH1D("h_efficiency_true_den", "h_efficiency_true_den", nslices+1, -0.5, 24.5);
+ 
+   for(int i=0; i<nslices+1; i++){
+         h_efficiency_reco_num->SetBinContent(i+1, recoabs_sel[i]);
+         h_efficiency_reco_num->SetBinError(i+1, TMath::Sqrt(recoabs_sel[i]));
+         h_efficiency_reco_den->SetBinContent(i+1, recoabs[i]);
+         h_efficiency_reco_den->SetBinError(i+1, TMath::Sqrt(recoabs[i]));
+ 
+         h_efficiency_true_num->SetBinContent(i+1, intabs_sel[i]);
+         h_efficiency_true_num->SetBinError(i+1, TMath::Sqrt(intabs_sel[i]));
+         h_efficiency_true_den->SetBinContent(i+1, intabs[i]);
+         h_efficiency_true_den->SetBinError(i+1, TMath::Sqrt(intabs[i]));
+   }
+
+   h_efficiency_reco_num->Sumw2();
+   h_efficiency_reco_den->Sumw2();
+
+   h_efficiency_true_num->Sumw2();
+   h_efficiency_true_den->Sumw2();
+
+   std::string outFileName = "output_calcualted.root";
+   TFile *outputFile;
+   outputFile = new TFile(outFileName.c_str(),  "RECREATE");
+
+   h_efficiency_reco_num->Write();
+   h_efficiency_reco_den->Write();
+
+   h_efficiency_true_num->Write();
+   h_efficiency_true_den->Write();
+
+   h_Purity->Write();
+   h_Selected->Write();
+   h_Selected_BKG->Write();
+
+
+   TEfficiency *pEff_reco=new TEfficiency(*h_efficiency_reco_num, *h_efficiency_reco_den);
+   pEff_reco->SetStatisticOption(TEfficiency::kFNormal);
+   pEff_reco->SetMarkerStyle(8);
+   pEff_reco->Write("pEff_reco");
+
+   TEfficiency *pEff_true=new TEfficiency(*h_efficiency_true_num, *h_efficiency_true_den);
+   pEff_true->SetStatisticOption(TEfficiency::kFNormal);
+   pEff_true->SetMarkerStyle(8);
+   pEff_true->Write("pEff_true");
+
+    
+   auto gr_test_Purity = new TGraphAsymmErrors(25, slcid, Purity_reco, Err_x, Err_x, Purity_reco_err, Purity_reco_err);
+   gr_test_Purity->GetXaxis()->SetTitle("sliceID(reco)");
+   gr_test_Purity->GetYaxis()->SetTitle("Purity");
+   gr_test_Purity->Write("gr_test_Purity");
+   LOG_NORMAL()<<"Calculated Purity and Efficiency and Saved to Histograms"<<std::endl;
+
+   TH1D *h_CalcSignal_Selected = new TH1D("h_CalcSignal_Selected", "h_CalcSignal_Selected", nslices+1, -0.5, 24.5);
+   *h_CalcSignal_Selected = (*h_Selected)*(*h_Purity);
+   h_CalcSignal_Selected->SetName("h_CalcSignal_Selected");
+   LOG_NORMAL()<<"closure test for efficiency "<<std::endl; 
+   TH1D *h_CalcSignal_Generated = new TH1D("h_CalcSignal_Generated", "h_CalcSignal_Generated", nslices+1, -0.5, 24.5);
+   Double_t temp_siggen[nslices+1];
+
+   for(int i=0; i<nslices+1; i++){
+          temp_siggen[i]=selected_tot[i]*Purity_reco[i]/(recoabs_sel[i]/recoabs[i]);
+          std::cout<<"i= "<<i<<"  temp_siggen is "<<temp_siggen[i]<<"  true abs generated is "<<recoabs[i]<<std::endl;
+          h_CalcSignal_Generated->SetBinContent(i+1, temp_siggen[i]);       
+
+   }
    
 
+  
+
+   h_CalcSignal_Generated->Write();
 
 
+
+
+   outputFile->Close();
+
+
+   /*
    TH2D *sliceIDmat_abs_den = (TH2D*)mc_intimecosmic_file->Get("sliceIDmat_abs_den");
 
  
@@ -565,7 +706,7 @@ namespace Main {
     smearing_matrix_sliceIDmat_num->Draw("colz,TEXT");
     prelim_Right->Draw("same");
     c_sliceIDmat_num->SaveAs("Fractional_MigrationMatrix_sliceIDmat_num.png");
- 
+  */ 
 
 
 
