@@ -410,8 +410,15 @@ namespace Main{
     double interaction[nslices+2];
     double signal[nslices+2];
     double incident[nslices+2];
+    double incident_pion[nslices+2];
+    double incident_pion_elastic[nslices+2];
+    double incident_muon[nslices+2];
+
+
 
     double true_incident[nslices+2];
+    double true_incident_muon[nslices+2];
+
     double true_interaction[nslices+2];
 
     double true_abs[nslices+2];

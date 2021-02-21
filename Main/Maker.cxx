@@ -1777,6 +1777,12 @@ void Main::Maker::MakeFile()
 
   TGraph *gr_inc_reco_slc;  //incident in reco slice
   TGraph *gr_inc_slc;       //incident in true slice
+  TGraph *gr_inc_truemuon_slc;  //incident in true slice (muon)  
+
+
+  TGraph *gr_inc_recomuon_slc;  //incident in reco slice
+  TGraph *gr_inc_recopion_slc;  //incident in reco slice
+  TGraph *gr_inc_recopionelastic_slc;  //incident in reco slice
 
   TGraph *gr_int_slc;       //interaction in reco slice
  
@@ -1866,7 +1872,12 @@ void Main::Maker::MakeFile()
   for (int i = 0; i<=nslices+1; ++i){
      interaction[i] = 0;
      incident[i] = 0;
+     incident_pion[i] = 0;
+     incident_muon[i] = 0;
+     incident_pion_elastic[i] = 0;
+
      true_incident[i]=0;
+     true_incident_muon[i]=0;
      true_interaction[i]=0;
      true_abs[i]=0;
      true_chx[i]=0;
@@ -2009,21 +2020,29 @@ void Main::Maker::MakeFile()
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
         int sliceID = t->reco_beam_calo_wire->back()/nwires_in_slice;
+        if(sliceID>24){
+             std::cout<<"sliceID = "<<sliceID<<"  Wire number is "<<t->reco_beam_calo_wire->back()<<std::endl;
+        }
         if(sliceID<0) sliceID=0;
-        if(sliceID>=nslices) sliceID = nslices;
+        if(sliceID >= nslices+1) sliceID = nslices+1;
 
         double true_endz = Sce_Corrected_endZ_2nd(t->true_beam_endX, t->true_beam_endY, t->true_beam_endZ);
         int true_sliceID = -1;
         true_sliceID = int((true_endz-0.5603500-0.479/2)/0.479/nwires_in_slice); //z=0.56 is z coordinate for wire 0
+        //if(true_sliceID>24){
+        //     std::cout<<"sliceID = "<<true_sliceID<<"  Wire number is "<<(true_endz-0.5603500-0.479/2)/0.479<<std::endl;
+        //}
+ 
+
         if (true_sliceID <0) true_sliceID = 0;
-        if (true_sliceID >= nslices) true_sliceID = nslices;
+        if (true_sliceID >= nslices+1) true_sliceID = nslices+1;
 
 
         string *temp_Ptr0 = t->true_beam_endProcess;
         if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211){  //std::cout<<"signal"<<std::endl;
 
            _event_histo->htotinc_true_beamwire->Fill((true_endz-0.5603500-0.479/2)/0.479);           
-           if (true_sliceID <= nslices){
+           if (true_sliceID <= nslices+1){
               ++true_interaction[true_sliceID];
               if (t->true_daughter_nPi0 == 0 && t->true_daughter_nPiPlus == 0 && t->true_daughter_nPiMinus ==0){//true absorption
                   ++true_abs[true_sliceID];
@@ -2039,7 +2058,7 @@ void Main::Maker::MakeFile()
               } 
            }
            for (int i = 0; i<=true_sliceID; ++i){
-              if (i<=nslices) ++true_incident[i];
+              if (i<=nslices+1) ++true_incident[i];
            }
         }//end of selecting pion inclusive events
         
@@ -2049,21 +2068,35 @@ void Main::Maker::MakeFile()
         //double reco_endz = Sce_Corrected_endZ(t->reco_beam_endX, t->reco_beam_endY, t->reco_beam_endZ);
         //double reco_endz = t->reco_beam_endZ; 
         //sliceID = int((reco_endz-0.5603500-0.479/2)/0.479/nwires_in_slice); 
-
+        for(int i=0; i<=true_sliceID; ++i){
+               if(abs(t->true_beam_PDG) == 13){
+                   ++true_incident_muon[i];                    
+               }
+        } 
+      
    
         if (true_sliceID!=-1){
           dslcID[true_sliceID]->Fill(sliceID - true_sliceID);
         }
         //std::cout<<"filled dslcID"<<std::endl;
         //increment interaction counter
-        if(sliceID<=nslices){
+        if(sliceID<=nslices+1){
             ++interaction[sliceID];
         }
         //std::cout<<"filled interaction array"<<std::endl;
         //increment incident counter
         for (int i = 0; i<=sliceID; ++i) {
-           if(i<=nslices){
+           if(i<=nslices+1){
               ++incident[i];
+              //select pion
+              if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211){  
+                   ++incident_pion[i];
+              } else if(abs(t->true_beam_PDG) == 211){
+                   ++incident_pion_elastic[i];
+              } else if(abs(t->true_beam_PDG) == 13){
+              //select muon
+                   ++incident_muon[i];
+              }
            }
         }
 
@@ -2334,7 +2367,7 @@ void Main::Maker::MakeFile()
 
 
 
-        if(true_sliceID>=0 && true_sliceID<nslices){
+        if(true_sliceID>=0 && true_sliceID<=nslices+1){
           h_energetic_pmom_gen[true_sliceID]->Fill(temp_genpmom);
           h_energetic_pcostheta_gen[true_sliceID]->Fill(temp_genpcostheta);
           h_energetic_pphi_gen[true_sliceID]->Fill(temp_genpphi);
@@ -3317,11 +3350,11 @@ void Main::Maker::MakeFile()
              for(size_t imu=0; imu<t->true_beam_daughter_PDG->size(); imu++){
                    std::cout<<"<<<<< imu = "<<imu<<"   PDG code of daughter is "<<t->true_beam_daughter_PDG->at(imu)<<std::endl;
              }*/
-             std::cout<<"total number of reco daughters are "<<t->reco_daughter_allTrack_ID->size()<<"   test   "<<t->reco_daughter_PFP_true_byHits_PDG->size()<<std::endl;
-             for(size_t imu=0; imu<t->reco_daughter_allTrack_ID->size(); imu++){
-                   std::cout<<"<<<<< imu = "<<imu<<"   PDG code of daughter is "<<t->reco_daughter_PFP_true_byHits_PDG->at(imu)<<std::endl;
-             }     
-             std::cout<<"--------------------------------"<<std::endl;
+             //std::cout<<"total number of reco daughters are "<<t->reco_daughter_allTrack_ID->size()<<"   test   "<<t->reco_daughter_PFP_true_byHits_PDG->size()<<std::endl;
+             //for(size_t imu=0; imu<t->reco_daughter_allTrack_ID->size(); imu++){
+             //      std::cout<<"<<<<< imu = "<<imu<<"   PDG code of daughter is "<<t->reco_daughter_PFP_true_byHits_PDG->at(imu)<<std::endl;
+             //}     
+             //std::cout<<"--------------------------------"<<std::endl;
         }
         //=======================================================================
  
@@ -3978,30 +4011,30 @@ void Main::Maker::MakeFile()
   LOG_NORMAL() << "1D Event Histo saved." << std::endl;
   
  
-  double slcid[nslices+1];
-  double avg_incE[nslices+1];
-  double avg_pitch[nslices+1];
+  double slcid[nslices+2];
+  double avg_incE[nslices+2];
+  double avg_pitch[nslices+2];
  
-  double tempxsec[nslices+1];
-  double tempxsec_chx[nslices+1];
+  double tempxsec[nslices+2];
+  double tempxsec_chx[nslices+2];
 
-  double tempxsec_pmom[nslices+1][nbinspmom];
-  double tempxsec_pcostheta[nslices+1][nbinspcostheta];
-  double tempxsec_pphi[nslices+1][nbinspphi];
+  double tempxsec_pmom[nslices+2][nbinspmom];
+  double tempxsec_pcostheta[nslices+2][nbinspcostheta];
+  double tempxsec_pphi[nslices+2][nbinspphi];
 
-  double tempxsec_chx_test[nslices+1];
-  double tempxsec_abs_test[nslices+1];
+  double tempxsec_chx_test[nslices+2];
+  double tempxsec_abs_test[nslices+2];
 
-  double rms_incE[nslices+1];
-  double rms_pitch[nslices+1];
-  double unverr[nslices+1];
-
-
+  double rms_incE[nslices+2];
+  double rms_pitch[nslices+2];
+  double unverr[nslices+2];
 
 
 
 
-  for (int i = 0; i<nslices+1; ++i){
+
+
+  for (int i = 0; i<=nslices+1; ++i){
      slcid[i] = i;
      
      unverr[i] = 0;
@@ -4072,17 +4105,17 @@ void Main::Maker::MakeFile()
       //incE[ig]->Write();
       //pitch[ig]->Write();
   //}
-  Double_t true_abs_new[nslices+1];  
-  Double_t reco_abs_new[nslices+1];  
-  Double_t true_abs_sel_new[nslices+1];  
-  Double_t reco_abs_sel_new[nslices+1];  
+  Double_t true_abs_new[nslices+2];  
+  Double_t reco_abs_new[nslices+2];  
+  Double_t true_abs_sel_new[nslices+2];  
+  Double_t reco_abs_sel_new[nslices+2];  
 
-  Double_t selected_tot_new[nslices+1];
-  Double_t selected_pibkg_new[nslices+1];
-  Double_t selected_mubkg_new[nslices+1];
-  Double_t selected_pibkg_elastic_new[nslices+1];
+  Double_t selected_tot_new[nslices+2];
+  Double_t selected_pibkg_new[nslices+2];
+  Double_t selected_mubkg_new[nslices+2];
+  Double_t selected_pibkg_elastic_new[nslices+2];
 
-  for(int k=0; k<nslices+1; k++){
+  for(int k=0; k<=nslices+1; k++){
       true_abs_new[k]=true_abs[k];
       reco_abs_new[k]=reco_abs[k];
       true_abs_sel_new[k]=true_abs_sel[k];
@@ -4091,7 +4124,7 @@ void Main::Maker::MakeFile()
       selected_pibkg_new[k]=selected_pibkg[k];
       selected_mubkg_new[k]=selected_mubkg[k];
       selected_pibkg_elastic_new[k]=selected_pibkg_elastic[k];
-      for(int l=0; l<nslices+1; l++){ 
+      for(int l=0; l<=nslices+1; l++){ 
          sliceIDmat_abs_den->SetBinContent(k+1, l+1, intabs_array_den[k][l]); 
          sliceIDmat_abs_num->SetBinContent(k+1, l+1, intabs_array_num[k][l]); 
       }
@@ -4107,46 +4140,53 @@ void Main::Maker::MakeFile()
 
   TFile output_newsf(outfilename.c_str(), "RECREATE");
 
-  gr_inc_reco_slc = new TGraph(nslices+1, slcid, incident);
-       gr_inc_slc = new TGraph(nslices+1, slcid, true_incident);
+  gr_inc_reco_slc = new TGraph(nslices+2, slcid, incident);
 
-  gr_int_slc = new TGraph(nslices+1, slcid, true_interaction);
+       gr_inc_slc = new TGraph(nslices+2, slcid, true_incident);
+  gr_inc_truemuon_slc = new TGraph(nslices+2, slcid, true_incident_muon); 
 
-  gr_intabs_slc = new TGraph(nslices+1, slcid, true_abs_new);
-  gr_intabs_sel_slc = new TGraph(nslices+1, slcid, true_abs_sel_new);
 
-  gr_recoabs_slc = new TGraph(nslices+1, slcid, reco_abs_new);
-  gr_recoabs_sel_slc = new TGraph(nslices+1, slcid, reco_abs_sel_new);
+  gr_inc_recopion_slc = new TGraph(nslices+2, slcid, incident_pion);
+  gr_inc_recomuon_slc = new TGraph(nslices+2, slcid, incident_muon);
+  gr_inc_recopionelastic_slc = new TGraph(nslices+2, slcid, incident_pion_elastic);
 
-  gr_selected_tot_slc = new TGraph(nslices+1, slcid, selected_tot_new);
-  gr_selected_pibkg_slc = new TGraph(nslices+1, slcid, selected_pibkg_new);
-  gr_selected_pibkg_elastic_slc = new TGraph(nslices+1, slcid, selected_pibkg_elastic_new);
-  gr_selected_mubkg_slc = new TGraph(nslices+1, slcid, selected_mubkg_new);
+  gr_int_slc = new TGraph(nslices+2, slcid, true_interaction);
+
+  gr_intabs_slc = new TGraph(nslices+2, slcid, true_abs_new);
+  gr_intabs_sel_slc = new TGraph(nslices+2, slcid, true_abs_sel_new);
+
+  gr_recoabs_slc = new TGraph(nslices+2, slcid, reco_abs_new);
+  gr_recoabs_sel_slc = new TGraph(nslices+2, slcid, reco_abs_sel_new);
+
+  gr_selected_tot_slc = new TGraph(nslices+2, slcid, selected_tot_new);
+  gr_selected_pibkg_slc = new TGraph(nslices+2, slcid, selected_pibkg_new);
+  gr_selected_pibkg_elastic_slc = new TGraph(nslices+2, slcid, selected_pibkg_elastic_new);
+  gr_selected_mubkg_slc = new TGraph(nslices+2, slcid, selected_mubkg_new);
  
 
 
 
-  gr_intchx_slc = new TGraph(nslices+1, slcid, true_chx);
+  gr_intchx_slc = new TGraph(nslices+2, slcid, true_chx);
 
 
-  gr_incE_slc = new TGraphAsymmErrors(nslices+1, slcid, avg_incE, unverr, unverr, rms_incE, rms_incE);
-  gr_pitch_slc = new TGraphAsymmErrors(nslices+1, slcid, avg_pitch, unverr, unverr, rms_pitch, rms_pitch);
+  gr_incE_slc = new TGraphAsymmErrors(nslices+2, slcid, avg_incE, unverr, unverr, rms_incE, rms_incE);
+  gr_pitch_slc = new TGraphAsymmErrors(nslices+2, slcid, avg_pitch, unverr, unverr, rms_pitch, rms_pitch);
 
 
 
-  gr_tempxsec_slc = new TGraph(nslices+1, slcid, tempxsec);
-  gr_tempxsec_chx_slc = new TGraph(nslices+1, slcid, tempxsec_chx);
+  gr_tempxsec_slc = new TGraph(nslices+2, slcid, tempxsec);
+  gr_tempxsec_chx_slc = new TGraph(nslices+2, slcid, tempxsec_chx);
 
 
-  gr_tempxsec_chx_test_slc = new TGraph(nslices+1, slcid, tempxsec_chx_test);
-  gr_tempxsec_abs_test_slc = new TGraph(nslices+1, slcid, tempxsec_abs_test);
+  gr_tempxsec_chx_test_slc = new TGraph(nslices+2, slcid, tempxsec_chx_test);
+  gr_tempxsec_abs_test_slc = new TGraph(nslices+2, slcid, tempxsec_abs_test);
 
 
-  TGraph *gr_tempxsec_pmom_slc[nslices+1];
+  TGraph *gr_tempxsec_pmom_slc[nslices+2];
 
-  TGraph *gr_tempxsec_pcostheta_slc[nslices+1];
+  TGraph *gr_tempxsec_pcostheta_slc[nslices+2];
 
-  for(int idx=0; idx<nslices+1; idx++){
+  for(int idx=0; idx<=nslices+1; idx++){
        double pxmom[nbinspmom];
        double xsecmom[nbinspmom];
        double pxcostheta[nbinspcostheta];
@@ -4177,16 +4217,21 @@ void Main::Maker::MakeFile()
 
   }
 
-  gr_tempxsec_vs_incE_slc = new TGraph(nslices+1, avg_incE, tempxsec);
+  gr_tempxsec_vs_incE_slc = new TGraph(nslices+2, avg_incE, tempxsec);
 
-  gr_tempxsec_chx_vs_incE_slc = new TGraph(nslices+1, avg_incE, tempxsec_chx);
+  gr_tempxsec_chx_vs_incE_slc = new TGraph(nslices+2, avg_incE, tempxsec_chx);
 
 
 
   gr_inc_slc->Write("gr_inc_slc");
+  gr_inc_truemuon_slc->Write("gr_inc_truemuon_slc");
 
+ 
   gr_inc_reco_slc->Write("gr_inc_reco_slc");   
   gr_int_slc->Write("gr_int_slc");
+  gr_inc_recomuon_slc->Write("gr_inc_recomuon_slc");   
+  gr_inc_recopion_slc->Write("gr_inc_recopion_slc");   
+  gr_inc_recopionelastic_slc->Write("gr_inc_recopionelastic_slc");   
 
   gr_intabs_slc->Write("gr_intabs_slc");
   gr_intabs_sel_slc->Write("gr_intabs_sel_slc");
