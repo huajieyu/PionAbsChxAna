@@ -613,7 +613,7 @@ void ana::Loop()
 
       int true_sliceID = -1;
 
-      if ((*true_beam_endProcess) == "pi+Inelastic" && abs(true_beam_PDG) == 211){  //std::cout<<"signal"<<std::endl;
+      if (abs(true_beam_PDG) == 211){  //std::cout<<"signal"<<std::endl;
         double true_endz = true_beam_endZ;
         double offset_z = 0;
         TVector3 point(true_beam_endX, true_beam_endY, true_beam_endZ);
@@ -634,12 +634,14 @@ void ana::Loop()
         if (true_sliceID <0) true_sliceID = 0;
         //if (true_sliceID == 0) std::cout<<true_beam_endZ<<std::endl;
         if (true_sliceID < nslices){
-          ++true_interaction[true_sliceID];
-          if (true_daughter_nPi0 == 0 && true_daughter_nPiPlus == 0 && true_daughter_nPiMinus == 0){//true absorption
-            ++true_abs[true_sliceID];
-          }
-          if (true_daughter_nPi0 == 1 && true_daughter_nPiPlus == 0  && true_daughter_nPiMinus == 0){//true absorption
-            ++true_cex[true_sliceID];
+          if ((*true_beam_endProcess) == "pi+Inelastic"){
+            ++true_interaction[true_sliceID];
+            if (true_daughter_nPi0 == 0 && true_daughter_nPiPlus == 0 && true_daughter_nPiMinus == 0){//true absorption
+              ++true_abs[true_sliceID];
+            }
+            if (true_daughter_nPi0 == 1 && true_daughter_nPiPlus == 0  && true_daughter_nPiMinus == 0){//true absorption
+              ++true_cex[true_sliceID];
+            }
           }
         }
         for (int i = 0; i<=true_sliceID; ++i){
