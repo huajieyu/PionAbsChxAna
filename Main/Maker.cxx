@@ -1635,7 +1635,7 @@ void Main::Maker::MakeFile()
   //LOG_NORMAL()<<"The size of the SCE correction is "<<RecoFwd_Displacement_Z_Pos->GetNbinsX()<<std::endl;  
   
   TChain *chain_ubxsec;
-  chain_ubxsec = new TChain("pionana/beamana");
+  chain_ubxsec = new TChain("pduneana/beamana");
   chain_ubxsec->Add(pattern.c_str());
   //chain_ubxsec->Add(pattern_add.c_str()); 
 
@@ -1667,6 +1667,7 @@ void Main::Maker::MakeFile()
   int Ntotal_tmdqdx = 0;
   int Ntotal_chi2 = 0;
   int Ntotal_shwid = 0;
+  int Ntotal_ntrkcut = 0;
 
   int Noriabs = 0;
   int Norichx = 0;
@@ -1699,6 +1700,12 @@ void Main::Maker::MakeFile()
   int Nchi2chx_withthresh = 0;
   int Nchi2rea_withthresh = 0;
   int Nchi2other_withthresh = 0;
+
+  int Ntrkcutabs_withthresh = 0;
+  int Ntrkcutchx_withthresh = 0;
+  int Ntrkcutrea_withthresh = 0;
+  int Ntrkcutother_withthresh = 0;
+
 
   int TestGenSig=0;
 
@@ -1767,7 +1774,7 @@ void Main::Maker::MakeFile()
 
   TH1D *incE[nslices+2];
   TH1D *pitch[nslices+2];
-
+  TH1D *dEdx[nslices+2];
 
   TH1D *h_energetic_pmom_gen[nslices+2];
   TH1D *h_energetic_pcostheta_gen[nslices+2];
@@ -1778,7 +1785,7 @@ void Main::Maker::MakeFile()
   TGraph *gr_inc_reco_slc;  //incident in reco slice
   TGraph *gr_inc_slc;       //incident in true slice
   TGraph *gr_inc_truemuon_slc;  //incident in true slice (muon)  
-
+  TGraph *gr_inc_trueelastic_slc;
 
   TGraph *gr_inc_recomuon_slc;  //incident in reco slice
   TGraph *gr_inc_recopion_slc;  //incident in reco slice
@@ -1876,6 +1883,7 @@ void Main::Maker::MakeFile()
      incident_muon[i] = 0;
      incident_pion_elastic[i] = 0;
 
+     true_incident_elastic[i]=0;
      true_incident[i]=0;
      true_incident_muon[i]=0;
      true_interaction[i]=0;
@@ -1902,7 +1910,8 @@ void Main::Maker::MakeFile()
      //incE[i]->SetDirectory(file_out);
      pitch[i] = new TH1D(Form("pitch_%d",i),Form("Slice thickness, %d<wire #<%d",i*nwires_in_slice, (i+1)*nwires_in_slice), nbinsthickness, 0, 20.);
      //pitch[i]->SetDirectory(file_out);
-
+     dEdx[i] = new TH1D(Form("dEdx_%d",i),Form("Averaged Energy, %d<wire #<%d",i*nwires_in_slice, (i+1)*nwires_in_slice), nbinsthickness, 0, 20.);
+ 
      h_energetic_pmom_gen[i] = new TH1D(Form("h_energetic_pmom_gen_%d",i),Form("Incident energy, %d<wire #<%d",i*nwires_in_slice, (i+1)*nwires_in_slice), nbinspmom, 0, 1.200);
      h_energetic_pmom_gen[i]->SetDirectory(file_out);
      h_energetic_pcostheta_gen[i] = new TH1D(Form("h_energetic_pcostheta_gen_%d",i),Form("Incident energy, %d<wire #<%d",i*nwires_in_slice, (i+1)*nwires_in_slice), nbinspcostheta, -1.0, 1.0);
@@ -1969,7 +1978,7 @@ void Main::Maker::MakeFile()
         //std::cout<<"end of setting all the Weight Names of the bootstraps; is it data? "<<isdata<<std::endl;	
 	//========================================================================
 	//select muon and pion beam events
-	if(isdata==0){
+	/*if(isdata==0){
 	
           if(abs(t->true_beam_PDG) != 211 && abs(t->true_beam_PDG) !=13) continue;
           //if(abs(t->true_beam_PDG) != 211) continue;
@@ -1992,7 +2001,8 @@ void Main::Maker::MakeFile()
                                 t->beam_inst_X, t->beam_inst_Y, t->beam_inst_dirX, t->beam_inst_dirY,
                                 t->beam_inst_dirZ, t->beam_inst_nMomenta, t->beam_inst_nTracks)) continue;
           //if(!endAPA3(t->reco_beam_endZ) )continue;
-        }
+        }*/
+
         h_Evttot->Fill(event_weight);
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         //set the map of wire number and incident particles
@@ -2020,9 +2030,9 @@ void Main::Maker::MakeFile()
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
         int sliceID = t->reco_beam_calo_wire->back()/nwires_in_slice;
-        if(sliceID>24){
-             std::cout<<"sliceID = "<<sliceID<<"  Wire number is "<<t->reco_beam_calo_wire->back()<<std::endl;
-        }
+        //if(sliceID>24){
+        //     std::cout<<"sliceID = "<<sliceID<<"  Wire number is "<<t->reco_beam_calo_wire->back()<<std::endl;
+        //}
         if(sliceID<0) sliceID=0;
         if(sliceID >= nslices+1) sliceID = nslices+1;
 
@@ -2057,9 +2067,6 @@ void Main::Maker::MakeFile()
                   ++reco_chx[sliceID];
               } 
            }
-           for (int i = 0; i<=true_sliceID; ++i){
-              if (i<=nslices+1) ++true_incident[i];
-           }
         }//end of selecting pion inclusive events
         
         //LOG_NORMAL()<<"Start to calculate the average energy and thickness with Tingjun's method"<<std::endl;
@@ -2068,9 +2075,25 @@ void Main::Maker::MakeFile()
         //double reco_endz = Sce_Corrected_endZ(t->reco_beam_endX, t->reco_beam_endY, t->reco_beam_endZ);
         //double reco_endz = t->reco_beam_endZ; 
         //sliceID = int((reco_endz-0.5603500-0.479/2)/0.479/nwires_in_slice); 
+        //if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211) {          
+        if(abs(t->true_beam_PDG) == 211){
+           for (int i = 0; i<=true_sliceID; ++i){
+              if(*temp_Ptr0 == "pi+Inelastic"){               
+                   if (i<=nslices+1) ++true_incident[i];
+              }
+              else { 
+                 if (i<=nslices+1) ++true_incident_elastic[i];
+              }
+           }
+        }//end of if this is a true pions
+        if(abs(t->true_beam_PDG) == 13){
+                 _event_histo->h_muon_beamendzvsp->Fill(true_endz, t->true_beam_startP);       
+        } 
+
         for(int i=0; i<=true_sliceID; ++i){
                if(abs(t->true_beam_PDG) == 13){
                    ++true_incident_muon[i];                    
+
                }
         } 
       
@@ -2104,44 +2127,36 @@ void Main::Maker::MakeFile()
 
         std::vector<std::vector<double>> vpitch(nslices+2);
         std::vector<std::vector<double>> vincE(nslices+2); 
-
-        
-
-        //LOG_NORMAL()<<" size of wire, incE and trkPitch are : "<<t->reco_beam_calo_wire->size()<<"  "
-        //            <<t->reco_beam_incidentEnergies->size()<<"  "
-        //            <<t->reco_beam_TrkPitch->size()<<std::endl;
-
-        //if (sliceID>=nslices) continue;
+        std::vector<std::vector<double>> vdEdx(nslices+2);
 
         if(t->reco_beam_incidentEnergies->size()>0){
         for (size_t i = 0; i<t->reco_beam_calo_wire->size(); ++i){
           int this_wire = t->reco_beam_calo_wire->at(i);
           int this_sliceID = this_wire/nwires_in_slice;
           //ignore the last slice for pitch and incident energy calculations
-          if (this_sliceID>sliceID || sliceID>=nslices+2) continue;
+          if (this_sliceID>=sliceID || sliceID>=nslices+2) continue;
           
           double this_incE = t->reco_beam_incidentEnergies->at(i);
-          double this_pitch = t->reco_beam_TrkPitch->at(i);
-          //std::cout<<"i= "<<i<<" this_pitch is "<<this_pitch<< "  this_incE  is "<<this_incE<<std::endl;
+          double this_pitch = t->reco_beam_TrkPitch_SCE->at(i);
+          double this_dEdx = t->reco_beam_dEdX_SCE->at(i);
+
           vpitch[this_sliceID].push_back(this_pitch);
           vincE[this_sliceID].push_back(this_incE);
+          vdEdx[this_sliceID].push_back(this_dEdx);
         }
-        }
+        }//end of if incidentEnergy vector size>0
 
-        if(vpitch.size()>0 && vincE.size()>0) {
-        //LOG_NORMAL()<<"Calculate the pitch in each slice "<<vpitch.size()<<std::endl;
+        if(vpitch.size()>0 && vincE.size()>0 && vdEdx.size()>0) {
         for (size_t i = 0; i<vpitch.size(); ++i){
-          //std::cout<<"vpitch[i] size = "<<vpitch[i].size()<<std::endl;
           if (!vpitch[i].empty()){
           double sum_pitch = 0;
           for (size_t j = 0; j<vpitch[i].size(); ++j){
-            //std::cout<<"i= "<<i<<"  j=  "<<j<<" vpitch at ij is "<<vpitch[i][j]<<std::endl;
             sum_pitch += vpitch[i][j];
           }
          
           pitch[i]->Fill(sum_pitch/vpitch[i].size()*nwires_in_slice);
          
-          } //else {continue;}
+          } 
         }
         //LOG_NORMAL()<<"Calculate the energy in each slice "<<std::endl;
         for (size_t i = 0; i<vincE.size(); ++i){
@@ -2153,7 +2168,16 @@ void Main::Maker::MakeFile()
           incE[i]->Fill(sum_incE/vincE[i].size());
           }
         }
+        for (size_t i = 0; i<vdEdx.size(); ++i){
+          if (!vdEdx[i].empty()){
+          double sum_dEdx = 0;
+          for (size_t j = 0; j<vdEdx[i].size(); ++j){
+           sum_dEdx += vdEdx[i][j];
+          }
+          dEdx[i]->Fill(sum_dEdx/vdEdx[i].size());
+          }
         }
+        }//end of if the size of vpitch vincE vdEdx>0
         if(vpitch.size()==0 || vincE.size()==0){
         LOG_NORMAL()<<"The size of pitch is "<<vpitch.size()<<"   "<<vincE.size()<<std::endl;
         }
@@ -2173,7 +2197,7 @@ void Main::Maker::MakeFile()
             double slicethickness = 0.0;
             for(int nh=slicebins[is]; nh<slicebins[is+1]; nh++) {
                  if(std::find(t->reco_beam_calo_wire->begin(), t->reco_beam_calo_wire->end(), nh) != t->reco_beam_calo_wire->end()) {
-                    if(t->reco_beam_incidentEnergies->size()>0 && t->reco_beam_TrkPitch->size()>0){                    
+                    if(t->reco_beam_incidentEnergies->size()>0 && t->reco_beam_TrkPitch_SCE->size()>0){                    
                        nincident = nincident+1;
                        int realindex = -999;
                        //nh is the wire number find the readindex
@@ -2182,7 +2206,7 @@ void Main::Maker::MakeFile()
                        }
                        if(realindex>=0){ 
                           eincident = eincident + t->reco_beam_incidentEnergies->at(realindex);
-                          slicethickness = slicethickness + t->reco_beam_TrkPitch->at(realindex);
+                          slicethickness = slicethickness + t->reco_beam_TrkPitch_SCE->at(realindex);
                        }
                     }
                  }//end of if the wire number  
@@ -2202,8 +2226,11 @@ void Main::Maker::MakeFile()
             }
         }//loop over all the slices
         if(isdata==0){
-           _event_histo->htotinc_reco_beamz_reso->Fill((t->reco_beam_calo_endZ-t->true_beam_traj_Z->back()));
-           _event_histo->htotinc_reco_beamwire_reso->Fill((t->reco_beam_calo_wire->back()-t->true_beam_slices->back()));
+           if(*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211){
+              _event_histo->htotinc_reco_beamz_reso->Fill((t->reco_beam_calo_endZ-t->true_beam_endZ));
+              _event_histo->htotinc_reco_beamwire_reso->Fill((t->reco_beam_calo_wire->back()-t->true_beam_slices->back()));
+              _event_histo->htotinc_reco_beam_intE_reso->Fill(t->reco_beam_interactingEnergy - t->true_beam_interactingEnergy);
+           }
         }
 
 
@@ -2345,7 +2372,7 @@ void Main::Maker::MakeFile()
                 for(int ic=slicebins[is]; ic<=t->reco_beam_calo_wire->back()-1; ic++){
                     //ic is the wire number over here
                     if(std::find(t->reco_beam_calo_wire->begin(),t->reco_beam_calo_wire->end(), ic) !=t->reco_beam_calo_wire->end()){
-                      if(t->reco_beam_incidentEnergies->size()>0 && t->reco_beam_TrkPitch->size()>0){                    
+                      if(t->reco_beam_incidentEnergies->size()>0 && t->reco_beam_TrkPitch_SCE->size()>0){                    
                          int realindex = -999;
                          //nh is the wire number find the readindex
                          for(long unsigned int kk=0; kk<t->reco_beam_calo_wire->size(); kk++){
@@ -3331,6 +3358,46 @@ void Main::Maker::MakeFile()
         if(sel_chx) if(trkscoreref.size()==0) continue;
         if(sel_chx) if(!has_shower_energy_distance(trkscoreref, shwengref, daughter_shwdis_ptr)) continue;
         */  
+        Ntotal_shwid++;
+
+        _event_histo_1d->h_shwcut_mult->Fill(t->reco_daughter_allTrack_ID->size());
+
+
+
+        if(isSignal_withthresh) {Nshwcutabs_withthresh++;
+        _event_histo_1d->hsig_shwcut_mult->Fill(t->reco_daughter_allTrack_ID->size());
+        }
+        if(isChxBKG_withthresh) {Nshwcutchx_withthresh++;
+        _event_histo_1d->hchxbac_shwcut_mult->Fill(t->reco_daughter_allTrack_ID->size());
+        }  
+        if(isReaBKG_withthresh) {Nshwcutrea_withthresh++;
+        _event_histo_1d->hreabac_shwcut_mult->Fill(t->reco_daughter_allTrack_ID->size());
+        }
+        if(isOtherBKG_withthresh) {Nshwcutother_withthresh++;
+        }
+
+        //if(!endAPA3(t->reco_beam_endZ) )continue;
+        //if(t->reco_daughter_allTrack_ID->size()<1   ) continue;         
+
+        Ntotal_ntrkcut++;
+        if(isSignal_withthresh){
+                Ntrkcutabs_withthresh++;
+        } 
+        if(isChxBKG_withthresh){
+                Ntrkcutchx_withthresh++;
+        } 
+        if(isReaBKG_withthresh){
+                Ntrkcutrea_withthresh++;
+        } 
+        if(isOtherBKG_withthresh){
+                Ntrkcutother_withthresh++;
+        } 
+
+
+
+
+
+
 
         ++selected_tot[sliceID];
 
@@ -3358,23 +3425,7 @@ void Main::Maker::MakeFile()
         }
         //=======================================================================
  
-        Ntotal_shwid++;
 
-        _event_histo_1d->h_shwcut_mult->Fill(t->reco_daughter_allTrack_ID->size());
-
-
-
-        if(isSignal_withthresh) {Nshwcutabs_withthresh++;
-        _event_histo_1d->hsig_shwcut_mult->Fill(t->reco_daughter_allTrack_ID->size());
-        }
-        if(isChxBKG_withthresh) {Nshwcutchx_withthresh++;
-        _event_histo_1d->hchxbac_shwcut_mult->Fill(t->reco_daughter_allTrack_ID->size());
-        }  
-        if(isReaBKG_withthresh) {Nshwcutrea_withthresh++;
-        _event_histo_1d->hreabac_shwcut_mult->Fill(t->reco_daughter_allTrack_ID->size());
-        }
-        if(isOtherBKG_withthresh) {Nshwcutother_withthresh++;
-        }
  
         
 
@@ -3562,7 +3613,7 @@ void Main::Maker::MakeFile()
                 for(int ic=slicebins[is]; ic<=t->reco_beam_calo_wire->back()-1; ic++){
                     //ic is the wire number over here
                     if(std::find(t->reco_beam_calo_wire->begin(),t->reco_beam_calo_wire->end(), ic) !=t->reco_beam_calo_wire->end()){
-                      if(t->reco_beam_incidentEnergies->size()>0 && t->reco_beam_TrkPitch->size()>0){                    
+                      if(t->reco_beam_incidentEnergies->size()>0 && t->reco_beam_TrkPitch_SCE->size()>0){                    
                          int realindex = -999;
                          //nh is the wire number find the readindex
                          for(long unsigned int kk=0; kk<t->reco_beam_calo_wire->size(); kk++){
@@ -3740,7 +3791,7 @@ void Main::Maker::MakeFile()
                    if(t->reco_beam_calo_wire->size()>0 && t->reco_beam_incidentEnergies->size()>0){
                     //ic is the wire number over here
                     if(std::find(t->reco_beam_calo_wire->begin(),t->reco_beam_calo_wire->end(), ic) !=t->reco_beam_calo_wire->end()){
-                      if(t->reco_beam_incidentEnergies->size()>0 && t->reco_beam_TrkPitch->size()>0){                    
+                      if(t->reco_beam_incidentEnergies->size()>0 && t->reco_beam_TrkPitch_SCE->size()>0){                    
                          int realindex = -999;
                          //nh is the wire number find the readindex
                          for(long unsigned int kk=0; kk<t->reco_beam_calo_wire->size(); kk++){
@@ -3821,7 +3872,7 @@ void Main::Maker::MakeFile()
                    if(t->reco_beam_calo_wire->size()>0 && t->reco_beam_incidentEnergies->size()>0){
                     //ic is the wire number over here
                     if(std::find(t->reco_beam_calo_wire->begin(),t->reco_beam_calo_wire->end(), ic) !=t->reco_beam_calo_wire->end()){
-                      if(t->reco_beam_incidentEnergies->size()>0 && t->reco_beam_TrkPitch->size()>0){                    
+                      if(t->reco_beam_incidentEnergies->size()>0 && t->reco_beam_TrkPitch_SCE->size()>0){                    
                          int realindex = -999;
                          //nh is the wire number find the readindex
                          for(long unsigned int kk=0; kk<t->reco_beam_calo_wire->size(); kk++){
@@ -3901,7 +3952,7 @@ void Main::Maker::MakeFile()
                    if(t->reco_beam_calo_wire->size()>0 && t->reco_beam_incidentEnergies->size()>0){
                     //ic is the wire number over here
                     if(std::find(t->reco_beam_calo_wire->begin(),t->reco_beam_calo_wire->end(), ic) !=t->reco_beam_calo_wire->end()){
-                      if(t->reco_beam_incidentEnergies->size()>0 && t->reco_beam_TrkPitch->size()>0){                    
+                      if(t->reco_beam_incidentEnergies->size()>0 && t->reco_beam_TrkPitch_SCE->size()>0){                    
                          int realindex = -999;
                          //nh is the wire number find the readindex
                          for(long unsigned int kk=0; kk<t->reco_beam_calo_wire->size(); kk++){
@@ -3948,7 +3999,7 @@ void Main::Maker::MakeFile()
                    if(t->reco_beam_calo_wire->size()>0 && t->reco_beam_incidentEnergies->size()>0){
                     //ic is the wire number over here
                     if(std::find(t->reco_beam_calo_wire->begin(),t->reco_beam_calo_wire->end(), ic) !=t->reco_beam_calo_wire->end()){
-                      if(t->reco_beam_incidentEnergies->size()>0 && t->reco_beam_TrkPitch->size()>0){                    
+                      if(t->reco_beam_incidentEnergies->size()>0 && t->reco_beam_TrkPitch_SCE->size()>0){                    
                          int realindex = -999;
                          //nh is the wire number find the readindex
                          for(long unsigned int kk=0; kk<t->reco_beam_calo_wire->size(); kk++){
@@ -4014,7 +4065,8 @@ void Main::Maker::MakeFile()
   double slcid[nslices+2];
   double avg_incE[nslices+2];
   double avg_pitch[nslices+2];
- 
+  double avg_dEdx[nslices+2];
+
   double tempxsec[nslices+2];
   double tempxsec_chx[nslices+2];
 
@@ -4027,6 +4079,7 @@ void Main::Maker::MakeFile()
 
   double rms_incE[nslices+2];
   double rms_pitch[nslices+2];
+  double rms_dEdx[nslices+2];
   double unverr[nslices+2];
 
 
@@ -4040,18 +4093,21 @@ void Main::Maker::MakeFile()
      unverr[i] = 0;
      
      avg_incE[i] = incE[i]->GetMean();
-
+     
      avg_pitch[i] = pitch[i]->GetMean();
+   
+     avg_dEdx[i]= dEdx[i]->GetMean();
 
      rms_incE[i] = incE[i]->GetRMS()/TMath::Sqrt(incE[i]->GetEntries());;
 
      rms_pitch[i] = pitch[i]->GetRMS()/TMath::Sqrt(pitch[i]->GetEntries());
-
+ 
+     rms_dEdx[i] = dEdx[i]->GetRMS()/TMath::Sqrt(dEdx[i]->GetEntries());
 
      if( incident[i]>0 && avg_pitch[i]>0){
 
-
-     tempxsec[i]          =MAr/(Density*NA*avg_pitch[i])*true_abs[i]/true_incident[i];
+     tempxsec[i]          = MAr/(Density*NA*avg_pitch[i])*log((true_incident[i]+true_incident_elastic[i])/(true_incident[i]+true_incident_elastic[i]-true_abs[i]));
+     //tempxsec[i]          =MAr/(Density*NA*avg_pitch[i])*true_abs[i]/true_incident[i];
 
      for(int nb=0; nb<nbinspmom; nb++){
           tempxsec_pmom[i][nb]=(1/1e-27)*MAr/(Density*NA*avg_pitch[i])*h_energetic_pmom_gen[i]->GetBinContent(nb+1)/true_incident[i];
@@ -4062,11 +4118,11 @@ void Main::Maker::MakeFile()
      for(int nb=0; nb<nbinspphi; nb++){
           tempxsec_pphi[i][nb]=(1/1e-27)*MAr/(Density*NA*avg_pitch[i])*h_energetic_pphi_gen[i]->GetEntries()/true_incident[i];
      }
-          
-     tempxsec_chx[i]      =MAr/(Density*NA*avg_pitch[i])*true_chx[i]/true_incident[i];         
+     tempxsec_chx[i]        =MAr/(Density*NA*avg_pitch[i])*log((true_incident[i]+true_incident_elastic[i])/(true_incident[i]+true_incident_elastic[i]-true_chx[i]));     
+     //tempxsec_chx[i]      =MAr/(Density*NA*avg_pitch[i])*true_chx[i]/true_incident[i];         
 
-     tempxsec_chx_test[i] = true_chx[i]/true_incident[i];
-     tempxsec_abs_test[i] = true_abs[i]/true_incident[i];
+     tempxsec_chx_test[i] = true_chx[i]/(true_incident[i]+true_incident_elastic[i]);
+     tempxsec_abs_test[i] = true_abs[i]/(true_incident[i]+true_incident_elastic[i]);
 
 
      } else {tempxsec[i]=0.0; tempxsec_chx[i]=0.0; tempxsec_chx_test[i]=0.0; tempxsec_abs_test[i] = 0.0; }
@@ -4140,18 +4196,18 @@ void Main::Maker::MakeFile()
 
   TFile output_newsf(outfilename.c_str(), "RECREATE");
 
-  gr_inc_reco_slc = new TGraph(nslices+2, slcid, incident);
 
-       gr_inc_slc = new TGraph(nslices+2, slcid, true_incident);
+  gr_inc_slc = new TGraph(nslices+2, slcid, true_incident);
   gr_inc_truemuon_slc = new TGraph(nslices+2, slcid, true_incident_muon); 
+  gr_inc_trueelastic_slc =new TGraph(nslices+2,slcid, true_incident_elastic);
 
 
+  gr_inc_reco_slc = new TGraph(nslices+2, slcid, incident);
   gr_inc_recopion_slc = new TGraph(nslices+2, slcid, incident_pion);
   gr_inc_recomuon_slc = new TGraph(nslices+2, slcid, incident_muon);
   gr_inc_recopionelastic_slc = new TGraph(nslices+2, slcid, incident_pion_elastic);
 
   gr_int_slc = new TGraph(nslices+2, slcid, true_interaction);
-
   gr_intabs_slc = new TGraph(nslices+2, slcid, true_abs_new);
   gr_intabs_sel_slc = new TGraph(nslices+2, slcid, true_abs_sel_new);
 
@@ -4163,8 +4219,6 @@ void Main::Maker::MakeFile()
   gr_selected_pibkg_elastic_slc = new TGraph(nslices+2, slcid, selected_pibkg_elastic_new);
   gr_selected_mubkg_slc = new TGraph(nslices+2, slcid, selected_mubkg_new);
  
-
-
 
   gr_intchx_slc = new TGraph(nslices+2, slcid, true_chx);
 
@@ -4183,16 +4237,20 @@ void Main::Maker::MakeFile()
 
 
   TGraph *gr_tempxsec_pmom_slc[nslices+2];
-
   TGraph *gr_tempxsec_pcostheta_slc[nslices+2];
+  TGraph *gr_tempxsec_pphi_slc[nslices+2];
 
   for(int idx=0; idx<=nslices+1; idx++){
        double pxmom[nbinspmom];
        double xsecmom[nbinspmom];
        double pxcostheta[nbinspcostheta];
        double xseccostheta[nbinspcostheta];
+       double pxphi[nbinspphi];
+       double xsecphi[nbinspphi];
+
        double binwidthpmom=1.2/nbinspmom;
        double binwidthpcostheta=1.2/nbinspcostheta;
+       double binwidthpphi=2*TMath::Pi()/nbinspphi;
 
        for(int jk=0; jk<nbinspmom; jk++){
           pxmom[jk] = (jk+0.5)*binwidthpmom;
@@ -4202,7 +4260,11 @@ void Main::Maker::MakeFile()
           pxcostheta[jk] = (jk+0.5)*binwidthpcostheta;
           xseccostheta[jk]=tempxsec_pcostheta[idx][jk];
        } 
-
+       for(int jk=0; jk<nbinspphi; jk++){
+          pxphi[jk] = (jk+0.5)*binwidthpphi;
+          xsecphi[jk]=tempxsec_pphi[idx][jk];
+       } 
+     
        /*TGraph *gr_libo_xsecvspmom = new TGraph(nbinspmom, pxmom,  xsecmom);
        gr_libo_xsecvspmom->Write(Form("gr_tempxsec_pmom_slc_%d",idx));
 
@@ -4212,8 +4274,13 @@ void Main::Maker::MakeFile()
 
        gr_tempxsec_pmom_slc[idx]=new TGraph(nbinspmom, pxmom,  xsecmom);
        gr_tempxsec_pmom_slc[idx]->Write(Form("gr_tempxsec_pmom_%d",idx));
+
        gr_tempxsec_pcostheta_slc[idx]=new TGraph(nbinspcostheta, pxcostheta, xseccostheta);
        gr_tempxsec_pcostheta_slc[idx]->Write(Form("gr_tempxsec_pcostheta_%d",idx));
+
+       gr_tempxsec_pphi_slc[idx]=new TGraph(nbinspphi, pxphi, xsecphi);
+       gr_tempxsec_pphi_slc[idx]->Write(Form("gr_tempxsec_pphi_%d",idx));
+
 
   }
 
@@ -4225,7 +4292,7 @@ void Main::Maker::MakeFile()
 
   gr_inc_slc->Write("gr_inc_slc");
   gr_inc_truemuon_slc->Write("gr_inc_truemuon_slc");
-
+  gr_inc_trueelastic_slc->Write("gr_inc_trueelastic_slc");
  
   gr_inc_reco_slc->Write("gr_inc_reco_slc");   
   gr_int_slc->Write("gr_int_slc");
@@ -4473,13 +4540,18 @@ void Main::Maker::MakeFile()
   std::cout<<"Nshwcutother_withthresh = "<<Nshwcutother_withthresh<<std::endl;
 
   std::cout<<"<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"<<std::endl;
+  std::cout<<"Ntrkcutabs_withthresh = "<<Ntrkcutabs_withthresh<<std::endl;
+  std::cout<<"Ntrkcutchx_withthresh = "<<Ntrkcutchx_withthresh<<std::endl;
+  std::cout<<"Ntrkcutrea_withthresh = "<<Ntrkcutrea_withthresh<<std::endl;
+  std::cout<<"Ntrkcutother_withthresh = "<<Ntrkcutother_withthresh<<std::endl;
 
+  std::cout<<"<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"<<std::endl;
 
   std::cout<<"Ntotal beam event is "<<Ntotal_beam<<std::endl; 
   std::cout<<"Ntotal tmdqdx event is "<<Ntotal_tmdqdx<<std::endl; 
   std::cout<<"Ntotal ch2 event is "<<Ntotal_chi2<<std::endl; 
   std::cout<<"Ntotal shwid event is "<<Ntotal_shwid<<std::endl; 
- 
+  std::cout<<"Ntotal ntrk cut is "<<Ntotal_ntrkcut<<std::endl; 
   //=========================================================================
   std::cout<<"total number of showers (trkscore) "<<totalshower_trkscore<<std::endl;
   std::cout<<"total number of showers (trknhits) "<<totalshower_trknhits<<std::endl;

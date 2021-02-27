@@ -415,7 +415,8 @@ namespace Main{
     double incident_muon[nslices+2];
 
 
-
+ 
+    double true_incident_elastic[nslices+2];
     double true_incident[nslices+2];
     double true_incident_muon[nslices+2];
 
