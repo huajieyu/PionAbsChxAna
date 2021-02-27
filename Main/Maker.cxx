@@ -2044,20 +2044,15 @@ void Main::Maker::MakeFile()
         }//end of selecting pion inclusive events
         
         //LOG_NORMAL()<<"Start to calculate the average energy and thickness with Tingjun's method"<<std::endl;
-        //interaction slice ID based on the track end wire number
-        //int sliceID = t->reco_beam_calo_wire->back()/nwires_in_slice;
-        //double reco_endz = Sce_Corrected_endZ(t->reco_beam_endX, t->reco_beam_endY, t->reco_beam_endZ);
-        //double reco_endz = t->reco_beam_endZ; 
-        //sliceID = int((reco_endz-0.5603500-0.479/2)/0.479/nwires_in_slice); 
-        //if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211) {          
         if(abs(t->true_beam_PDG) == 211){
            for (int i = 0; i<=true_sliceID; ++i){
+             if(i<=nslices+1){
               if(*temp_Ptr0 == "pi+Inelastic"){               
-                   if (i<=nslices+1) ++true_incident[i];
+                   ++true_incident[i];
+              }else { 
+                   ++true_incident_elastic[i];
               }
-              else { 
-                 if (i<=nslices+1) ++true_incident_elastic[i];
-              }
+             } 
            }
         }//end of if this is a true pions
         if(abs(t->true_beam_PDG) == 13){
@@ -4121,7 +4116,7 @@ void Main::Maker::MakeFile()
      for(int nb=0; nb<nbinspphi; nb++){
           tempxsec_pphi[i][nb]=(1/1e-27)*MAr/(Density*NA*avg_pitch[i])*h_energetic_pphi_gen[i]->GetEntries()/true_incident[i];
      }
-     tempxsec_chx[i]        =MAr/(Density*NA*avg_pitch[i])*log((true_incident[i]+true_incident_elastic[i])/(true_incident[i]+true_incident_elastic[i]-true_chx[i]));     
+     tempxsec_chx[i]          = MAr/(Density*NA*avg_pitch[i])*log((true_incident[i]+true_incident_elastic[i])/(true_incident[i]+true_incident_elastic[i]-true_chx[i]));
      //tempxsec_chx[i]      =MAr/(Density*NA*avg_pitch[i])*true_chx[i]/true_incident[i];         
 
      tempxsec_chx_test[i] = true_chx[i]/(true_incident[i]+true_incident_elastic[i]);
