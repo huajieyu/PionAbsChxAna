@@ -1977,32 +1977,6 @@ void Main::Maker::MakeFile()
         }//end of is isdata==0
         //std::cout<<"end of setting all the Weight Names of the bootstraps; is it data? "<<isdata<<std::endl;	
 	//========================================================================
-	//select muon and pion beam events
-	/*if(isdata==0){
-	
-          if(abs(t->true_beam_PDG) != 211 && abs(t->true_beam_PDG) !=13) continue;
-          //if(abs(t->true_beam_PDG) != 211) continue;
-          //Evttot += event_weight; 
-          //h_Evttot->Fill(event_weight);
-          if(!isBeamType(t->reco_beam_type)) continue;
-          if(!manual_beamPos_mc(t->reco_beam_startX, t->reco_beam_startY, t->reco_beam_startZ, 
-                              t->reco_beam_trackDirX, t->reco_beam_trackDirY, t->reco_beam_trackDirZ,
-                              t->true_beam_startDirX, t->true_beam_startDirY, t->true_beam_startDirZ,
-                              t->true_beam_startX, t->true_beam_startY, t->true_beam_startZ)) continue;
-          //if(!endAPA3(t->reco_beam_endZ) )continue;
-        } 
-     
-        if(isdata==1){
-          if(!data_beam_PID(t->beam_inst_PDG_candidates)) continue;
-          //Evttot += event_weight; 
-          //h_Evttot->Fill(event_weight);
-          if(!manual_beamPos_data(t->event, t->reco_beam_startX, t->reco_beam_startY, t->reco_beam_startZ,
-                                t->reco_beam_trackDirX, t->reco_beam_trackDirY, t->reco_beam_trackDirZ,
-                                t->beam_inst_X, t->beam_inst_Y, t->beam_inst_dirX, t->beam_inst_dirY,
-                                t->beam_inst_dirZ, t->beam_inst_nMomenta, t->beam_inst_nTracks)) continue;
-          //if(!endAPA3(t->reco_beam_endZ) )continue;
-        }*/
-
         h_Evttot->Fill(event_weight);
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         //set the map of wire number and incident particles
@@ -2124,7 +2098,36 @@ void Main::Maker::MakeFile()
         }
 
         //LOG_NORMAL()<<"Start to Fill Vector to store energy and thickness"<<std::endl;
+	//select muon and pion beam events
+	if(isdata==0){
+	
+          if(abs(t->true_beam_PDG) != 211 && abs(t->true_beam_PDG) !=13) continue;
+          //if(abs(t->true_beam_PDG) != 211) continue;
+          //Evttot += event_weight; 
+          //h_Evttot->Fill(event_weight);
+          if(!isBeamType(t->reco_beam_type)) continue;
+          if(!manual_beamPos_mc(t->reco_beam_startX, t->reco_beam_startY, t->reco_beam_startZ, 
+                              t->reco_beam_trackDirX, t->reco_beam_trackDirY, t->reco_beam_trackDirZ,
+                              t->true_beam_startDirX, t->true_beam_startDirY, t->true_beam_startDirZ,
+                              t->true_beam_startX, t->true_beam_startY, t->true_beam_startZ)) continue;
+          if(!endAPA3(t->reco_beam_endZ) )continue;
+        } 
+     
+        if(isdata==1){
+          if(!data_beam_PID(t->beam_inst_PDG_candidates)) continue;
+          //Evttot += event_weight; 
+          //h_Evttot->Fill(event_weight);
+          if(!manual_beamPos_data(t->event, t->reco_beam_startX, t->reco_beam_startY, t->reco_beam_startZ,
+                                t->reco_beam_trackDirX, t->reco_beam_trackDirY, t->reco_beam_trackDirZ,
+                                t->beam_inst_X, t->beam_inst_Y, t->beam_inst_dirX, t->beam_inst_dirY,
+                                t->beam_inst_dirZ, t->beam_inst_nMomenta, t->beam_inst_nTracks)) continue;
+          if(!endAPA3(t->reco_beam_endZ) )continue;
+        }
 
+
+
+
+        //============================================================================
         std::vector<std::vector<double>> vpitch(nslices+2);
         std::vector<std::vector<double>> vincE(nslices+2); 
         std::vector<std::vector<double>> vdEdx(nslices+2);
@@ -4264,13 +4267,6 @@ void Main::Maker::MakeFile()
           pxphi[jk] = (jk+0.5)*binwidthpphi;
           xsecphi[jk]=tempxsec_pphi[idx][jk];
        } 
-     
-       /*TGraph *gr_libo_xsecvspmom = new TGraph(nbinspmom, pxmom,  xsecmom);
-       gr_libo_xsecvspmom->Write(Form("gr_tempxsec_pmom_slc_%d",idx));
-
-       TGraph *gr_libo_xsecvspcostheta = new TGraph(nbinspcostheta, pxcostheta,  xseccostheta);
-       gr_libo_xsecvspcostheta->Write(Form("gr_tempxsec_pcostheta_slc_%d",idx));
-       */
 
        gr_tempxsec_pmom_slc[idx]=new TGraph(nbinspmom, pxmom,  xsecmom);
        gr_tempxsec_pmom_slc[idx]->Write(Form("gr_tempxsec_pmom_%d",idx));
