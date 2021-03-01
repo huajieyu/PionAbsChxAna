@@ -467,7 +467,25 @@ bool Main::Maker::data_beam_PID(const std::vector<int> *pidCandidates){
 bool Main::Maker::isBeamType(int reco_beam_type){
   return (reco_beam_type == 13);
 };
+void Main::Maker:: manual_beamPos_data_vector (int event,            double data_startX,
+                              double data_startY,   double data_startZ,
+                              double data_dirX,     double data_dirY,
+                              double data_dirZ,     double data_BI_X,
+                              double data_BI_Y,     double data_BI_dirX,
+                              double data_BI_dirY,  double data_BI_dirZ,
+                              int data_BI_nMomenta, int data_BI_nTracks, std::vector<double> *temp_vdata) {
 
+  double deltaX = data_startX - data_BI_X;
+  double deltaY = data_startY - data_BI_Y;
+  double cos = data_BI_dirX*data_dirX + data_BI_dirY*data_dirY +
+               data_BI_dirZ*data_dirZ;
+
+  temp_vdata->push_back(deltaX);
+  temp_vdata->push_back(deltaY);
+  temp_vdata->push_back(data_startZ); 
+  temp_vdata->push_back(cos);
+
+}
 bool Main::Maker:: manual_beamPos_data (int event,            double data_startX,
                               double data_startY,   double data_startZ,
                               double data_dirX,     double data_dirY,
@@ -500,7 +518,24 @@ bool Main::Maker:: manual_beamPos_data (int event,            double data_startX
 
 };
 
+void Main::Maker::manual_beamPos_mc_vector(double beam_startX, double beam_startY,
+                            double beam_startZ, double beam_dirX,
+                            double beam_dirY,   double beam_dirZ, 
+                            double true_dirX,   double true_dirY,
+                            double true_dirZ,   double true_startX,
+                            double true_startY, double true_startZ, std::vector<double>* temp_vmc) {
+  double projectX = (true_startX + -1*true_startZ*(true_dirX/true_dirZ) );
+  double projectY = (true_startY + -1*true_startZ*(true_dirY/true_dirZ) );
+  double cos = true_dirX*beam_dirX + true_dirY*beam_dirY + true_dirZ*beam_dirZ;
 
+
+  temp_vmc->push_back(-projectX+beam_startX);
+  temp_vmc->push_back(-projectY+beam_startY);
+  temp_vmc->push_back(beam_startZ);
+  temp_vmc->push_back(cos);
+
+
+}
 bool Main::Maker::manual_beamPos_mc(double beam_startX, double beam_startY,
                             double beam_startZ, double beam_dirX,
                             double beam_dirY,   double beam_dirZ, 
@@ -532,6 +567,65 @@ bool Main::Maker::manual_beamPos_mc(double beam_startX, double beam_startY,
   return true;
 
 };
+
+std::string Main::Maker::beam_particle_Identification(std::string &reco_beam_true_byHits_process, Bool_t &reco_beam_true_byHits_matched, Int_t &reco_beam_true_byHits_origin, Int_t &reco_beam_true_byHits_PDG){
+   //primary beam particles : process == primary
+   //matched: 
+   //
+
+   if( reco_beam_true_byHits_process == "primary" && reco_beam_true_byHits_matched && reco_beam_true_byHits_origin == 4 && reco_beam_true_byHits_PDG == 211 )
+    return "PrimaryPion";
+  else if( reco_beam_true_byHits_process == "primary" && reco_beam_true_byHits_matched && reco_beam_true_byHits_origin == 4 && reco_beam_true_byHits_PDG == -13 )
+    return "PrimaryMuon";
+  else if( reco_beam_true_byHits_process == "primary" && reco_beam_true_byHits_matched && reco_beam_true_byHits_origin ==4 && reco_beam_true_byHits_PDG == 2212 )
+    return "PrimaryProton";
+  else if( reco_beam_true_byHits_process == "primary" && reco_beam_true_byHits_matched && reco_beam_true_byHits_origin ==4 && abs(reco_beam_true_byHits_PDG) == 11 )
+    return "PrimaryElectron";
+  else if( reco_beam_true_byHits_origin == 2 )
+    return "Cosmic";
+  else if( reco_beam_true_byHits_process == "primary" && !reco_beam_true_byHits_matched  && reco_beam_true_byHits_origin == 4 )
+    return "PrimaryBeamNotTrig";
+    //=======================================================================
+
+
+else if( ( reco_beam_true_byHits_process == "neutronInelastic" || reco_beam_true_byHits_process == "protonInelastic"
+  ||    reco_beam_true_byHits_process == "pi-Inelastic" || reco_beam_true_byHits_process == "hadElastic"
+  ||    reco_beam_true_byHits_process == "pi+Inelastic" ) && reco_beam_true_byHits_origin == 4  && reco_beam_true_byHits_PDG == 211 )
+    return "UpstreamIntToPiPlus";
+  else if( ( reco_beam_true_byHits_process == "neutronInelastic" || reco_beam_true_byHits_process == "protonInelastic"
+  ||    reco_beam_true_byHits_process == "pi-Inelastic" || reco_beam_true_byHits_process == "hadElastic"
+  ||    reco_beam_true_byHits_process == "pi+Inelastic" ) && reco_beam_true_byHits_origin == 4  && reco_beam_true_byHits_PDG == 321 )
+    return "UpstreamIntToKaon";
+  else if( ( reco_beam_true_byHits_process == "neutronInelastic" || reco_beam_true_byHits_process == "protonInelastic"
+  ||    reco_beam_true_byHits_process == "pi-Inelastic" || reco_beam_true_byHits_process == "hadElastic"
+  ||    reco_beam_true_byHits_process == "pi+Inelastic" ) && reco_beam_true_byHits_origin == 4  && reco_beam_true_byHits_PDG == -211 )
+    return "UpstreamIntToPiMinus";
+  else if( ( reco_beam_true_byHits_process == "neutronInelastic" || reco_beam_true_byHits_process == "protonInelastic"
+  ||    reco_beam_true_byHits_process == "pi-Inelastic" || reco_beam_true_byHits_process == "hadElastic"
+  ||    reco_beam_true_byHits_process == "pi+Inelastic" ) && reco_beam_true_byHits_origin == 4  && reco_beam_true_byHits_PDG == 2212 )
+    return "UpstreamIntToProton";
+  else if( ( reco_beam_true_byHits_process == "neutronInelastic" || reco_beam_true_byHits_process == "protonInelastic"
+  ||    reco_beam_true_byHits_process == "pi-Inelastic" || reco_beam_true_byHits_process == "hadElastic"
+  ||    reco_beam_true_byHits_process == "pi+Inelastic" ) && reco_beam_true_byHits_origin == 4  && reco_beam_true_byHits_PDG >  2212 )
+    return "UpstreamIntToNuc";
+  //--------------------------------------------------
+  else if( reco_beam_true_byHits_process == "Decay" )
+    return "Decay";
+  else if( reco_beam_true_byHits_origin == -1 )
+    return "Other";
+
+  return "bad";
+
+
+
+
+}
+
+
+
+
+
+
 bool Main::Maker::endAPA3(double reco_beam_endZ){
   return(reco_beam_endZ < cutAPA3_Z);
 
@@ -1783,9 +1877,12 @@ void Main::Maker::MakeFile()
 
 
   TGraph *gr_inc_reco_slc;  //incident in reco slice
-  TGraph *gr_inc_slc;       //incident in true slice
+
+  TGraph *gr_inc_truepion_pandora_identified_slc;
+
+  TGraph *gr_inc_truepion_slc;       //incident in true slice
   TGraph *gr_inc_truemuon_slc;  //incident in true slice (muon)  
-  TGraph *gr_inc_trueelastic_slc;
+  TGraph *gr_inc_truepionelastic_slc;
 
   TGraph *gr_inc_recomuon_slc;  //incident in reco slice
   TGraph *gr_inc_recopion_slc;  //incident in reco slice
@@ -1883,8 +1980,10 @@ void Main::Maker::MakeFile()
      incident_muon[i] = 0;
      incident_pion_elastic[i] = 0;
 
-     true_incident_elastic[i]=0;
-     true_incident[i]=0;
+     true_incident_pandora_identified[i]=0;
+
+     true_incident_pion_elastic[i]=0;
+     true_incident_pion[i]=0;
      true_incident_muon[i]=0;
      true_interaction[i]=0;
      true_abs[i]=0;
@@ -2048,9 +2147,9 @@ void Main::Maker::MakeFile()
            for (int i = 0; i<=true_sliceID; ++i){
              if(i<=nslices+1){
               if(*temp_Ptr0 == "pi+Inelastic"){               
-                   ++true_incident[i];
+                   ++true_incident_pion[i];
               }else { 
-                   ++true_incident_elastic[i];
+                   ++true_incident_pion_elastic[i];
               }
              } 
            }
@@ -2060,10 +2159,12 @@ void Main::Maker::MakeFile()
         } 
 
         for(int i=0; i<=true_sliceID; ++i){
+            if(i<=nslices+1){
                if(abs(t->true_beam_PDG) == 13){
                    ++true_incident_muon[i];                    
 
                }
+            } 
         } 
       
    
@@ -2092,15 +2193,78 @@ void Main::Maker::MakeFile()
            }
         }
 
+
+
         //LOG_NORMAL()<<"Start to Fill Vector to store energy and thickness"<<std::endl;
 	//select muon and pion beam events
 	if(isdata==0){
 	
+          std::vector<double> *temp_mc = new std::vector<double>();
+          manual_beamPos_mc_vector(t->reco_beam_startX, t->reco_beam_startY, t->reco_beam_startZ,
+                              t->reco_beam_trackDirX, t->reco_beam_trackDirY, t->reco_beam_trackDirZ,
+                              t->true_beam_startDirX, t->true_beam_startDirY, t->true_beam_startDirZ,
+                              t->true_beam_startX, t->true_beam_startY, t->true_beam_startZ, temp_mc);
+         
+          std::vector<double>::iterator it;
+          int idx=0;
+
+          std::string *temp_process_Ptr=t->reco_beam_true_byHits_process;
+
+          std::string beam_identification = beam_particle_Identification((*temp_process_Ptr), t->reco_beam_true_byHits_matched, t->reco_beam_true_byHits_origin, t->reco_beam_true_byHits_PDG); 
+          //LOG_NORMAL()<<"Beam Identification is "<<beam_identification<<std::endl;
+          for( it = temp_mc->begin(); it != temp_mc->end(); ++it )
+          { 
+            if(idx==0){
+                 if(beam_identification == "PrimaryPion") {_event_histo->h_truepion_beam_deltax->Fill(*it);}
+                 else if(beam_identification == "PrimaryMuon") {_event_histo->h_truemuon_beam_deltax->Fill(*it);}
+                 else if(beam_identification == "PrimaryProton") {_event_histo->h_trueproton_beam_deltax->Fill(*it);}
+                 else if(beam_identification == "PrimaryElectron") {_event_histo->h_trueelectron_beam_deltax->Fill(*it);}
+                 else if(beam_identification == "Cosmic"){_event_histo->h_truecosmic_beam_deltax->Fill(*it);}
+                 else if(beam_identification == "PrimaryBeamNotTrig"){_event_histo->h_truenottrig_beam_deltax->Fill(*it);}
+                 else{_event_histo->h_trueother_beam_deltax->Fill(*it);}     
+             } else if(idx==1){
+                 if(beam_identification == "PrimaryPion") {_event_histo->h_truepion_beam_deltay->Fill(*it);}
+                 else if(beam_identification == "PrimaryMuon") {_event_histo->h_truemuon_beam_deltay->Fill(*it);}
+                 else if(beam_identification == "PrimaryProton") {_event_histo->h_trueproton_beam_deltay->Fill(*it);}
+                 else if(beam_identification == "PrimaryElectron") {_event_histo->h_trueelectron_beam_deltay->Fill(*it);}
+                 else if(beam_identification == "Cosmic") {_event_histo->h_truecosmic_beam_deltay->Fill(*it);}
+                 else if(beam_identification == "PrimaryBeamNotTrig") {_event_histo->h_truenottrig_beam_deltay->Fill(*it);}
+                 else{_event_histo->h_trueother_beam_deltay->Fill(*it);}
+             } else if(idx==2){
+                 if(beam_identification == "PrimaryPion") {_event_histo->h_truepion_beam_deltaz->Fill(*it);}
+                 else if(beam_identification == "PrimaryMuon") {_event_histo->h_truemuon_beam_deltaz->Fill(*it);}
+                 else if(beam_identification == "PrimaryProton") {_event_histo->h_trueproton_beam_deltaz->Fill(*it);}
+                 else if(beam_identification == "PrimaryElectron") {_event_histo->h_trueelectron_beam_deltaz->Fill(*it);}
+                 else if(beam_identification == "Cosmic") {_event_histo->h_truecosmic_beam_deltaz->Fill(*it);}
+                 else if(beam_identification == "PrimaryBeamNotTrig") {_event_histo->h_truenottrig_beam_deltaz->Fill(*it);}
+                 else{_event_histo->h_trueother_beam_deltaz->Fill(*it);}
+
+             } else if(idx==3){
+                 if(beam_identification == "PrimaryPion") {_event_histo->h_truepion_beam_cos->Fill(*it);}
+                 else if(beam_identification == "PrimaryMuon") {_event_histo->h_truemuon_beam_cos->Fill(*it);}
+                 else if(beam_identification == "PrimaryProton") {_event_histo->h_trueproton_beam_cos->Fill(*it);}
+                 else if(beam_identification == "PrimaryElectron") {_event_histo->h_trueelectron_beam_cos->Fill(*it);}
+                 else if(beam_identification == "Cosmic") {_event_histo->h_truecosmic_beam_cos->Fill(*it);}
+                 else if(beam_identification == "PrimaryBeamNotTrig") {_event_histo->h_truenottrig_beam_cos->Fill(*it);}
+                 else{_event_histo->h_trueother_beam_cos->Fill(*it);}
+
+             }
+            idx=idx+1;
+          }
+
           if(abs(t->true_beam_PDG) != 211 && abs(t->true_beam_PDG) !=13) continue;
-          //if(abs(t->true_beam_PDG) != 211) continue;
-          //Evttot += event_weight; 
-          //h_Evttot->Fill(event_weight);
+
+          
           if(!isBeamType(t->reco_beam_type)) continue;
+          if(abs(t->true_beam_PDG) == 211){
+             for(int i=0; i<=true_sliceID; ++i){
+               if(i<=nslices+1){
+                 ++true_incident_pandora_identified[i];
+               }
+             }
+          }
+
+ 
           if(!manual_beamPos_mc(t->reco_beam_startX, t->reco_beam_startY, t->reco_beam_startZ, 
                               t->reco_beam_trackDirX, t->reco_beam_trackDirY, t->reco_beam_trackDirZ,
                               t->true_beam_startDirX, t->true_beam_startDirY, t->true_beam_startDirZ,
@@ -2110,8 +2274,29 @@ void Main::Maker::MakeFile()
      
         if(isdata==1){
           if(!data_beam_PID(t->beam_inst_PDG_candidates)) continue;
-          //Evttot += event_weight; 
-          //h_Evttot->Fill(event_weight);
+
+          std::vector<double> *temp_data = new std::vector<double>();
+          manual_beamPos_data_vector(t->event, t->reco_beam_startX, t->reco_beam_startY, t->reco_beam_startZ,
+                                t->reco_beam_trackDirX, t->reco_beam_trackDirY, t->reco_beam_trackDirZ,
+                                t->beam_inst_X, t->beam_inst_Y, t->beam_inst_dirX, t->beam_inst_dirY,
+                                t->beam_inst_dirZ, t->beam_inst_nMomenta, t->beam_inst_nTracks, temp_data);
+
+
+          std::vector<double>::iterator it;
+          int idx=0;
+          for(it=temp_data->begin(); it != temp_data->end(); ++it){   
+            if(idx==0){ 
+               _event_histo->h_data_beam_deltax->Fill(*it);   
+            }else if(idx==1){
+               _event_histo->h_data_beam_deltay->Fill(*it);
+            }else if(idx==2){
+               _event_histo->h_data_beam_deltaz->Fill(*it);
+            }else if(idx==3){
+               _event_histo->h_data_beam_cos->Fill(*it);
+            }
+             idx=idx+1;
+          }
+
           if(!manual_beamPos_data(t->event, t->reco_beam_startX, t->reco_beam_startY, t->reco_beam_startZ,
                                 t->reco_beam_trackDirX, t->reco_beam_trackDirY, t->reco_beam_trackDirZ,
                                 t->beam_inst_X, t->beam_inst_Y, t->beam_inst_dirX, t->beam_inst_dirY,
@@ -4104,23 +4289,23 @@ void Main::Maker::MakeFile()
 
      if( incident[i]>0 && avg_pitch[i]>0){
 
-     tempxsec[i]          = MAr/(Density*NA*avg_pitch[i])*log((true_incident[i]+true_incident_elastic[i])/(true_incident[i]+true_incident_elastic[i]-true_abs[i]));
+     tempxsec[i]          = MAr/(Density*NA*avg_pitch[i])*log((true_incident_pion[i]+true_incident_pion_elastic[i])/(true_incident_pion[i]+true_incident_pion_elastic[i]-true_abs[i]));
      //tempxsec[i]          =MAr/(Density*NA*avg_pitch[i])*true_abs[i]/true_incident[i];
 
      for(int nb=0; nb<nbinspmom; nb++){
-          tempxsec_pmom[i][nb]=(1/1e-27)*MAr/(Density*NA*avg_pitch[i])*h_energetic_pmom_gen[i]->GetBinContent(nb+1)/true_incident[i];
+          tempxsec_pmom[i][nb]=(1/1e-27)*MAr/(Density*NA*avg_pitch[i])*h_energetic_pmom_gen[i]->GetBinContent(nb+1)/(true_incident_pion[i]+true_incident_pion_elastic[i]);
      }
      for(int nb=0; nb<nbinspcostheta; nb++){
-          tempxsec_pcostheta[i][nb]=(1/1e-27)*MAr/(Density*NA*avg_pitch[i])*h_energetic_pcostheta_gen[i]->GetBinContent(nb+1)/true_incident[i];
+          tempxsec_pcostheta[i][nb]=(1/1e-27)*MAr/(Density*NA*avg_pitch[i])*h_energetic_pcostheta_gen[i]->GetBinContent(nb+1)/(true_incident_pion[i]+true_incident_pion_elastic[i]);
      }
      for(int nb=0; nb<nbinspphi; nb++){
-          tempxsec_pphi[i][nb]=(1/1e-27)*MAr/(Density*NA*avg_pitch[i])*h_energetic_pphi_gen[i]->GetEntries()/true_incident[i];
+          tempxsec_pphi[i][nb]=(1/1e-27)*MAr/(Density*NA*avg_pitch[i])*h_energetic_pphi_gen[i]->GetEntries()/(true_incident_pion[i]+true_incident_pion_elastic[i]);
      }
-     tempxsec_chx[i]          = MAr/(Density*NA*avg_pitch[i])*log((true_incident[i]+true_incident_elastic[i])/(true_incident[i]+true_incident_elastic[i]-true_chx[i]));
+     tempxsec_chx[i]          = MAr/(Density*NA*avg_pitch[i])*log((true_incident_pion[i]+true_incident_pion_elastic[i])/(true_incident_pion[i]+true_incident_pion_elastic[i]-true_chx[i]));
      //tempxsec_chx[i]      =MAr/(Density*NA*avg_pitch[i])*true_chx[i]/true_incident[i];         
 
-     tempxsec_chx_test[i] = true_chx[i]/(true_incident[i]+true_incident_elastic[i]);
-     tempxsec_abs_test[i] = true_abs[i]/(true_incident[i]+true_incident_elastic[i]);
+     tempxsec_chx_test[i] = true_chx[i]/(true_incident_pion[i]+true_incident_pion_elastic[i]);
+     tempxsec_abs_test[i] = true_abs[i]/(true_incident_pion[i]+true_incident_pion_elastic[i]);
 
 
      } else {tempxsec[i]=0.0; tempxsec_chx[i]=0.0; tempxsec_chx_test[i]=0.0; tempxsec_abs_test[i] = 0.0; }
@@ -4195,9 +4380,10 @@ void Main::Maker::MakeFile()
   TFile output_newsf(outfilename.c_str(), "RECREATE");
 
 
-  gr_inc_slc = new TGraph(nslices+2, slcid, true_incident);
+  gr_inc_truepion_slc = new TGraph(nslices+2, slcid, true_incident_pion);
   gr_inc_truemuon_slc = new TGraph(nslices+2, slcid, true_incident_muon); 
-  gr_inc_trueelastic_slc =new TGraph(nslices+2,slcid, true_incident_elastic);
+  gr_inc_truepionelastic_slc =new TGraph(nslices+2,slcid, true_incident_pion_elastic);
+  gr_inc_truepion_pandora_identified_slc = new TGraph(nslices+2, slcid, true_incident_pandora_identified);
 
 
   gr_inc_reco_slc = new TGraph(nslices+2, slcid, incident);
@@ -4281,12 +4467,16 @@ void Main::Maker::MakeFile()
 
 
 
-  gr_inc_slc->Write("gr_inc_slc");
+  gr_inc_truepion_slc->Write("gr_inc_truepion_slc");
   gr_inc_truemuon_slc->Write("gr_inc_truemuon_slc");
-  gr_inc_trueelastic_slc->Write("gr_inc_trueelastic_slc");
+  gr_inc_truepionelastic_slc->Write("gr_inc_truepionelastic_slc");
+  gr_inc_truepion_pandora_identified_slc->Write("gr_inc_truepion_pandora_identified_slc");
  
   gr_inc_reco_slc->Write("gr_inc_reco_slc");   
+
   gr_int_slc->Write("gr_int_slc");
+
+
   gr_inc_recomuon_slc->Write("gr_inc_recomuon_slc");   
   gr_inc_recopion_slc->Write("gr_inc_recopion_slc");   
   gr_inc_recopionelastic_slc->Write("gr_inc_recopionelastic_slc");   

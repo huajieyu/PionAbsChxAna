@@ -409,15 +409,18 @@ namespace Main{
  
     double interaction[nslices+2];
     double signal[nslices+2];
+
     double incident[nslices+2];
+
     double incident_pion[nslices+2];
     double incident_pion_elastic[nslices+2];
     double incident_muon[nslices+2];
 
 
- 
-    double true_incident_elastic[nslices+2];
-    double true_incident[nslices+2];
+    double true_incident_pandora_identified[nslices+2]; 
+
+    double true_incident_pion_elastic[nslices+2];
+    double true_incident_pion[nslices+2];
     double true_incident_muon[nslices+2];
 
     double true_interaction[nslices+2];
@@ -524,6 +527,25 @@ namespace Main{
                               double data_BI_Y,     double data_BI_dirX,
                               double data_BI_dirY,  double data_BI_dirZ,
                               int data_BI_nMomenta, int data_BI_nTracks); 
+
+    void manual_beamPos_mc_vector(double beam_startX, double beam_startY,
+                            double beam_startZ, double beam_dirX,
+                            double beam_dirY,   double beam_dirZ, 
+                            double true_dirX,   double true_dirY,
+                            double true_dirZ,   double true_startX,
+                            double true_startY, double true_startZ, std::vector<double> *temp_vmc);
+    
+    void manual_beamPos_data_vector (int event,            double data_startX,
+                              double data_startY,   double data_startZ,
+                              double data_dirX,     double data_dirY,
+                              double data_dirZ,     double data_BI_X,
+                              double data_BI_Y,     double data_BI_dirX,
+                              double data_BI_dirY,  double data_BI_dirZ,
+                              int data_BI_nMomenta, int data_BI_nTracks, std::vector<double> *temp_vdata); 
+
+
+    std::string beam_particle_Identification(std::string &reco_beam_true_byHits_process, Bool_t &reco_beam_true_byHits_matched, Int_t &reco_beam_true_byHits_origin, Int_t &reco_beam_true_byHits_PDG);
+
     bool endAPA3(double reco_beam_endZ); 
     //
     //Tag PrimaryPion without elastic Scattering

@@ -62,13 +62,17 @@ namespace DataTypes {
       h_gen_recovstrue_beamz = new TH2D("h_gen_recovstrue_beamz","h_gen_recovstrue_beamz", 300, 0.0, 300.0, 300, 0.0, 300.0);
       h_gen_recovstrue_beamwire = new TH2D("h_gen_recovstrue_beamwire","h_gen_recovstrue_beamwire", 601, -0.5, 600.5, 601, -0.5, 600.5);
 
-      htotinc_reco_beamz_reso = new TH1D("htotinc_reco_beamz_reso", "htotinc_reco_beamz_reso", 100, -20., 100.); 
+      htotinc_reco_beamz_reso = new TH1D("htotinc_reco_beamz_reso", "htotinc_reco_beamz_reso", 100, -30., 50.); 
       htotinc_reco_beamz_reso->GetXaxis()->SetTitle("End Z resolution");      
       htotinc_reco_beamz_reso->GetYaxis()->SetTitle("incident particles");      
 
       htotinc_reco_beamwire_reso = new TH1D("htotinc_reco_beamwire_reso", "htotinc_reco_beamwire_reso", 151, -50.5, 100.5); 
       htotinc_reco_beamwire_reso->GetXaxis()->SetTitle("Wire # resolution");
-      htotinc_reco_beamz_reso->GetXaxis()->SetTitle("incident particles");      
+      htotinc_reco_beamwire_reso->GetYaxis()->SetTitle("incident particles");      
+
+      htotinc_reco_beam_intE_reso = new TH1D("htotinc_reco_beam_intE_reso", "htotinc_reco_beam_intE_reso", 100, -300., 100.); 
+      htotinc_reco_beam_intE_reso->GetXaxis()->SetTitle("Interacting Energy resolution");
+      htotinc_reco_beam_intE_reso->GetYaxis()->SetTitle("interacting #pi");      
 
 
       Int_t nbinse=12; 
@@ -96,7 +100,48 @@ namespace DataTypes {
                
       }//end of looping over all the slices
 
+      h_muon_beamendzvsp=new TH2D("h_muon_beamendzvsp", "h_muon_beamendzvsp", 100, 0.0, 500, 100, 0, 1.5);
 
+      h_truepion_beam_deltax = new TH1D("h_truepion_beam_deltax", "h_truepion_beam_deltax", 100, -20, 40);
+      h_truepion_beam_deltay = new TH1D("h_truepion_beam_deltay", "h_truepion_beam_deltay", 100, -20, 40);
+      h_truepion_beam_deltaz = new TH1D("h_truepion_beam_deltaz", "h_truepion_beam_deltaz", 100, 0, 40);
+      h_truepion_beam_cos = new TH1D("h_truepion_beam_cos", "h_truepion_beam_cos", 100, -1., 1.);
+
+      h_truemuon_beam_deltax = new TH1D("h_truemuon_beam_deltax", "h_truemuon_beam_deltax", 100, -20, 40);
+      h_truemuon_beam_deltay = new TH1D("h_truemuon_beam_deltay", "h_truemuon_beam_deltay", 100, -20, 40);
+      h_truemuon_beam_deltaz = new TH1D("h_truemuon_beam_deltaz", "h_truemuon_beam_deltaz", 100, 0, 40);
+      h_truemuon_beam_cos = new TH1D("h_truemuon_beam_cos", "h_truemuon_beam_cos", 100, -1., 1.);
+
+      h_trueproton_beam_deltax = new TH1D("h_trueproton_beam_deltax", "h_trueproton_beam_deltax", 100, -20, 40);
+      h_trueproton_beam_deltay = new TH1D("h_trueproton_beam_deltay", "h_trueproton_beam_deltay", 100, -20, 40);
+      h_trueproton_beam_deltaz = new TH1D("h_trueproton_beam_deltaz", "h_trueproton_beam_deltaz", 100, 0, 40);
+      h_trueproton_beam_cos = new TH1D("h_trueproton_beam_cos", "h_trueproton_beam_cos", 100, -1., 1.);
+
+      h_trueelectron_beam_deltax = new TH1D("h_trueelectron_beam_deltax", "h_trueelectron_beam_deltax", 100, -20, 40);
+      h_trueelectron_beam_deltay = new TH1D("h_trueelectron_beam_deltay", "h_trueelectron_beam_deltay", 100, -20, 40);
+      h_trueelectron_beam_deltaz = new TH1D("h_trueelectron_beam_deltaz", "h_trueelectron_beam_deltaz", 100, 0, 40);
+      h_trueelectron_beam_cos = new TH1D("h_trueelectron_beam_cos", "h_trueelectron_beam_cos", 100, -1., 1.);
+
+
+      h_truecosmic_beam_deltax = new TH1D("h_truecosmic_beam_deltax", "h_truecosmic_beam_deltax", 100, -20, 40);
+      h_truecosmic_beam_deltay = new TH1D("h_truecosmic_beam_deltay", "h_truecosmic_beam_deltay", 100, -20, 40);
+      h_truecosmic_beam_deltaz = new TH1D("h_truecosmic_beam_deltaz", "h_truecosmic_beam_deltaz", 100, 0, 40);
+      h_truecosmic_beam_cos = new TH1D("h_truecosmic_beam_cos", "h_truecosmic_beam_cos", 100, -1., 1.);
+
+      h_truenottrig_beam_deltax = new TH1D("h_truenottrig_beam_deltax", "h_truenottrig_beam_deltax", 100, -20, 40);
+      h_truenottrig_beam_deltay = new TH1D("h_truenottrig_beam_deltay", "h_truenottrig_beam_deltay", 100, -20, 40);
+      h_truenottrig_beam_deltaz = new TH1D("h_truenottrig_beam_deltaz", "h_truenottrig_beam_deltaz", 100, 0, 40);
+      h_truenottrig_beam_cos = new TH1D("h_truenottrig_beam_cos", "h_truenottrig_beam_cos", 100, -1., 1.);
+
+      h_trueother_beam_deltax = new TH1D("h_trueother_beam_deltax", "h_trueother_beam_deltax", 100, -20, 40);
+      h_trueother_beam_deltay = new TH1D("h_trueother_beam_deltay", "h_trueother_beam_deltay", 100, -20, 40);
+      h_trueother_beam_deltaz = new TH1D("h_trueother_beam_deltaz", "h_trueother_beam_deltaz", 100, 0, 40);
+      h_trueother_beam_cos = new TH1D("h_trueother_beam_cos", "h_trueother_beam_cos", 100, -1., 1.);
+   
+      h_data_beam_deltax = new TH1D("h_data_beam_deltax", "h_data_beam_deltax", 100, -20, 40);
+      h_data_beam_deltay = new TH1D("h_data_beam_deltay", "h_data_beam_deltay", 100, -20, 40);
+      h_data_beam_deltaz = new TH1D("h_data_beam_deltaz", "h_data_beam_deltaz", 100, 0, 40);
+      h_data_beam_cos = new TH1D("h_data_beam_cos", "h_data_beam_cos", 100, -1., 1.);
     }
 
 

@@ -96,6 +96,7 @@ namespace DataTypes {
     TH2D*  h_gen_recovstrue_beamwire; 
     TH1D*  htotinc_reco_beamz_reso;
     TH1D*  htotinc_reco_beamwire_reso;
+    TH1D*  htotinc_reco_beam_intE_reso;
     Double_t slicebins[25];
 
  
@@ -113,6 +114,50 @@ namespace DataTypes {
     TH1D*  hchxbac_reco_beam_incidentEnergy[24];
     TH1D*  hreabac_reco_beam_incidentEnergy[24];
     TH1D*  hotherbac_reco_beam_incidentEnergy[24];
+
+
+    TH2D* h_muon_beamendzvsp;
+    TH1D* h_truepion_beam_deltax;
+    TH1D* h_truepion_beam_deltay;
+    TH1D* h_truepion_beam_deltaz;
+    TH1D* h_truepion_beam_cos;
+
+    TH1D* h_truemuon_beam_deltax;
+    TH1D* h_truemuon_beam_deltay;
+    TH1D* h_truemuon_beam_deltaz;
+    TH1D* h_truemuon_beam_cos;
+
+    TH1D* h_trueproton_beam_deltax;
+    TH1D* h_trueproton_beam_deltay;
+    TH1D* h_trueproton_beam_deltaz;
+    TH1D* h_trueproton_beam_cos;
+
+    TH1D* h_trueelectron_beam_deltax;
+    TH1D* h_trueelectron_beam_deltay;
+    TH1D* h_trueelectron_beam_deltaz;
+    TH1D* h_trueelectron_beam_cos;
+
+
+    TH1D* h_truecosmic_beam_deltax;
+    TH1D* h_truecosmic_beam_deltay;
+    TH1D* h_truecosmic_beam_deltaz;
+    TH1D* h_truecosmic_beam_cos;
+
+    TH1D* h_truenottrig_beam_deltax;
+    TH1D* h_truenottrig_beam_deltay;
+    TH1D* h_truenottrig_beam_deltaz;
+    TH1D* h_truenottrig_beam_cos;
+
+    TH1D* h_trueother_beam_deltax;
+    TH1D* h_trueother_beam_deltay;
+    TH1D* h_trueother_beam_deltaz;
+    TH1D* h_trueother_beam_cos;
+
+    TH1D* h_data_beam_deltax;
+    TH1D* h_data_beam_deltay;
+    TH1D* h_data_beam_deltaz;
+    TH1D* h_data_beam_cos;
+
 
   protected:
 
