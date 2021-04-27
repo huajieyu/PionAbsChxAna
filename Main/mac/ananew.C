@@ -9,6 +9,8 @@
 #include <TGraphErrors.h>
 #include <iostream>
 #include <vector>
+#include "RooUnfoldResponse.h"
+#include "RooUnfoldBayes.h"
 
 //For MC from Owen Goodwins studies
 double xlow = -3.,  xhigh = 7.,  ylow = -8.,  yhigh = 7.;
@@ -595,6 +597,18 @@ void ananew::Loop()
 
    TH1D *dslcID = new TH1D("dslcID","reco slice ID - true slice ID",20,-10,10);
 
+   //unfolding method
+   //**************************************
+   TH1D *nevt_truesliceid_inelastic_all = new TH1D("nevt_truesliceid_inelastic_all", "nevt_truesliceid_inelastic_all", nslices+1, -1, nslices);
+   TH1D *nevt_truesliceid_inelastic_cuts = new TH1D("nevt_truesliceid_inelastic_cuts", "nevt_truesliceid_inelastic_cuts", nslices+1, -1, nslices);
+   TH1D *nevt_recosliceid_allevts_cuts = new TH1D("nevt_recosliceid_allevts_cuts", "nevt_recosliceid_allevts_cuts", nslices+1, -1, nslices);
+   TH1D *nevt_recosliceid_inelastic_cuts = new TH1D("nevt_recosliceid_inelastic_cuts", "nevt_recosliceid_inelastic_cuts", nslices+1, -1, nslices);
+   TH2D *recosliceid_truesliceid_inelastic_cuts =new TH2D("recosliceid_truesliceid_inelastic_cuts", "recosliceid_truesliceid_inelastic_cuts", nslices+1, -1, nslices, nslices+1, -1, nslices);
+   RooUnfoldResponse response (nslices+1, -1, nslices);
+   double true_interaction_unf[nslices];
+   double true_incident_unf[nslices];
+   //**************************************
+
    Long64_t nentries = fChain->GetEntriesFast();
 
    Long64_t nbytes = 0, nb = 0;
@@ -604,10 +618,11 @@ void ananew::Loop()
      if (ientry < 0) break;
      nb = fChain->GetEntry(jentry);   nbytes += nb;
      // if (Cut(ientry) < 0) continue;
-     if(abs(true_beam_PDG) != 211) continue;
+     //if(abs(true_beam_PDG) != 211) continue;
      //if(abs(true_beam_PDG) != 2212) continue;
      
      // truth studes
+     bool isInelastic = abs(true_beam_PDG) == 211 && (*true_beam_endProcess) == "pi+Inelastic";
      
      int true_sliceID = -1;
      
@@ -628,10 +643,12 @@ void ananew::Loop()
      true_endz += offset_z;
      true_sliceID = int((true_endz-0.5603500-0.479/2)/0.479/nwires_in_slice); //z=0.56 is z coordinate for wire 0
      wirenum->Fill(int(true_endz-0.5603500-0.479/2)/0.479, reco_beam_calo_wire->back());
-     if (true_sliceID <0) true_sliceID = 0;
-
-     for (int i = 0; i<=true_sliceID; ++i){
-       if (i<nslices) ++true_incident[i];
+     if (true_sliceID <0) true_sliceID = -1;
+     if (true_sliceID >=nslices) true_sliceID = nslices -1;
+     if (isInelastic){
+       for (int i = 0; i<=true_sliceID; ++i){
+         if (i<nslices) ++true_incident[i];
+       }
      }
 
 //     if (true_sliceID == 5){
@@ -640,7 +657,11 @@ void ananew::Loop()
 //       }
 //     }
      //std::cout<<(*true_beam_endProcess)<<std::endl;
-     if ((*true_beam_endProcess) == "pi+Inelastic"){
+
+     bool passCuts = true;
+
+     //if ((*true_beam_endProcess) == "pi+Inelastic"){
+     if (isInelastic){
      //if ((*true_beam_endProcess) == "protonInelastic"){
        if (true_sliceID < nslices){
          ++true_interaction[true_sliceID];
@@ -652,12 +673,15 @@ void ananew::Loop()
          }
        }
      }
+
      
+     if(reco_beam_type!=13) passCuts = false;
      if(!manual_beamPos_mc(reco_beam_startX, reco_beam_startY, reco_beam_startZ, 
                            reco_beam_trackDirX, reco_beam_trackDirY, reco_beam_trackDirZ,
                            true_beam_startDirX, true_beam_startDirY, true_beam_startDirZ,
-                           true_beam_startX, true_beam_startY, true_beam_startZ)) continue;
-     if(!endAPA3(reco_beam_endZ) )continue;
+                           true_beam_startX, true_beam_startY, true_beam_startZ)) passCuts = false;
+     if(!endAPA3(reco_beam_endZ) ) passCuts = false;
+     if(reco_beam_calo_wire->empty()) passCuts = false;
      //std::cout<<*true_beam_endProcess<<" "<<true_beam_endX<<" "<<true_beam_endY<<" "<<true_beam_endZ<<std::endl;
      
      
@@ -665,7 +689,28 @@ void ananew::Loop()
      //if ((*true_beam_endProcess) == "pi+Inelastic" && abs(true_beam_PDG) == 211){  //std::cout<<"signal"<<std::endl;
      
      //interaction slice ID based on the track end wire number
-     int sliceID = reco_beam_calo_wire->back()/nwires_in_slice;
+     int sliceID = -100;
+     if (passCuts){
+       sliceID = reco_beam_calo_wire->back()/nwires_in_slice;
+       if (sliceID <0) sliceID = -1;
+       if (sliceID >=nslices) sliceID = nslices -1;
+     }
+     if (isInelastic){
+       nevt_truesliceid_inelastic_all->Fill(true_sliceID);
+       if (passCuts){
+         nevt_truesliceid_inelastic_cuts->Fill(true_sliceID);
+         nevt_recosliceid_inelastic_cuts->Fill(sliceID);
+         recosliceid_truesliceid_inelastic_cuts->Fill(true_sliceID, sliceID);
+         response.Fill(sliceID, true_sliceID);
+       }
+       else{
+         response.Miss(true_sliceID);
+       }
+     }
+     if (passCuts){
+       nevt_recosliceid_allevts_cuts->Fill(sliceID);
+     }
+
 
 //     if (sliceID == 5 && true_sliceID!=5){
 //       std::cout<<sliceID<<" "<<true_sliceID<<" "<<(*true_beam_endProcess)<<" "<<run<<" "<<subrun<<" "<<event<<" "<<true_beam_endZ<<" "<<true_endz<<" "<<int(true_endz-0.5603500-0.479/2)/0.479<<std::endl;
@@ -736,6 +781,19 @@ void ananew::Loop()
        }
      }
    }
+
+   //Calculate cross sections
+   RooUnfoldBayes   unfold (&response, nevt_recosliceid_inelastic_cuts, 4);    // OR
+   TH1D *nevt_truesliceid_inelastic_test = (TH1D*) unfold.Hreco();
+
+   for (int i = 0; i<nslices; ++i){
+     for (int j = 1; j<=nevt_truesliceid_inelastic_test->GetNbinsX(); ++j){
+       int slcid = j-2;
+       double binc = nevt_truesliceid_inelastic_test->GetBinContent(j);
+       if (slcid==i) true_interaction_unf[i]+=binc;
+       if (slcid>=i) true_incident_unf[i]+=binc;
+     }
+   }
    
    double slcid[nslices];
    double avg_incE[nslices];
@@ -746,9 +804,11 @@ void ananew::Loop()
    double eff_inc[nslices];
    double pur[nslices];
    double xs[nslices];
+   double xs_unf[nslices];
    double xs_abs[nslices];
    double xs_cex[nslices];
    double exs[nslices];
+   double exs_unf[nslices];
    double exs_abs[nslices];
    double exs_cex[nslices];
    for (int i = 0; i<nslices; ++i){
@@ -769,10 +829,12 @@ void ananew::Loop()
 //       xs_cex[i] = MAr/(Density*NA*avg_pitch[i])*true_cex[i]/true_incident[i]*1e27;
 
        xs[i] = MAr/(Density*NA*avg_pitch[i])*log(true_incident[i]/(true_incident[i]-true_interaction[i]))*1e27;
+       xs_unf[i] = MAr/(Density*NA*avg_pitch[i])*log(true_incident_unf[i]/(true_incident_unf[i]-true_interaction_unf[i]))*1e27;
        xs_abs[i] = MAr/(Density*NA*avg_pitch[i])*log(true_incident[i]/(true_incident[i]-true_abs[i]))*1e27;
        xs_cex[i] = MAr/(Density*NA*avg_pitch[i])*log(true_incident[i]/(true_incident[i]-true_cex[i]))*1e27;
 
        exs[i] = MAr/(Density*NA*avg_pitch[i])*1e27*sqrt(true_interaction[i]+pow(true_interaction[i],2)/true_incident[i])/true_incident[i];
+       exs_unf[i] = MAr/(Density*NA*avg_pitch[i])*1e27*sqrt(true_interaction_unf[i]+pow(true_interaction_unf[i],2)/true_incident_unf[i])/true_incident_unf[i];
        exs_abs[i] = MAr/(Density*NA*avg_pitch[i])*1e27*sqrt(true_abs[i]+pow(true_abs[i],2)/true_incident[i])/true_incident[i];
        exs_cex[i] = MAr/(Density*NA*avg_pitch[i])*1e27*sqrt(true_cex[i]+pow(true_cex[i],2)/true_incident[i])/true_incident[i];
      }
@@ -789,12 +851,14 @@ void ananew::Loop()
    TGraph *gr_effinc_slc = new TGraph(nslices-5, &(slcid[4]), &(eff_inc[4]));
    TGraph *gr_pur_slc = new TGraph(nslices-5, &(slcid[4]), &(pur[4]));
    TGraphErrors *gr_xs_incE = new TGraphErrors(nslices-5, &(avg_incE[4]), &(xs[4]), 0, &exs[4]);
+   TGraphErrors *gr_xs_incE_unf = new TGraphErrors(nslices-5, &(avg_incE[4]), &(xs_unf[4]), 0, &exs_unf[4]);
    TGraphErrors *gr_xsabs_incE = new TGraphErrors(nslices-5, &(avg_incE[4]), &(xs_abs[4]), 0, &exs_abs[4]);
    TGraphErrors *gr_xscex_incE = new TGraphErrors(nslices-5, &(avg_incE[4]), &(xs_cex[4]), 0, &exs_cex[4]);
    TGraph *gr_trueint_slc = new TGraph(nslices-5, &(slcid[4]), &(true_interaction[4]));
    TGraph *gr_trueinc_slc = new TGraph(nslices-5, &(slcid[4]), &(true_incident[4]));
 
    f.Write();
+   nevt_truesliceid_inelastic_test->Write("nevt_truesliceid_inelastic_test");
    gr_int_slc->Write("gr_int_slc");
    gr_trueint_slc->Write("gr_trueint_slc");
    gr_inc_slc->Write("gr_inc_slc");
@@ -806,6 +870,7 @@ void ananew::Loop()
    gr_effinc_slc->Write("gr_effinc_slc");
    gr_pur_slc->Write("gr_pur_slc");
    gr_xs_incE->Write("gr_xs_incE");
+   gr_xs_incE_unf->Write("gr_xs_incE_unf");
    gr_xsabs_incE->Write("gr_xsabs_incE");
    gr_xscex_incE->Write("gr_xscex_incE");
    f.Close();
