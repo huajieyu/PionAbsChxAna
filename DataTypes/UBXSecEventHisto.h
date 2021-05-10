@@ -94,9 +94,21 @@ namespace DataTypes {
     TH1D*  hsel_reco_beamwire;
     TH2D*  h_gen_recovstrue_beamz; 
     TH2D*  h_gen_recovstrue_beamwire; 
+
     TH1D*  htotinc_reco_beamz_reso;
     TH1D*  htotinc_reco_beamwire_reso;
     TH1D*  htotinc_reco_beam_intE_reso;
+
+    TH1D*  htotdecay_reco_beamz_reso;
+    TH1D*  htotdecay_reco_beamwire_reso;
+    TH1D*  htotdecay_reco_beam_intE_reso;
+
+    TH1D*  htotmuon_reco_beamz_reso;
+    TH1D*  htotmuon_reco_beamwire_reso;
+    TH1D*  htotmuon_reco_beam_intE_reso;
+
+
+
     Double_t slicebins[25];
 
  
@@ -117,6 +129,19 @@ namespace DataTypes {
 
 
     TH2D* h_muon_beamendzvsp;
+    TH1D* h_muon_beamendz_true;
+    TH1D* h_muon_beamendz_reco;
+    TH1D* h_pion_beamendz_true;
+    TH1D* h_pion_beamendz_reco;
+
+    TH1D* h_pion_decay_beamendz_true;
+    TH1D* h_pion_decay_beamendz_reco;
+
+    TH1D* h_upstream_beamendz_true;
+    TH1D* h_upstream_beamendz_reco;
+
+
+
     TH1D* h_truepion_beam_deltax;
     TH1D* h_truepion_beam_deltay;
     TH1D* h_truepion_beam_deltaz;
@@ -157,6 +182,59 @@ namespace DataTypes {
     TH1D* h_data_beam_deltay;
     TH1D* h_data_beam_deltaz;
     TH1D* h_data_beam_cos;
+
+    TH1D* h_ispiinelastic_beam_deltax;
+    TH1D* h_ispiinelastic_beam_deltay;
+    TH1D* h_ispiinelastic_beam_deltaz;
+    TH1D* h_ispiinelastic_beam_cos;
+    TH1D* h_ispidecay_beam_deltax;
+    TH1D* h_ispidecay_beam_deltay;
+    TH1D* h_ispidecay_beam_deltaz;
+    TH1D* h_ispidecay_beam_cos;
+    TH1D* h_ismuon_beam_deltax;
+    TH1D* h_ismuon_beam_deltay;
+    TH1D* h_ismuon_beam_deltaz;
+    TH1D* h_ismuon_beam_cos;
+    TH1D* h_isupstream_beam_deltax;
+    TH1D* h_isupstream_beam_deltay;
+    TH1D* h_isupstream_beam_deltaz;
+    TH1D* h_isupstream_beam_cos;
+
+
+
+
+
+    TH1D* h_reco_beam_tmdqdx;
+    TH1D* h_reco_beam_pion_tmdqdx;
+    TH1D* h_reco_beam_muon_tmdqdx;
+    TH1D* h_reco_beam_proton_tmdqdx;
+    TH1D* h_reco_beam_gamma_tmdqdx;
+    TH1D* h_reco_beam_other_tmdqdx;
+
+    //TH1D* h_reco_beam;
+    TH1D* h_reco_beam_costheta_pion;
+    TH1D* h_reco_beam_costheta_muon;
+    TH1D* h_reco_beam_costheta_proton;
+    TH1D* h_reco_beam_costheta_gamma;
+    TH1D* h_reco_beam_costheta_other;
+
+
+    TH1D* h_reco_bdangle_bkmuon;
+    TH1D* h_reco_bdangle_other;
+    TH1D* h_geteta_same;
+    TH1D* h_geteta_diff;
+
+    TH2D* h_reco_true_sliceID_ori;
+    TH2D* h_reco_true_sliceID_corr;
+
+    TH2D* h_reco_true_incident_piinelastic;
+
+    TH1D* h_upstream_cosmic;
+    TH1D* h_upstream_pion;
+    TH1D* h_upstream_muon;
+    TH1D* h_upstream_proton;
+    TH1D* h_upstream_gamma;
+    TH1D* h_upstream_other;
 
 
   protected:

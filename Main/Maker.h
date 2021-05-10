@@ -63,6 +63,8 @@
 
 #include "ubana/Base/LoggerFeature.h"
 
+
+
 using namespace DataTypes;
 using namespace Base;
 
@@ -374,15 +376,16 @@ namespace Main{
     std::map<int, double> sliceID_interactthickness;
     std::map<int, int> sliceID_backgroundN;
     std::map<int, double> sliceID_backgroundthickness;
-          
+    
+    const static int thinslicewidth = 10; //cm      
     const static int nwires_in_slice = 20;
     const static int nslices = 480/nwires_in_slice;
 
-    double intabs_array_den[nslices+2][nslices+2];  
-    double intchx_array_den[nslices+2][nslices+2];
+    double intabs_array_den[nslices+3][nslices+3];  
+    double intchx_array_den[nslices+3][nslices+3];
 
-    double intabs_array_num[nslices+2][nslices+2];  
-    double intchx_array_num[nslices+2][nslices+2];
+    double intabs_array_num[nslices+3][nslices+3];  
+    double intchx_array_num[nslices+3][nslices+3];
 
     Int_t nbinse=12; 
     Int_t nbinsthickness = 100;
@@ -404,47 +407,89 @@ namespace Main{
     
     TH2D *sliceIDmat_chx_den = new TH2D("sliceIDmat_chx_den", "sliceIDmat_chx_den", 25, -0.5, 24.5, 25, -0.5, 24.5);
     TH2D *sliceIDmat_chx_num = new TH2D("sliceIDmat_chx_num", "sliceIDmat_chx_num", 25, -0.5, 24.5, 25, -0.5, 24.5);
-     
 
- 
-    double interaction[nslices+2];
-    double signal[nslices+2];
+    TH2D *sliceIDmat_piinelas = new TH2D("sliceIDmat_piinelas", "sliceIDmat_piinelas", 27, -1.5, 25.5, 27, -1.5, 25.5);   
+    TH2D *sliceIDmat_pidecay = new TH2D("sliceIDmat_pidecay", "sliceIDmat_pidecay", 27, -1.5, 25.5, 27, -1.5, 25.5);   
+    TH2D *sliceIDmat_mudecay = new TH2D("sliceIDmat_mudecay", "sliceIDmat_mudecay", 27, -1.5, 25.5, 27, -1.5, 25.5);   
+    TH2D *sliceIDmat_upstream = new TH2D("sliceIDmat_upstream", "sliceIDmat_upstream", 27, -1.5, 25.5, 27, -1.5, 25.5);   
+    
+    double interaction[nslices+3];
+    double signal[nslices+3];
 
-    double incident[nslices+2];
+    double incident[nslices+3];
 
-    double incident_pion[nslices+2];
-    double incident_pion_elastic[nslices+2];
-    double incident_muon[nslices+2];
+    double incident_pion[nslices+3];
+    double incident_pion_decay[nslices+3];
+    double incident_pion_elastic[nslices+3];
+    double incident_muon[nslices+3];
+    double incident_upstream[nslices+3];
+    double incident_upstream_pion[nslices+3];
 
 
-    double true_incident_pandora_identified[nslices+2]; 
+    double true_incident_pandora_identified[nslices+3]; 
 
-    double true_incident_pion_elastic[nslices+2];
-    double true_incident_pion[nslices+2];
-    double true_incident_muon[nslices+2];
+    double true_abs_pandora_identified[nslices+3];
+    double true_abs_beam_qualified[nslices+3];
 
-    double true_interaction[nslices+2];
+    double true_incident[nslices+3];
+    double true_incident_pion_decay[nslices+3];
+    double true_incident_pion_decay_reco_nnn[nslices+3];
+    double true_incident_pion_decay_broken[nslices+3];
+    double true_incident_pion_decay_normal[nslices+3];
 
-    double true_abs[nslices+2];
-    double true_abs_test[nslices+2];
-    double reco_abs[nslices+2];
+    double true_incident_upstream[nslices+3];
+    double true_incident_upstream_pion[nslices+3];
+    double true_incident_pion_elastic[nslices+3];
+    double true_incident_pion[nslices+3];
+    double true_incident_muon[nslices+3];
+    double true_incident_muon_decay_reco_nnn[nslices+3];
+    double true_incident_muon_decay_broken[nslices+3];
+    double true_incident_muon_decay_normal[nslices+3];
 
-    double true_chx[nslices+2];
-    double reco_chx[nslices+2];
+    double true_interaction[nslices+3];
 
-    double true_abs_sel[nslices+2];
-    double reco_abs_sel[nslices+2];
+    double true_abs[nslices+3];
+    double true_abs_test[nslices+3];
+    double reco_abs[nslices+3];
+    double true_abs_neg = 0;
+    double reco_abs_neg = 0;
+
+    double true_chx[nslices+3];
+    double reco_chx[nslices+3];
+
+    double true_chx_neg = 0;
+    double reco_chx_neg = 0;
+
+    double true_rea_neg = 0;
+    double reco_rea_neg = 0;
+
+    double true_piinelastic_neg = 0;
+    double reco_piinelastic_neg = 0;
+    double true_pidecay_neg = 0;
+    double reco_pidecay_neg = 0;
+    double true_piupstream_neg = 0;
+    double reco_piupstream_neg = 0;
+    double true_muon_neg = 0;
+    double reco_muon_neg = 0;
+    double true_upstream_neg = 0;
+    double reco_upstream_neg = 0;
+
+
+
+
+    double true_abs_sel[nslices+3];
+    double reco_abs_sel[nslices+3];
   
-    double true_chx_sel[nslices+2];
-    double reco_chx_sel[nslices+2];
+    double true_chx_sel[nslices+3];
+    double reco_chx_sel[nslices+3];
  
 
-    double selected_tot[nslices+2];
-    double selected_mubkg[nslices+2];
-    double selected_pibkg[nslices+2];
-    double selected_pibkg_elastic[nslices+2];
+    double selected_tot[nslices+3];
+    double selected_mubkg[nslices+3];
+    double selected_pibkg[nslices+3];
+    double selected_pibkg_elastic[nslices+3];
 
-    double slicebins[nslices+2];
+    double slicebins[nslices+3];
 
 
     bool _fill_bootstrap_mc_stat = false; ///< If true, fills bootstrap with poisson weights (mc stat)
@@ -625,6 +670,10 @@ namespace Main{
                                  const std::vector<double> &d_dirX,
                                  const std::vector<double> &d_dirY,
                                  const std::vector<double> &d_dirZ);
+
+
+   double getEta_broken(vector<vector<double>> canddQdx, vector<vector<double>> trkRR, vector<double> trklen,  int muind, vector<double> beamdQdx, vector<double> beamRR, double beamlen);
+ 
 
      //=========================================================================
     

@@ -275,7 +275,13 @@ namespace DataTypes {
     TH1D  *h_PiAbs_chxbac_pmom;
     TH1D  *h_PiAbs_reabac_pmom;
     TH1D  *h_PiAbs_other_pmom;
-    
+
+    TH1D  *h_PiAbs_sel_energetic_pmom;
+    TH1D  *h_PiAbs_sig_energetic_pmom;
+    TH1D  *h_PiAbs_chxbac_energetic_pmom;
+    TH1D  *h_PiAbs_reabac_energetic_pmom;
+    TH1D  *h_PiAbs_other_energetic_pmom;
+     
     TH1D  *h_PiAbs_sel_pcostheta;
     TH1D  *h_PiAbs_sig_pcostheta;
     TH1D  *h_PiAbs_chxbac_pcostheta;
@@ -387,6 +393,11 @@ namespace DataTypes {
     TH1D  *hreabac_shwcut_mult;
     TH1D  *hreabac_tmdqdxcut_mult;
     TH1D  *hreabac_chi2cut_mult;
+
+    TH1D  *hother_shwcut_mult;
+    TH1D  *hother_tmdqdxcut_mult;
+    TH1D  *hother_chi2cut_mult;
+
 
     TH1D  *hsig_nrecogamma;
     TH1D  *hchxbac_nrecogamma;

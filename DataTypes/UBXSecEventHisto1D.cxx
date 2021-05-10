@@ -200,6 +200,13 @@ namespace DataTypes {
             h_PiAbs_reabac_pmom = new TH1D ("h_PiAbs_reabac_pmom", "h_PiAbs_reabac_pmom", 50, 0.0, 1.2);
             h_PiAbs_other_pmom = new TH1D ("h_PiAbs_other_pmom", "h_PiAbs_other_pmom", 50, 0.0, 1.2);
 
+            h_PiAbs_sel_energetic_pmom = new TH1D ("h_PiAbs_sel_energetic_pmom", "h_PiAbs_sel_energetic_pmom", 50, 0.0, 1.2);
+            h_PiAbs_sig_energetic_pmom = new TH1D ("h_PiAbs_sig_energetic_pmom", "h_PiAbs_sig_energetic_pmom", 50, 0.0, 1.2);
+            h_PiAbs_chxbac_energetic_pmom = new TH1D ("h_PiAbs_chxbac_energetic_pmom", "h_PiAbs_chxbac_energetic_pmom", 50, 0.0, 1.2);
+            h_PiAbs_reabac_energetic_pmom = new TH1D ("h_PiAbs_reabac_energetic_pmom", "h_PiAbs_reabac_energetic_pmom", 50, 0.0, 1.2);
+            h_PiAbs_other_energetic_pmom = new TH1D ("h_PiAbs_other_energetic_pmom", "h_PiAbs_other_energetic_pmom", 50, 0.0, 1.2);
+
+
             h_PiAbs_sel_pcostheta = new TH1D ("h_PiAbs_sel_pcostheta", "h_PiAbs_sel_pcostheta", 50, -1.0, 1.0);
             h_PiAbs_sig_pcostheta = new TH1D ("h_PiAbs_sig_pcostheta", "h_PiAbs_sig_pcostheta", 50, -1.0, 1.0);
             h_PiAbs_chxbac_pcostheta = new TH1D ("h_PiAbs_chxbac_pcostheta", "h_PiAbs_chxbac_pcostheta", 50, -1.0, 1.0);
@@ -417,6 +424,11 @@ namespace DataTypes {
             hreabac_shwcut_mult=new TH1D("hreabac_shwcut_mult", "hreabac_shwcut_mult", 10, -0.5, 9.5);
             hreabac_tmdqdxcut_mult=new TH1D("hreabac_tmdqdxcut_mult", "hreabac_tmdqdxcut_mult", 10, -0.5, 9.5);
             hreabac_chi2cut_mult=new TH1D("hreabac_chi2cut_mult", "hreabac_chi2cut_mult", 10, -0.5, 9.5);
+
+            hother_shwcut_mult=new TH1D("hother_shwcut_mult", "hother_shwcut_mult", 10, -0.5, 9.5);
+            hother_tmdqdxcut_mult=new TH1D("hother_tmdqdxcut_mult", "hother_tmdqdxcut_mult", 10, -0.5, 9.5);
+            hother_chi2cut_mult=new TH1D("hother_chi2cut_mult", "hother_chi2cut_mult", 10, -0.5, 9.5);
+
 
             hsig_nrecogamma = new TH1D("hsig_nrecogamma", "hsig_nrecogamma", 5, -0.5, 4.5);
             hchxbac_nrecogamma = new TH1D("hchxbac_nrecogamma", "hchxbac_nrecogamma", 5, -0.5, 4.5);

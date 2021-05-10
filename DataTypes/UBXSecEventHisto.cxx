@@ -74,6 +74,31 @@ namespace DataTypes {
       htotinc_reco_beam_intE_reso->GetXaxis()->SetTitle("Interacting Energy resolution");
       htotinc_reco_beam_intE_reso->GetYaxis()->SetTitle("interacting #pi");      
 
+      htotdecay_reco_beamz_reso = new TH1D("htotdecay_reco_beamz_reso", "htotdecay_reco_beamz_reso", 100, -100., 100.); 
+      htotdecay_reco_beamz_reso->GetXaxis()->SetTitle("End Z resolution");      
+      htotdecay_reco_beamz_reso->GetYaxis()->SetTitle("decayident particles");      
+
+      htotdecay_reco_beamwire_reso = new TH1D("htotdecay_reco_beamwire_reso", "htotdecay_reco_beamwire_reso", 151, -50.5, 100.5); 
+      htotdecay_reco_beamwire_reso->GetXaxis()->SetTitle("Wire # resolution");
+      htotdecay_reco_beamwire_reso->GetYaxis()->SetTitle("decayident particles");      
+
+      htotdecay_reco_beam_intE_reso = new TH1D("htotdecay_reco_beam_intE_reso", "htotdecay_reco_beam_intE_reso", 100, -300., 100.); 
+      htotdecay_reco_beam_intE_reso->GetXaxis()->SetTitle("Interacting Energy resolution");
+      htotdecay_reco_beam_intE_reso->GetYaxis()->SetTitle("interacting #pi");      
+
+      htotmuon_reco_beamz_reso = new TH1D("htotmuon_reco_beamz_reso", "htotmuon_reco_beamz_reso", 100, -100., 100.); 
+      htotmuon_reco_beamz_reso->GetXaxis()->SetTitle("End Z resolution");      
+      htotmuon_reco_beamz_reso->GetYaxis()->SetTitle("muonident particles");      
+
+      htotmuon_reco_beamwire_reso = new TH1D("htotmuon_reco_beamwire_reso", "htotmuon_reco_beamwire_reso", 151, -50.5, 100.5); 
+      htotmuon_reco_beamwire_reso->GetXaxis()->SetTitle("Wire # resolution");
+      htotmuon_reco_beamwire_reso->GetYaxis()->SetTitle("muonident particles");      
+
+      htotmuon_reco_beam_intE_reso = new TH1D("htotmuon_reco_beam_intE_reso", "htotmuon_reco_beam_intE_reso", 100, -300., 100.); 
+      htotmuon_reco_beam_intE_reso->GetXaxis()->SetTitle("Interacting Energy resolution");
+      htotmuon_reco_beam_intE_reso->GetYaxis()->SetTitle("interacting #pi");      
+
+
 
       Int_t nbinse=12; 
       Int_t nbinsthickness = 100;
@@ -101,6 +126,18 @@ namespace DataTypes {
       }//end of looping over all the slices
 
       h_muon_beamendzvsp=new TH2D("h_muon_beamendzvsp", "h_muon_beamendzvsp", 100, 0.0, 500, 100, 0, 1.5);
+      h_muon_beamendz_true=new TH1D("h_muon_beamendz_true", "h_muon_beamendz_true", 100, 0.0, 500.);
+      h_muon_beamendz_reco=new TH1D("h_muon_beamendz_reco", "h_muon_beamendz_reco", 100, 0.0, 500.);
+      h_pion_beamendz_true=new TH1D("h_pion_beamendz_true", "h_pion_beamendz_true", 100, 0.0, 500.);
+      h_pion_beamendz_reco=new TH1D("h_pion_beamendz_reco", "h_pion_beamendz_reco", 100, 0.0, 500.);
+      h_pion_decay_beamendz_true=new TH1D("h_pion_decay_beamendz_true", "h_pion_decay_beamendz_true", 100, 0.0, 500.);
+      h_pion_decay_beamendz_reco=new TH1D("h_pion_decay_beamendz_reco", "h_pion_decay_beamendz_reco", 100, 0.0, 500.);
+      h_upstream_beamendz_true=new TH1D("h_upstream_beamendz_true", "h_upstream_beamendz_true", 100, 0.0, 500.);
+      h_upstream_beamendz_reco=new TH1D("h_upstream_beamendz_reco", "h_upstream_beamendz_reco", 100, 0.0, 500.);
+
+
+
+
 
       h_truepion_beam_deltax = new TH1D("h_truepion_beam_deltax", "h_truepion_beam_deltax", 100, -20, 40);
       h_truepion_beam_deltay = new TH1D("h_truepion_beam_deltay", "h_truepion_beam_deltay", 100, -20, 40);
@@ -142,6 +179,73 @@ namespace DataTypes {
       h_data_beam_deltay = new TH1D("h_data_beam_deltay", "h_data_beam_deltay", 100, -20, 40);
       h_data_beam_deltaz = new TH1D("h_data_beam_deltaz", "h_data_beam_deltaz", 100, 0, 40);
       h_data_beam_cos = new TH1D("h_data_beam_cos", "h_data_beam_cos", 100, -1., 1.);
+
+      h_ispiinelastic_beam_deltax = new TH1D("h_ispiinelastic_beam_deltax", "h_ispiinelastic_beam_deltax", 100, -10., 10.);
+      h_ispiinelastic_beam_deltay = new TH1D("h_ispiinelastic_beam_deltay", "h_ispiinelastic_beam_deltay", 100, -10., 10.);
+      h_ispiinelastic_beam_deltaz = new TH1D("h_ispiinelastic_beam_deltaz", "h_ispiinelastic_beam_deltaz", 100, 20., 35.);
+      h_ispiinelastic_beam_cos = new TH1D("h_ispiinelastic_beam_cos", "h_ispiinelastic_beam_cos", 100, 0.5, 1.);
+
+      h_ispidecay_beam_deltax = new TH1D("h_ispidecay_beam_deltax", "h_ispidecay_beam_deltax", 100, -10., 10.);
+      h_ispidecay_beam_deltay = new TH1D("h_ispidecay_beam_deltay", "h_ispidecay_beam_deltay", 100, -10., 10.);
+      h_ispidecay_beam_deltaz = new TH1D("h_ispidecay_beam_deltaz", "h_ispidecay_beam_deltaz", 100, 20., 35.);
+      h_ispidecay_beam_cos = new TH1D("h_ispidecay_beam_cos", "h_ispidecay_beam_cos", 100, 0.5, 1.);
+
+      h_ismuon_beam_deltax = new TH1D("h_ismuon_beam_deltax", "h_ismuon_beam_deltax", 100, -10., 10.);
+      h_ismuon_beam_deltay = new TH1D("h_ismuon_beam_deltay", "h_ismuon_beam_deltay", 100, -10., 10.);
+      h_ismuon_beam_deltaz = new TH1D("h_ismuon_beam_deltaz", "h_ismuon_beam_deltaz", 100, 20., 35.);
+      h_ismuon_beam_cos = new TH1D("h_ismuon_beam_cos", "h_ismuon_beam_cos", 100, 0.5, 1.);
+
+      h_isupstream_beam_deltax = new TH1D("h_isupstream_beam_deltax", "h_isupstream_beam_deltax", 100, -10., 10.);
+      h_isupstream_beam_deltay = new TH1D("h_isupstream_beam_deltay", "h_isupstream_beam_deltay", 100, -10., 10.);
+      h_isupstream_beam_deltaz = new TH1D("h_isupstream_beam_deltaz", "h_isupstream_beam_deltaz", 100, 20., 35.);
+      h_isupstream_beam_cos = new TH1D("h_isupstream_beam_cos", "h_isupstream_beam_cos", 100, 0.5, 1.);
+
+
+
+      h_reco_beam_tmdqdx = new TH1D("h_reco_beam_tmdqdx", "h_reco_beam_tmdqdx", 100, 0.0, 10.0);
+      h_reco_beam_pion_tmdqdx = new TH1D("h_reco_beam_pion_tmdqdx", "h_reco_beam_pion_tmdqdx", 100, 0.0, 10.0);
+      h_reco_beam_muon_tmdqdx = new TH1D("h_reco_beam_muon_tmdqdx", "h_reco_beam_muon_tmdqdx", 100, 0.0, 10.0);
+      h_reco_beam_proton_tmdqdx = new TH1D("h_reco_beam_proton_tmdqdx", "h_reco_beam_proton_tmdqdx", 100, 0.0, 10.0);
+      h_reco_beam_gamma_tmdqdx = new TH1D("h_reco_beam_gamma_tmdqdx", "h_reco_beam_gamma_tmdqdx", 100, 0.0, 10.0);
+      h_reco_beam_other_tmdqdx = new TH1D("h_reco_beam_other_tmdqdx", "h_reco_beam_other_tmdqdx", 100, 0.0, 10.0);
+
+      h_reco_beam_costheta_pion = new TH1D("h_reco_beam_costheta_pion", "h_reco_beam_costheta_pion", 100, -1., 1.0);
+      h_reco_beam_costheta_muon = new TH1D("h_reco_beam_costheta_muon", "h_reco_beam_costheta_muon", 100, -1., 1.0);
+      h_reco_beam_costheta_proton = new TH1D("h_reco_beam_costheta_proton", "h_reco_beam_costheta_proton", 100, -1., 1.0);
+      h_reco_beam_costheta_gamma = new TH1D("h_reco_beam_costheta_gamma", "h_reco_beam_costheta_gamma", 100, -1., 1.0);
+      h_reco_beam_costheta_other = new TH1D("h_reco_beam_costheta_other", "h_reco_beam_costheta_other", 100, -1., 1.0);
+
+
+
+
+      h_reco_bdangle_other = new TH1D("h_reco_bdangle_other", "h_reco_bdangle_other", 50, 0., TMath::Pi());
+      h_reco_bdangle_bkmuon = new TH1D("h_reco_bdangle_bkmuon", "h_reco_bdangle_bkmuon", 50, 0., TMath::Pi());
+      h_geteta_same = new TH1D("h_geteta_same", "h_geteta_same", 50, -1.0, 1.0);
+      h_geteta_diff = new TH1D("h_geteta_diff", "h_geteta_diff", 50, -1.0, 1.0);
+
+      h_reco_true_sliceID_ori = new TH2D("h_reco_true_sliceID_ori", "h_reco_true_sliceID_ori", 28, -1.5, 26.5, 28, -1.5, 26.5);
+      h_reco_true_sliceID_ori->GetXaxis()->SetTitle("True sliceID");
+      h_reco_true_sliceID_ori->GetYaxis()->SetTitle("sliceID");
+
+      h_reco_true_sliceID_corr = new TH2D("h_reco_true_sliceID_corr", "h_reco_true_sliceID_corr", 28, -1.5, 26.5, 28, -1.5, 26.5);
+      h_reco_true_sliceID_corr->GetXaxis()->SetTitle("True sliceID");
+      h_reco_true_sliceID_corr->GetYaxis()->SetTitle("sliceID");
+
+      h_reco_true_incident_piinelastic = new TH2D("h_reco_true_incident_piinelastic", "h_reco_true_incident_piinelastic", 28, -1.5, 26.5, 28, -1.5, 26.5);
+      h_reco_true_incident_piinelastic->GetXaxis()->SetTitle("True sliceID");
+      h_reco_true_incident_piinelastic->GetYaxis()->SetTitle("sliceID");
+
+
+      
+     h_upstream_cosmic = new TH1D("h_upstream_cosmic", "h_upstream_cosmic", 100, -70.0, 230);
+     h_upstream_pion = new TH1D("h_upstream_pion", "h_upstream_pion", 100, -70.0, 230);
+     h_upstream_muon = new TH1D("h_upstream_muon", "h_upstream_muon", 100, -70.0, 230);
+     h_upstream_proton = new TH1D("h_upstream_proton", "h_upstream_proton", 100, -70.0, 230);
+     h_upstream_gamma = new TH1D("h_upstream_gamma", "h_upstream_gamma", 100, -70.0, 230);
+     h_upstream_other = new TH1D("h_upstream_other", "h_upstream_other", 100, -70.0, 230);
+
+
+
     }
 
 

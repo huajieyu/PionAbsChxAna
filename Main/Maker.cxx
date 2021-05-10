@@ -3,7 +3,7 @@
 
 #include "Maker.h"
 using namespace Base;
-
+using namespace std;
 void Main::Maker::SetInputFile(std::string in)
 {
   filen = in;
@@ -69,6 +69,47 @@ void Main::Maker::SetSignalTypeChx(bool v)
 {
   sel_chx = v;
 }
+
+double Main::Maker::getEta_broken(vector<vector<double>> canddQdx, vector<vector<double>> trkRR, vector<double> trklen,  int muind, vector<double> beamdQdx, vector<double> beamRR, double beamlen){
+      int nhitmu=0; int nhitp=0; double deltaEmu=0; double deltaEp=0;
+      //loop over all the dQdx of the muon candidate
+      for(unsigned int kk=0; kk<canddQdx[muind].size(); kk++){
+          	if(trkRR[muind][kk] > (trklen[muind]-5) ) continue;
+                deltaEmu = deltaEmu+ canddQdx[muind][kk];     
+                nhitmu=nhitmu+1;	
+      } 
+      //loop over all the dQdx of the proton candidate
+      for(unsigned int kk=0; kk<beamdQdx.size(); kk++){
+                if(beamRR[kk] > (beamlen-5) ) continue;
+                deltaEp = deltaEp+beamdQdx[kk];      
+                nhitp=nhitp+1;    
+      }
+      //double nuttest=(deltaEp-deltaEmu)/(deltaEmu+deltaEp);
+      double nuttest2=(deltaEp/nhitp-deltaEmu/nhitmu)/(deltaEmu/nhitmu+deltaEp/nhitp);
+      return nuttest2;
+}
+
+/*
+float Main::Maker::getEta(vector<vector<double>> canddQdx, vector<vector<double>> trkRR, vector<float> trklen,  int muind, int pind){
+      int nhitmu=0; int nhitp=0; double deltaEmu=0; double deltaEp=0;
+      //loop over all the dQdx of the muon candidate
+      for(unsigned int kk=0; kk<canddQdx[muind].size(); kk++){
+          	if(trkRR[muind][kk] > (trklen[muind]-5) ) continue;
+                deltaEmu = deltaEmu+ canddQdx[muind][kk];     
+                nhitmu=nhitmu+1;	
+      } 
+      //loop over all the dQdx of the proton candidate
+      for(unsigned int kk=0; kk<canddQdx[pind].size(); kk++){
+                if(trkRR[pind][kk] > (trklen[pind]-5) ) continue;
+                deltaEp = deltaEp+canddQdx[pind][kk];      
+                nhitp=nhitp+1;    
+      }
+      //double nuttest=(deltaEp-deltaEmu)/(deltaEmu+deltaEp);
+      double nuttest2=(deltaEp/nhitp-deltaEmu/nhitmu)/(deltaEmu/nhitmu+deltaEp/nhitp);
+           			                  			                                     return nuttest2;
+            			                  			                               }
+*/
+
 double Main::Maker::Sce_Corrected_endZ_2nd(double true_beam_endX, double true_beam_endY, double true_beam_endZ){
      double true_endz=true_beam_endZ;
      double offset_z = 0;
@@ -627,7 +668,7 @@ else if( ( reco_beam_true_byHits_process == "neutronInelastic" || reco_beam_true
 
 
 bool Main::Maker::endAPA3(double reco_beam_endZ){
-  return(reco_beam_endZ < cutAPA3_Z);
+  return(reco_beam_endZ < cutAPA3_Z && reco_beam_endZ>0);
 
 }
 
@@ -1714,7 +1755,16 @@ void Main::Maker::MakeFile()
   
   string pattern = filen;
   //string pattern_add = filen_add;
-  
+
+  //open a new txt file to save the information of pion interactions
+  ofstream outfile_pion;  ofstream outfile_muon; ofstream outfile_broken;
+  ofstream outfile_nmbp;
+  outfile_pion.open("./Main/mac/pion_0and1_slice_information.txt");
+  outfile_muon.open("./Main/mac/muon_0and1_slice_information.txt");
+  outfile_broken.open("./Main/mac/broken_information.txt");
+  outfile_nmbp.open("./Main/mac/notmatched_beam_particle_information.txt");
+
+  //open a new txt file to save the information of the muon interactions
   
   
   //*************************
@@ -4223,7 +4273,7 @@ void Main::Maker::MakeFile()
   //=========================================================================
   LOG_NORMAL() << "Saving 1D Event Histo." << std::endl;
 
-  file_out->WriteObject(_event_histo_1d, "UBXSecEventHisto1D");
+  //file_out->WriteObject(_event_histo_1d, "UBXSecEventHisto1D");
   file_out->WriteObject(_event_histo, "UBXSecEventHisto");
 
   file_out->WriteObject(&hmap_trkmom_geant_pm1_bs, "hmap_trkmom_geant_pm1_bs");
