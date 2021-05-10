@@ -1850,6 +1850,53 @@ void Main::Maker::MakeFile()
   int Ntrkcutrea_withthresh = 0;
   int Ntrkcutother_withthresh = 0;
 
+  bool passCuts = true;
+  int Nint3slice =0;
+  int Nint3slice_pi=0;
+  int Nint3slice_bq=0;
+  
+  int Nmupi=0;
+  int Nintmuon=0;
+  int Nintmuon_pi=0;
+  int Nintmuon_bq_x=0;
+  int Nintmuon_bq_y=0;
+  int Nintmuon_bq_z=0;
+  int Nintmuon_bq_cos=0;
+  int Nintmuon_bq_APA3=0;
+  int Nintmuon_bq_vsize=0;
+  int Nintmuon_bq=0;
+
+  int Nintpioninelastic=0;
+  int Nintpioninelastic_pi=0;
+  int Nintpioninelastic_bq_x=0;
+  int Nintpioninelastic_bq_y=0;
+  int Nintpioninelastic_bq_z=0;
+  int Nintpioninelastic_bq_cos=0;
+  int Nintpioninelastic_bq_APA3=0;
+  int Nintpioninelastic_bq_vsize=0;
+  int Nintpioninelastic_bq=0;
+
+  int Nintpiondecay=0;
+  int Nintpiondecay_pi=0;
+  int Nintpiondecay_bq_x=0;
+  int Nintpiondecay_bq_y=0;
+  int Nintpiondecay_bq_z=0;
+  int Nintpiondecay_bq_cos=0;
+  int Nintpiondecay_bq_APA3=0;
+  int Nintpiondecay_bq_vsize=0;
+  int Nintpiondecay_bq=0;
+
+  int Nintupstream_test = 0;
+  int Nintupstream=0;
+  int Nintupstream_pi=0;
+  int Nintupstream_bq_x=0;
+  int Nintupstream_bq_y=0;
+  int Nintupstream_bq_z=0;
+  int Nintupstream_bq_cos=0;
+  int Nintupstream_bq_APA3=0;
+  int Nintupstream_bq_vsize=0;
+  int Nintupstream_bq=0;
+
 
   int TestGenSig=0;
 
@@ -1914,15 +1961,15 @@ void Main::Maker::MakeFile()
   TH1D *dchxintE = new TH1D("dchxintE",   "#DeltaE(Reco - True)/True",100, -3.0,2.0);
   
 
-  TH1D *dslcID[nslices+2];  
+  TH1D *dslcID[nslices+3];  
 
-  TH1D *incE[nslices+2];
-  TH1D *pitch[nslices+2];
-  TH1D *dEdx[nslices+2];
+  TH1D *incE[nslices+3];
+  TH1D *pitch[nslices+3];
+  TH1D *dEdx[nslices+3];
 
-  TH1D *h_energetic_pmom_gen[nslices+2];
-  TH1D *h_energetic_pcostheta_gen[nslices+2];
-  TH1D *h_energetic_pphi_gen[nslices+2];
+  TH1D *h_energetic_pmom_gen[nslices+3];
+  TH1D *h_energetic_pcostheta_gen[nslices+3];
+  TH1D *h_energetic_pphi_gen[nslices+3];
   
 
 
