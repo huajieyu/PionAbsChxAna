@@ -1780,6 +1780,7 @@ void Main::Maker::MakeFile()
   
   TChain *chain_ubxsec;
   chain_ubxsec = new TChain("pduneana/beamana");
+  //chain_ubxsec = new TChain("pionana/beamana");
   chain_ubxsec->Add(pattern.c_str());
   //chain_ubxsec->Add(pattern_add.c_str()); 
 
@@ -1960,10 +1961,21 @@ void Main::Maker::MakeFile()
   TH1D *dabsintE = new TH1D("dabsintE","#DeltaE(Reco - True)/True ",100, -3.0,2.0);
   TH1D *dchxintE = new TH1D("dchxintE",   "#DeltaE(Reco - True)/True",100, -3.0,2.0);
   
+  /*RooUnfoldResponse response (nslices+3, -1, nslices+2);
+  
+  TH1D *nevt_truesliceid_inelastic_all = new TH1D("nevt_truesliceid_inelastic_all", "nevt_truesliceid_inelastic_all", nslices+3, -1, nslices+2);
+  TH1D *nevt_truesliceid_inelastic_cuts = new TH1D("nevt_truesliceid_inelastic_cuts", "nevt_truesliceid_inelastic_cuts", nslices+3, -1, nslices+2);
+  TH1D *nevt_recosliceid_allevts_cuts = new TH1D("nevt_recosliceid_allevts_cuts", "nevt_recosliceid_allevts_cuts", nslices+3, -1, nslices+2);
+  TH1D *nevt_recosliceid_inelastic_cuts = new TH1D("nevt_recosliceid_inelastic_cuts", "nevt_recosliceid_inelastic_cuts", nslices+3, -1, nslices+2);
+  TH2D *recosliceid_truesliceid_inelastic_cuts =new TH2D("recosliceid_truesliceid_inelastic_cuts", "recosliceid_truesliceid_inelastic_cuts", nslices+3, -1, nslices+2, nslices+3, -1, nslices+2);
+  */
+
+ 
 
   TH1D *dslcID[nslices+3];  
 
   TH1D *incE[nslices+3];
+  TH1D *true_incE[nslices+3];
   TH1D *pitch[nslices+3];
   TH1D *dEdx[nslices+3];
 
@@ -1972,7 +1984,7 @@ void Main::Maker::MakeFile()
   TH1D *h_energetic_pphi_gen[nslices+3];
   
 
-
+  TGraph *gr_inc_slc; //incident in true slcie
   TGraph *gr_inc_reco_slc;  //incident in reco slice
 
   TGraph *gr_inc_truepion_pandora_identified_slc;
@@ -1980,15 +1992,24 @@ void Main::Maker::MakeFile()
   TGraph *gr_inc_truepion_slc;       //incident in true slice
   TGraph *gr_inc_truemuon_slc;  //incident in true slice (muon)  
   TGraph *gr_inc_truepionelastic_slc;
+  TGraph *gr_inc_truepiondecay_slc;
+  TGraph *gr_inc_trueupstream_slc;
+  TGraph *gr_inc_trueupstream_pion_slc;
 
   TGraph *gr_inc_recomuon_slc;  //incident in reco slice
   TGraph *gr_inc_recopion_slc;  //incident in reco slice
   TGraph *gr_inc_recopionelastic_slc;  //incident in reco slice
+  TGraph *gr_inc_recopiondecay_slc;  //incident in reco slice
+  TGraph *gr_inc_upstream_slc; 
+  TGraph *gr_inc_upstream_pion_slc; 
 
   TGraph *gr_int_slc;       //interaction in reco slice
  
   TGraph *gr_intabs_slc;    //abs in true slice - generated
-  
+ 
+  TGraph *gr_intabs_pi_slc;
+  TGraph *gr_intabs_bq_slc;
+ 
   TGraph *gr_intabs_sel_slc;  //abs in true slice - selected
 
   TGraph *gr_recoabs_slc;    //abs in true slice - generated
@@ -2009,10 +2030,10 @@ void Main::Maker::MakeFile()
 
   TGraphAsymmErrors *gr_incE_slc;
 
+  TGraphAsymmErrors *gr_true_incE_slc;
+
   TGraphAsymmErrors *gr_pitch_slc;
 
-  TGraph *gr_tempxsec_slc;
-  TGraph *gr_tempxsec_chx_slc;
 
 
   TGraph *gr_tempxsec_chx_test_slc;
@@ -2059,32 +2080,76 @@ void Main::Maker::MakeFile()
   double event_weight = 1.0;
 
   Evttot = 0;
-  for(int ix=0; ix<=nslices+1; ix++){
-      for(int iy=0; iy<=nslices+1; iy++){
+  for(int ix=0; ix<=nslices+2; ix++){
+      for(int iy=0; iy<=nslices+2; iy++){
         intabs_array_den[ix][iy]=0.0;
         intchx_array_den[ix][iy]=0.0;
         intabs_array_num[ix][iy]=0.0;
         intchx_array_num[ix][iy]=0.0;
       }
   }
+  double true_oridecaypi_neg = 0;
+  double true_oridecaymu_neg = 0;
+  double reco_oridecaypi_neg = 0;
+  double reco_oridecaymu_neg = 0;
+  true_abs_neg = 0;
+  true_chx_neg = 0;
+  reco_abs_neg = 0;
+  reco_chx_neg = 0;
+
+  true_rea_neg = 0;
+  reco_rea_neg = 0;
+
+  true_piinelastic_neg = 0;
+  reco_piinelastic_neg = 0;
+  true_pidecay_neg = 0;
+  reco_pidecay_neg = 0;
+  true_piupstream_neg = 0;
+  reco_piupstream_neg = 0;
+  true_upstream_neg = 0;
+  reco_upstream_neg = 0;
+  true_muon_neg = 0;
+  reco_muon_neg = 0;
+ 
 
 
 
-  for (int i = 0; i<=nslices+1; ++i){
+  for (int i = 0; i<=nslices+2; ++i){
+
      interaction[i] = 0;
      incident[i] = 0;
      incident_pion[i] = 0;
      incident_muon[i] = 0;
+     incident_pion_decay[i] = 0;
      incident_pion_elastic[i] = 0;
+     incident_upstream[i]=0;
+     incident_upstream_pion[i]=0;
 
-     true_incident_pandora_identified[i]=0;
-
-     true_incident_pion_elastic[i]=0;
+     true_incident_pandora_identified[i]=0;     
+     true_incident_pion_decay[i]=0;
+     true_incident_pion_decay_reco_nnn[i]=0;
+     true_incident_pion_decay_broken[i]=0;
+     true_incident_pion_decay_normal[i]=0;
+     true_incident_pion_elastic[i] = 0;
      true_incident_pion[i]=0;
      true_incident_muon[i]=0;
+     true_incident_muon_decay_reco_nnn[i]=0;
+     true_incident_muon_decay_broken[i]=0;
+     true_incident_muon_decay_normal[i]=0;
+
+     true_incident_upstream[i]=0;
+     true_incident_upstream_pion[i]=0;
+
      true_interaction[i]=0;
+     true_incident[i]=0;
+
+
      true_abs[i]=0;
      true_chx[i]=0;
+
+     true_abs_pandora_identified[i] = 0;
+     true_abs_beam_qualified[i] = 0;
+
      true_abs_sel[i]=0;
      true_chx_sel[i]=0;
 
@@ -2198,31 +2263,84 @@ void Main::Maker::MakeFile()
 
 
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	//<<<<<<<<<<
+	//<<<<<<<<<< CHECKING MC TRUTH BEFORE PERFORMING ANY CUTS
+	//<<<<<<<<<<        
 
-        int sliceID = t->reco_beam_calo_wire->back()/nwires_in_slice;
-        //if(sliceID>24){
-        //     std::cout<<"sliceID = "<<sliceID<<"  Wire number is "<<t->reco_beam_calo_wire->back()<<std::endl;
-        //}
-        if(sliceID<0) sliceID=0;
+
+
+        //int sliceID = t->reco_beam_calo_wire->back()/nwires_in_slice;
+        int sliceID = int(t->reco_beam_calo_wire_z->back()/thinslicewidth);
+	//int sliceID = int(t->reco_beam_calo_endZ/thinslicewidth);        
+
+
+        //if(sliceID<0 || t->reco_beam_calo_wire->back()<0) sliceID = -1;
+        //if(sliceID<0 || t->reco_beam_calo_wire_z->back()<0) sliceID = -1;
+
+	if(sliceID<0 || t->reco_beam_calo_endZ<0) sliceID = -1;
+
         if(sliceID >= nslices+1) sliceID = nslices+1;
 
-        double true_endz = Sce_Corrected_endZ_2nd(t->true_beam_endX, t->true_beam_endY, t->true_beam_endZ);
-        int true_sliceID = -1;
-        true_sliceID = int((true_endz-0.5603500-0.479/2)/0.479/nwires_in_slice); //z=0.56 is z coordinate for wire 0
-        //if(true_sliceID>24){
-        //     std::cout<<"sliceID = "<<true_sliceID<<"  Wire number is "<<(true_endz-0.5603500-0.479/2)/0.479<<std::endl;
-        //}
- 
+        //double true_endz = Sce_Corrected_endZ_2nd(t->true_beam_endX, t->true_beam_endY, t->true_beam_endZ);
+	double true_endz = t->true_beam_endZ;
 
-        if (true_sliceID <0) true_sliceID = 0;
+        int true_sliceID = -999;
+
+        //true_sliceID = int((true_endz-0.5603500-0.479/2)/0.479/nwires_in_slice); //z=0.56 is z coordinate for wire 0
+        true_sliceID = int(t->true_beam_endZ/thinslicewidth);
+
+        //if (true_sliceID <0 || (true_endz-0.5603500-0.479/2)/0.479<0 ) true_sliceID = -1;
+        if( true_sliceID<0 || t->true_beam_endZ<0) true_sliceID=-1;
         if (true_sliceID >= nslices+1) true_sliceID = nslices+1;
 
-
+	//CATEGORY 1 "Decay"
         string *temp_Ptr0 = t->true_beam_endProcess;
+        if (*temp_Ptr0 == "Decay"){
+              if (abs(t->true_beam_PDG) == 211){
+                  if(true_sliceID==-1){
+                      true_oridecaypi_neg++;
+                  }
+                  if(sliceID==-1){
+                      reco_oridecaypi_neg++;
+                  }
+              }
+              if (abs(t->true_beam_PDG) == 13){
+                  if(true_sliceID==-1){
+                      true_oridecaymu_neg++;
+                  }
+                  if(sliceID==-1){
+                      reco_oridecaymu_neg++;
+                  }
+               }
+        }
+	//CATEGORY 2 "Inelastics"
         if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211){  //std::cout<<"signal"<<std::endl;
-
            _event_histo->htotinc_true_beamwire->Fill((true_endz-0.5603500-0.479/2)/0.479);           
-           if (true_sliceID <= nslices+1){
+           if (t->true_daughter_nPi0 == 0 && t->true_daughter_nPiPlus == 0 && t->true_daughter_nPiMinus ==0){//true absorption
+                 if(true_sliceID==-1){
+                 true_abs_neg++;
+                 }
+                 if(sliceID == -1){
+                 reco_abs_neg++;
+                 }
+           }                  
+           else if (t->true_daughter_nPi0 > 0 && t->true_daughter_nPiPlus == 0 && t->true_daughter_nPiMinus ==0){
+                 if(true_sliceID==-1){
+                 true_chx_neg++;
+                 }
+                 if(sliceID==-1){
+                 reco_chx_neg++;
+                 }  
+           }else {
+                 if(true_sliceID==-1){
+                 true_rea_neg++;
+                 }
+                 if(sliceID==-1){
+                 reco_rea_neg++;
+                 }
+           }
+
+           if (true_sliceID>=0 && true_sliceID <= nslices+1){
               ++true_interaction[true_sliceID];
               if (t->true_daughter_nPi0 == 0 && t->true_daughter_nPiPlus == 0 && t->true_daughter_nPiMinus ==0){//true absorption
                   ++true_abs[true_sliceID];
@@ -2230,7 +2348,7 @@ void Main::Maker::MakeFile()
                   ++intabs_array_den[true_sliceID][sliceID];
                   ++reco_abs[sliceID];
               }
-              if (t->true_daughter_nPi0 > 0 && t->true_daughter_nPiPlus == 0 && t->true_daughter_nPiMinus ==0){
+              else if (t->true_daughter_nPi0 > 0 && t->true_daughter_nPiPlus == 0 && t->true_daughter_nPiMinus ==0){
                   ++true_chx[true_sliceID];
                   dchxintE -> Fill((t->reco_beam_interactingEnergy - t->true_beam_interactingEnergy)/t->true_beam_interactingEnergy);
                   ++intchx_array_den[true_sliceID][sliceID];
@@ -2240,62 +2358,168 @@ void Main::Maker::MakeFile()
         }//end of selecting pion inclusive events
         
         //LOG_NORMAL()<<"Start to calculate the average energy and thickness with Tingjun's method"<<std::endl;
-        if(abs(t->true_beam_PDG) == 211){
-           for (int i = 0; i<=true_sliceID; ++i){
-             if(i<=nslices+1){
-              if(*temp_Ptr0 == "pi+Inelastic"){               
-                   ++true_incident_pion[i];
-              }else { 
-                   ++true_incident_pion_elastic[i];
-              }
-             } 
-           }
-        }//end of if this is a true pions
-        if(abs(t->true_beam_PDG) == 13){
-                 _event_histo->h_muon_beamendzvsp->Fill(true_endz, t->true_beam_startP);       
-        } 
+        bool isUpstream = true;
+        bool isPiInelastic = false;
+        bool isPiDecay = false;
+        bool isMuon = false;
 
-        for(int i=0; i<=true_sliceID; ++i){
-            if(i<=nslices+1){
-               if(abs(t->true_beam_PDG) == 13){
-                   ++true_incident_muon[i];                    
+        if(t->true_beam_ID == t->reco_beam_true_byHits_ID  && 
+	  (abs(t->true_beam_PDG)==211 || abs(t->true_beam_PDG)==13)) {
+                isUpstream = false;
+        }
+        if(isUpstream && abs(t->true_beam_PDG)==211){
+		if(t->reco_beam_true_byHits_origin  == 2){
+			_event_histo->h_upstream_cosmic->Fill(true_endz);
+		}
+		else if(abs(t->reco_beam_true_byHits_PDG)==211){
+			_event_histo->h_upstream_pion->Fill(true_endz);
+		} 
+		else if(abs(t->reco_beam_true_byHits_PDG)==13){
+			_event_histo->h_upstream_muon->Fill(true_endz);
+		} 
+		else if(abs(t->reco_beam_true_byHits_PDG)==2212){
+			_event_histo->h_upstream_proton->Fill(true_endz);
+		} 
+		else if(abs(t->reco_beam_true_byHits_PDG)==22 ||abs(t->reco_beam_true_byHits_PDG)==11){
+			_event_histo->h_upstream_gamma->Fill(true_endz);
+		} else { _event_histo->h_upstream_other->Fill(true_endz); 
+			//std::cout<<"PDG code of the Mis-identified beam particle is "<<t->reco_beam_true_byHits_PDG<<std::endl;
+              outfile_nmbp<<"<<<<<<<<<Run Number is "<<t->run<<" SubRun Number is "<<t->subrun<<"   Event Number is "<<t->event<<"  true slice ID is "<<true_sliceID<<" reco slice ID is "<<sliceID<<std::endl;
+              outfile_nmbp<<" The end process of this event is "<<*temp_Ptr0<<std::endl;
+              outfile_nmbp<<" The wire number of this pion is "<<t->reco_beam_calo_wire->back()<<std::endl;
+              outfile_nmbp<<" True beam_PDG is "<<t->true_beam_PDG<<std::endl;
+              outfile_nmbp<<" Reco beam PDG is "<<t->reco_beam_true_byHits_PDG<<std::endl;
+	      outfile_nmbp<<" Beam Type of Pandora Identification is "<<t->reco_beam_type<<std::endl;
+	      }
 
+        }
+
+	
+
+
+        /*if((abs(t->true_beam_PDG) == 211 || abs(t->true_beam_PDG)==13) && isUpstream == true){
+                Nintupstream_test++;
+                if(true_sliceID==-1) {true_upstream_neg++;}
+                if(sliceID ==-1) {reco_upstream_neg++;}
+                if(abs(t->true_beam_PDG)==211){
+                  if(true_sliceID==-1) {true_piupstream_neg++;}
+                  if(sliceID ==-1) {reco_piupstream_neg++;}
                }
-            } 
-        } 
-      
-   
-        if (true_sliceID!=-1){
-          dslcID[true_sliceID]->Fill(sliceID - true_sliceID);
         }
-        //std::cout<<"filled dslcID"<<std::endl;
-        //increment interaction counter
-        if(sliceID<=nslices+1){
-            ++interaction[sliceID];
+        //if(true_sliceID>0) isUpstream = false;
+        if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211 && isUpstream == false) { 
+            isPiInelastic = true; 
+            if(true_sliceID==-1) {true_piinelastic_neg++;}
+            if(sliceID ==-1) {reco_piinelastic_neg++;}
         }
-        //std::cout<<"filled interaction array"<<std::endl;
-        //increment incident counter
-        for (int i = 0; i<=sliceID; ++i) {
+        else if(*temp_Ptr0 == "Decay" && abs(t->true_beam_PDG) == 211 && isUpstream == false){
+            isPiDecay = true;
+            if(true_sliceID==-1) {true_pidecay_neg++;}
+            if(sliceID ==-1) {reco_pidecay_neg++;}
+        }
+        else if(abs(t->true_beam_PDG) == 13 && isUpstream == false){
+            isMuon = true;
+            if(true_sliceID==-1) {true_muon_neg++;}
+            if(sliceID ==-1) {reco_muon_neg++;}
+        }
+        
+
+        if(true_sliceID>=0){
+        for (int i = 0; i<=true_sliceID; ++i) {
+           if(abs(t->true_beam_PDG) != 211 && abs(t->true_beam_PDG) != 13) continue;
            if(i<=nslices+1){
-              ++incident[i];
+              ++true_incident[i];
               //select pion
-              if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211){  
-                   ++incident_pion[i];
-              } else if(abs(t->true_beam_PDG) == 211){
-                   ++incident_pion_elastic[i];
-              } else if(abs(t->true_beam_PDG) == 13){
+              if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211 && isUpstream == false){  
+                   ++true_incident_pion[i];
+              } else if(*temp_Ptr0 == "Decay" && abs(t->true_beam_PDG) == 211 && isUpstream == false){
+                   ++true_incident_pion_decay[i];
+                   if(t->reco_beam_endZ==-999){
+                       ++true_incident_pion_decay_reco_nnn[i];
+                   }
+              } else if(abs(t->true_beam_PDG) == 211 && isUpstream == false) {
+                   ++true_incident_pion_elastic[i];   
+              } else if(abs(t->true_beam_PDG) == 13 && isUpstream == false){
               //select muon
-                   ++incident_muon[i];
+                   ++true_incident_muon[i];
+                   if(t->reco_beam_endZ==-999){
+                        ++true_incident_muon_decay_reco_nnn[i];
+                   }
+              } else if(isUpstream == true){
+                   ++true_incident_upstream[i];
+                   
+                   if(abs(t->true_beam_PDG) == 211) {
+                        ++true_incident_upstream_pion[i];
+                   }
               }
            }
         }
+        }//end of selecting the events with true sliceID>=0
+        */     
+        if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211 && isUpstream == false) { 
+		isPiInelastic = true;
+	}
+	else if(*temp_Ptr0 == "Decay" && abs(t->true_beam_PDG) == 211 && isUpstream == false){
+		isPiDecay = true;
+	}
+    
+        if(abs(t->true_beam_PDG) == 13 && isUpstream == false){  //Muon
+		isMuon = true;
+                _event_histo->h_muon_beamendzvsp->Fill(true_endz, t->true_beam_startP);      
+		_event_histo->h_muon_beamendz_true->Fill(true_endz);
+		_event_histo->h_muon_beamendz_reco->Fill(t->reco_beam_endZ);
+        } 
+        else if(abs(t->true_beam_PDG) == 211 && *temp_Ptr0 == "pi+Inelastic" && isUpstream == false){  //PiInelastic
+		isPiInelastic = true;
+		//nevt_truesliceid_inelastic_all->Fill(true_sliceID);
 
-
-
+		_event_histo->h_pion_beamendz_true->Fill(true_endz);
+		_event_histo->h_pion_beamendz_reco->Fill(t->reco_beam_endZ);
+        } 
+	else if(abs(t->true_beam_PDG) == 211 && *temp_Ptr0 == "Decay" && isUpstream == false){ //Pion Decay
+		isPiDecay = true;
+		_event_histo->h_pion_decay_beamendz_true->Fill(true_endz);
+		_event_histo->h_pion_decay_beamendz_reco->Fill(t->reco_beam_endZ);
+        
+	}
+	else if((abs(t->true_beam_PDG) == 13 || abs(t->true_beam_PDG) == 211) && isUpstream ==true){   //Upstream
+		_event_histo->h_upstream_beamendz_true->Fill(true_endz);
+		_event_histo->h_upstream_beamendz_reco->Fill(t->reco_beam_endZ);
+        
+       }  
+       //process the pion events 
+       if(abs(t->true_beam_PDG) == 211 || abs(t->true_beam_PDG) == 13){
+		Nmupi++; 
+	        if (true_sliceID!=-1){
+        	  dslcID[true_sliceID]->Fill(sliceID - true_sliceID);
+        	}
+	        if(sliceID>=0 && sliceID<=nslices+1){
+	            ++interaction[sliceID];
+	        }
+	        if(true_sliceID >0 && true_sliceID<=2) {
+	                 Nint3slice++;
+	        }
+        	if(*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG)==211 && isUpstream == false){
+	             Nintpioninelastic++;
+	        }
+        	if(*temp_Ptr0 == "Decay" && abs(t->true_beam_PDG)==211 && isUpstream == false){
+	             Nintpiondecay++;
+	        }
+        	if(abs(t->true_beam_PDG)==13 && isUpstream == false){
+	             Nintmuon++;
+	        }
+                if(isUpstream == true){
+                     Nintupstream++;
+                }
+        }//end of selecting muon and and pion beam event
         //LOG_NORMAL()<<"Start to Fill Vector to store energy and thickness"<<std::endl;
 	//select muon and pion beam events
+
+	passCuts = true;
 	if(isdata==0){
-	
+	  
+	  //std::cout<<"This is a MC event"<<std::endl;	
+	  //calculate beam displacement before beam cuts
           std::vector<double> *temp_mc = new std::vector<double>();
           manual_beamPos_mc_vector(t->reco_beam_startX, t->reco_beam_startY, t->reco_beam_startZ,
                               t->reco_beam_trackDirX, t->reco_beam_trackDirY, t->reco_beam_trackDirZ,
@@ -2309,9 +2533,23 @@ void Main::Maker::MakeFile()
 
           std::string beam_identification = beam_particle_Identification((*temp_process_Ptr), t->reco_beam_true_byHits_matched, t->reco_beam_true_byHits_origin, t->reco_beam_true_byHits_PDG); 
           //LOG_NORMAL()<<"Beam Identification is "<<beam_identification<<std::endl;
+
+          double libobeamdeltax = 0;
+          double libobeamdeltay = 0;
+          double libobeamdeltaz = 0;
+          double libobeamcos = 0;
+
           for( it = temp_mc->begin(); it != temp_mc->end(); ++it )
           { 
             if(idx==0){
+                 libobeamdeltax = *it;
+                 //Fill the histograms for Pi inelastic, Pi decay, Muon and Upstream
+                 if(isMuon) {_event_histo->h_ismuon_beam_deltax->Fill(*it);}
+                 if(isPiInelastic) {_event_histo->h_ispiinelastic_beam_deltax->Fill(*it);}
+                 if(isPiDecay) {_event_histo->h_ispidecay_beam_deltax->Fill(*it);}
+                 if(isUpstream) {_event_histo->h_isupstream_beam_deltax->Fill(*it);}
+
+                 //-----------------------------------------------------------------
                  if(beam_identification == "PrimaryPion") {_event_histo->h_truepion_beam_deltax->Fill(*it);}
                  else if(beam_identification == "PrimaryMuon") {_event_histo->h_truemuon_beam_deltax->Fill(*it);}
                  else if(beam_identification == "PrimaryProton") {_event_histo->h_trueproton_beam_deltax->Fill(*it);}
@@ -2320,7 +2558,14 @@ void Main::Maker::MakeFile()
                  else if(beam_identification == "PrimaryBeamNotTrig"){_event_histo->h_truenottrig_beam_deltax->Fill(*it);}
                  else{_event_histo->h_trueother_beam_deltax->Fill(*it);}     
              } else if(idx==1){
-                 if(beam_identification == "PrimaryPion") {_event_histo->h_truepion_beam_deltay->Fill(*it);}
+                 libobeamdeltay = *it;
+                 //Fill the histograms for Pi inelastic, Pi decay, Muon and Upstream
+                 if(isMuon) {_event_histo->h_ismuon_beam_deltay->Fill(*it);}
+                 if(isPiInelastic) {_event_histo->h_ispiinelastic_beam_deltay->Fill(*it);}
+                 if(isPiDecay) {_event_histo->h_ispidecay_beam_deltay->Fill(*it);}
+                 if(isUpstream) {_event_histo->h_isupstream_beam_deltay->Fill(*it);}
+                 //-----------------------------------------------------------------
+                  if(beam_identification == "PrimaryPion") {_event_histo->h_truepion_beam_deltay->Fill(*it);}
                  else if(beam_identification == "PrimaryMuon") {_event_histo->h_truemuon_beam_deltay->Fill(*it);}
                  else if(beam_identification == "PrimaryProton") {_event_histo->h_trueproton_beam_deltay->Fill(*it);}
                  else if(beam_identification == "PrimaryElectron") {_event_histo->h_trueelectron_beam_deltay->Fill(*it);}
@@ -2328,7 +2573,14 @@ void Main::Maker::MakeFile()
                  else if(beam_identification == "PrimaryBeamNotTrig") {_event_histo->h_truenottrig_beam_deltay->Fill(*it);}
                  else{_event_histo->h_trueother_beam_deltay->Fill(*it);}
              } else if(idx==2){
-                 if(beam_identification == "PrimaryPion") {_event_histo->h_truepion_beam_deltaz->Fill(*it);}
+                 libobeamdeltaz = *it;
+                 //Fill the histograms for Pi inelastic, Pi decay, Muon and Upstream
+                 if(isMuon) {_event_histo->h_ismuon_beam_deltaz->Fill(*it);}
+                 if(isPiInelastic) {_event_histo->h_ispiinelastic_beam_deltaz->Fill(*it);}
+                 if(isPiDecay) {_event_histo->h_ispidecay_beam_deltaz->Fill(*it);}
+                 if(isUpstream) {_event_histo->h_isupstream_beam_deltaz->Fill(*it);}
+                 //-----------------------------------------------------------------
+                  if(beam_identification == "PrimaryPion") {_event_histo->h_truepion_beam_deltaz->Fill(*it);}
                  else if(beam_identification == "PrimaryMuon") {_event_histo->h_truemuon_beam_deltaz->Fill(*it);}
                  else if(beam_identification == "PrimaryProton") {_event_histo->h_trueproton_beam_deltaz->Fill(*it);}
                  else if(beam_identification == "PrimaryElectron") {_event_histo->h_trueelectron_beam_deltaz->Fill(*it);}
@@ -2337,7 +2589,14 @@ void Main::Maker::MakeFile()
                  else{_event_histo->h_trueother_beam_deltaz->Fill(*it);}
 
              } else if(idx==3){
-                 if(beam_identification == "PrimaryPion") {_event_histo->h_truepion_beam_cos->Fill(*it);}
+                 libobeamcos = *it;
+                 //Fill the histograms for Pi inelastic, Pi decay, Muon and Upstream
+                 if(isMuon) {_event_histo->h_ismuon_beam_cos->Fill(*it);}
+                 if(isPiInelastic) {_event_histo->h_ispiinelastic_beam_cos->Fill(*it);}
+                 if(isPiDecay) {_event_histo->h_ispidecay_beam_cos->Fill(*it);}
+                 if(isUpstream) {_event_histo->h_isupstream_beam_cos->Fill(*it);}
+                 //-----------------------------------------------------------------
+                  if(beam_identification == "PrimaryPion") {_event_histo->h_truepion_beam_cos->Fill(*it);}
                  else if(beam_identification == "PrimaryMuon") {_event_histo->h_truemuon_beam_cos->Fill(*it);}
                  else if(beam_identification == "PrimaryProton") {_event_histo->h_trueproton_beam_cos->Fill(*it);}
                  else if(beam_identification == "PrimaryElectron") {_event_histo->h_trueelectron_beam_cos->Fill(*it);}
@@ -2347,30 +2606,290 @@ void Main::Maker::MakeFile()
 
              }
             idx=idx+1;
-          }
-
-          if(abs(t->true_beam_PDG) != 211 && abs(t->true_beam_PDG) !=13) continue;
+          } //end of for loop
+	  //#0 cut require the MC is either pion or muon events
+          if(abs(t->true_beam_PDG) != 211 && abs(t->true_beam_PDG) !=13) continue;//passCuts = false;
 
           
-          if(!isBeamType(t->reco_beam_type)) continue;
+	  //#1 beam type cut
+	  //
+          if(!isBeamType(t->reco_beam_type)) continue; //passCuts = false; 
+	  if(passCuts == true){
+	          if(true_sliceID >0 && true_sliceID<=2) {
+        	     Nint3slice_pi++;
+          	  }
+          	  if(*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG)==211 && isUpstream == false){
+		     Nintpioninelastic_pi++;
+		  }
+	          if(*temp_Ptr0 == "Decay" && abs(t->true_beam_PDG)==211 && isUpstream == false){
+	             Nintpiondecay_pi++;
+	          }
+	       	  if(abs(t->true_beam_PDG)==13 && isUpstream == false){
+	             Nintmuon_pi++;
+	          }
+	          if(isUpstream == true){
+	             Nintupstream_pi++;
+	          }
+	  }
           if(abs(t->true_beam_PDG) == 211){
+             //Fill the histogram of  the pion beam interacting energy 
              for(int i=0; i<=true_sliceID; ++i){
                if(i<=nslices+1){
                  ++true_incident_pandora_identified[i];
                }
              }
           }
+          if(*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211) {//choose pion absorptions
+             //true absorption
+             if(t->true_daughter_nPi0 == 0 && t->true_daughter_nPiPlus == 0 && t->true_daughter_nPiMinus ==0){
+                  if(true_sliceID>=0){
+                      ++true_abs_pandora_identified[true_sliceID];      
+                  }
+             }
+          }  
+ 	  // #2 beam delta x cut
+          if(libobeamdeltax<xlow || libobeamdeltax>xhigh) continue; //passCuts = false; 
+	  
 
- 
+	  if(passCuts == true){
+	          if(*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG)==211 && isUpstream == false){
+		     Nintpioninelastic_bq_x++;
+		  }
+	          if(*temp_Ptr0 == "Decay" && abs(t->true_beam_PDG)==211 && isUpstream == false){
+	             Nintpiondecay_bq_x++;
+	          }
+	       	  if(abs(t->true_beam_PDG)==13 && isUpstream == false){
+	             Nintmuon_bq_x++;
+	          }
+	          if(isUpstream == true){
+	             Nintupstream_bq_x++;
+	          }
+          }
+
+	  //#3 beam delta y cut
+          if(libobeamdeltay<ylow || libobeamdeltay>yhigh) continue; //passCuts = false;
+ 	   
+	  if(passCuts == true){
+	          if(*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG)==211 && isUpstream == false){
+		     Nintpioninelastic_bq_y++;
+		  }
+	          if(*temp_Ptr0 == "Decay" && abs(t->true_beam_PDG)==211 && isUpstream == false){
+	             Nintpiondecay_bq_y++;
+	          }
+	       	  if(abs(t->true_beam_PDG)==13 && isUpstream == false){
+	             Nintmuon_bq_y++;
+	          }
+	          if(isUpstream == true){
+	             Nintupstream_bq_y++;
+	          }
+ 	  }
+          //#4 beam delta z cut
+          if(libobeamdeltaz<zlow || libobeamdeltaz>zhigh) continue; //passCuts = false;
+	  
+	  if(passCuts == true){
+	          if(*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG)==211 && isUpstream == false){
+		     Nintpioninelastic_bq_z++;
+		  }
+	          if(*temp_Ptr0 == "Decay" && abs(t->true_beam_PDG)==211 && isUpstream == false){
+	             Nintpiondecay_bq_z++;
+	          }
+	       	  if(abs(t->true_beam_PDG)==13 && isUpstream == false){
+	             Nintmuon_bq_z++;
+	          }
+	          if(isUpstream == true){
+	             Nintupstream_bq_z++;
+	          }
+ 	  }
+          // #5 beam costheta cut
+          if(libobeamcos<coslow) continue; //passCuts= false;
+	  
+	  if(passCuts == true){
+	          if(*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG)==211 && isUpstream == false){
+		     Nintpioninelastic_bq_cos++;
+		  }
+	          if(*temp_Ptr0 == "Decay" && abs(t->true_beam_PDG)==211 && isUpstream == false){
+	             Nintpiondecay_bq_cos++;
+	          }
+	       	  if(abs(t->true_beam_PDG)==13 && isUpstream == false){
+	             Nintmuon_bq_cos++;
+	          }
+	          if(isUpstream == true){
+	             Nintupstream_bq_cos++;
+	          }
+          }
+	  //#6 is a replacement of 2+3+4+5
           if(!manual_beamPos_mc(t->reco_beam_startX, t->reco_beam_startY, t->reco_beam_startZ, 
                               t->reco_beam_trackDirX, t->reco_beam_trackDirY, t->reco_beam_trackDirZ,
                               t->true_beam_startDirX, t->true_beam_startDirY, t->true_beam_startDirZ,
-                              t->true_beam_startX, t->true_beam_startY, t->true_beam_startZ)) continue;
-          if(!endAPA3(t->reco_beam_endZ) )continue;
-        } 
+                              t->true_beam_startX, t->true_beam_startY, t->true_beam_startZ)) continue; //passCuts = false; 
+	  
+          
+	  //#7 is APA3 cut
+          if(!endAPA3(t->reco_beam_endZ) ) continue; //passCuts = false; 
+	  
+          if(passCuts == true){
+	          if(*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG)==211 && isUpstream == false){
+		     Nintpioninelastic_bq_APA3++;
+		  }
+	          if(*temp_Ptr0 == "Decay" && abs(t->true_beam_PDG)==211 && isUpstream == false){
+	             Nintpiondecay_bq_APA3++;
+	          }
+	       	  if(abs(t->true_beam_PDG)==13 && isUpstream == false){
+	             Nintmuon_bq_APA3++;
+	          }
+ 	         if(isUpstream == true){
+	             Nintupstream_bq_APA3++;
+	          }
+          }
+          
+	  //#8 vsize cut
+          if(t->reco_beam_calo_wire->size()==0) continue; //passCuts = false;
+	  
+	  if(passCuts == true){
+	          if(*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG)==211 && isUpstream == false){
+		     Nintpioninelastic_bq_vsize++;
+		  }
+	          if(*temp_Ptr0 == "Decay" && abs(t->true_beam_PDG)==211 && isUpstream == false){
+	             Nintpiondecay_bq_vsize++;
+	          }
+	       	  if(abs(t->true_beam_PDG)==13 && isUpstream == false){
+	             Nintmuon_bq_vsize++;
+	          }
+	          if(isUpstream == true){
+	             Nintupstream_bq_vsize++;
+	          }
+	  }
+          
+          vector<double> *beam_dEdX_Ptr=t->reco_beam_calibrated_dEdX_SCE;
+          double reco_beam_tmdqdx = GetTruncatedMean(*beam_dEdX_Ptr, 2, t->reco_beam_calibrated_dEdX_SCE->size() - 5, 0.1, 0.6);
+
+          _event_histo->h_reco_beam_tmdqdx->Fill(reco_beam_tmdqdx);
+          if(abs(t->true_beam_PDG) == 211){ 
+          if(abs(t->reco_beam_true_byHits_PDG)==211){
+              //Fill the histograms of beam 
+              _event_histo->h_reco_beam_pion_tmdqdx->Fill(reco_beam_tmdqdx);
+              //_event_histo->h_reco_beam_costheta_pion->Fill(t->reco_beam_allTrack_trackEndDirZ);
+              _event_histo->h_reco_beam_costheta_pion->Fill(t->reco_beam_PFP_trackScore_collection);
+          } else if(abs(t->reco_beam_true_byHits_PDG)==13){
+              _event_histo->h_reco_beam_muon_tmdqdx->Fill(reco_beam_tmdqdx);
+              //_event_histo->h_reco_beam_costheta_muon->Fill(t->reco_beam_allTrack_trackEndDirZ);
+              _event_histo->h_reco_beam_costheta_muon->Fill(t->reco_beam_PFP_trackScore_collection);
+          } else if(abs(t->reco_beam_true_byHits_PDG)==2212){
+              _event_histo->h_reco_beam_proton_tmdqdx->Fill(reco_beam_tmdqdx);
+              //_event_histo->h_reco_beam_costheta_proton->Fill(t->reco_beam_allTrack_trackEndDirZ);
+              _event_histo->h_reco_beam_costheta_proton->Fill(t->reco_beam_PFP_trackScore_collection);
+          } else if(abs(t->reco_beam_true_byHits_PDG)==22 || abs(t->reco_beam_true_byHits_PDG)==11){
+              _event_histo->h_reco_beam_gamma_tmdqdx->Fill(reco_beam_tmdqdx);
+              //_event_histo->h_reco_beam_costheta_gamma->Fill(t->reco_beam_allTrack_trackEndDirZ);
+              _event_histo->h_reco_beam_costheta_gamma->Fill(t->reco_beam_PFP_trackScore_collection);
+          } else {
+	      _event_histo->h_reco_beam_other_tmdqdx->Fill(reco_beam_tmdqdx);
+              //_event_histo->h_reco_beam_costheta_other->Fill(t->reco_beam_allTrack_trackEndDirZ);
+              _event_histo->h_reco_beam_costheta_other->Fill(t->reco_beam_PFP_trackScore_collection);
+          }
+          }
+	  //#9 truncated mean dqdx cut
+          if(reco_beam_tmdqdx>2.4) continue; //passCuts = false; 
+	  
+	  
+          //BROKEN Track Study
+          /*if(t->reco_daughter_allTrack_Theta->size()==1){ //selected events with only 1 daughter particles
+               vector<double> *beam_resRange_Ptr = t->reco_beam_resRange_SCE; 
+               vector<double> *daughter_len_Ptr = t->reco_daughter_allTrack_len;
+               vector<vector<double>> *daughter_dEdx_Ptr = t->reco_daughter_allTrack_calibrated_dEdX_SCE;
+               vector<vector<double>> *daughter_RR_Ptr = t->reco_daughter_allTrack_resRange_SCE;
+               vector<vector<double>> *daughter_dEdX_Ptr= t->reco_daughter_allTrack_calibrated_dEdX_SCE; 
+               double eta_test = getEta_broken(*daughter_dEdX_Ptr, *daughter_RR_Ptr, *daughter_len_Ptr,  0,  *beam_dEdX_Ptr,  *beam_resRange_Ptr, t->reco_beam_len);
+                
+               if(abs(t->reco_beam_true_byHits_PDG) == abs(t->reco_daughter_PFP_true_byHits_PDG->at(0))){
+                      _event_histo->h_geteta_same->Fill(eta_test);
+               } else {_event_histo->h_geteta_diff->Fill(eta_test);}
+
+
+               TVector3 beam_dir;
+               beam_dir.SetXYZ(t->reco_beam_trackEndDirX, t->reco_beam_trackEndDirY, t->reco_beam_trackEndDirZ);  
+               TVector3 daughter_dir;
+               vector<double> *daughter_startX_Ptr=t->reco_daughter_allTrack_startX;
+               vector<double> *daughter_startY_Ptr=t->reco_daughter_allTrack_startY;
+               vector<double> *daughter_startZ_Ptr=t->reco_daughter_allTrack_startZ;
+               vector<double> *daughter_endX_Ptr=t->reco_daughter_allTrack_endX;
+               vector<double> *daughter_endY_Ptr=t->reco_daughter_allTrack_endY;
+               vector<double> *daughter_endZ_Ptr=t->reco_daughter_allTrack_endZ;
+
+               daughter_dir.SetXYZ((*daughter_endX_Ptr).at(0)-(*daughter_startX_Ptr).at(0), (*daughter_endY_Ptr).at(0)-(*daughter_startY_Ptr).at(0), (*daughter_endZ_Ptr).at(0)-(*daughter_startZ_Ptr).at(0));
+               if(eta_test>-0.15 && eta_test<0.1 && beam_dir.Angle(daughter_dir)<0.3){
+
+                 if(t->reco_daughter_allTrack_endZ->size()==1){         
+                   int newsliceID = int(((*daughter_endZ_Ptr).at(0)-0.5603500-0.479/2)/0.479/nwires_in_slice); //z=0.56 is z coordinate for wire 0
+                   _event_histo->h_reco_true_sliceID_ori->Fill(true_sliceID, sliceID);       
+
+                   _event_histo->h_reco_true_sliceID_corr->Fill(true_sliceID, newsliceID); 
+                   sliceID = newsliceID;
+                 }
+            
+                 outfile_broken<<"<<<<<<<<<Run Number is "<<t->run<<" SubRun Number is "<<t->subrun<<"   Event Number is "<<t->event<<"  true slice ID is "<<true_sliceID<<" reco slice ID is "<<sliceID<<std::endl;
+                 outfile_broken<<" The end process of this event is "<<*temp_Ptr0<<std::endl;
+                 outfile_broken<<" The wire number of this pion is "<<t->reco_beam_calo_wire->back()<<std::endl;
+                 outfile_broken<<" True beam_PDG is "<<t->true_beam_PDG<<std::endl;
+                 outfile_broken<<" Reco beam PDG is "<<t->reco_beam_true_byHits_PDG<<std::endl;
+                 outfile_broken<<" true beam end Z with SCE correction is "<<true_endz<<std::endl;
+                 outfile_broken<<" true_beam_end position (X, Y ,Z) is "<<t->true_beam_endX<<"   "<<t->true_beam_endY<<"   "<<t->true_beam_endZ<<std::endl;
+                 outfile_broken<<" reco_beam_end position (X, Y, Z) is "<<t->reco_beam_endX<<"   "<<t->reco_beam_endY<<"   "<<t->reco_beam_endZ<<std::endl;
+                 for(long unsigned int ntrk=0; ntrk<t->reco_daughter_allTrack_endZ->size() ; ntrk++){
+                   outfile_broken<<"daughter "<<ntrk<<" th PDG is "<<t->reco_daughter_PFP_true_byHits_PDG->at(ntrk)<<"start z is "<<t->reco_daughter_allTrack_startZ->at(ntrk)<<" end Z position is "<<t->reco_daughter_allTrack_endZ->at(ntrk)<<std::endl;
+                 }
+               }//end of if this is a broken tracks
+
+
+
+
+
+
+               if(abs(t->reco_beam_true_byHits_PDG)== abs(t->reco_daughter_PFP_true_byHits_PDG->at(0))){
+                   _event_histo->h_reco_bdangle_bkmuon->Fill(beam_dir.Angle(daughter_dir));
+               } else { _event_histo->h_reco_bdangle_other->Fill(beam_dir.Angle(daughter_dir));}
+          }
+          */
+          if(*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211) {//choose pion absorptions
+             //true absorption
+             if(t->true_daughter_nPi0 == 0 && t->true_daughter_nPiPlus == 0 && t->true_daughter_nPiMinus ==0){
+                 if(true_sliceID>=0){
+                      ++true_abs_beam_qualified[true_sliceID];     
+                 } 
+             }
+          }
+          if(isUpstream){  
+          //if(true_sliceID >0 && true_sliceID<=2) {
+                 Nint3slice_bq++;
+                 std::cout<<"<<<<<<<<<<<<<<<true process is "<<*temp_Ptr0<<std::endl;
+                 std::cout<<" True Beam PDG is "<<t->true_beam_PDG<<std::endl;
+                 std::cout<<" Reco Beam PDG is "<<t->reco_beam_true_byHits_PDG<<std::endl;
+                 std::cout<<" true beam end Z with SCE correction is "<<true_endz<<std::endl;
+                 std::cout<<" true_beam_end position is "<<t->true_beam_endX<<"   "<<t->true_beam_endY<<"   "<<t->true_beam_endZ<<std::endl;
+                 std::cout<<" reco_beam_end position is "<<t->reco_beam_endX<<"   "<<t->reco_beam_endY<<"   "<<t->reco_beam_endZ<<std::endl;
+          }
+
+          if(*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG)==211 && isUpstream == false){
+	     Nintpioninelastic_bq++;
+	  }
+
+	 
+	  if(*temp_Ptr0 == "Decay" && abs(t->true_beam_PDG)==211 && isUpstream == false){
+	             Nintpiondecay_bq++;
+	  }
+	  if(abs(t->true_beam_PDG)==13 && isUpstream == false){
+	             Nintmuon_bq++;
+	  }
+	  if(isUpstream == true){
+	             Nintupstream_bq++;
+	  }
+
+  
+        } //end of processing MC beam selection
      
         if(isdata==1){
           if(!data_beam_PID(t->beam_inst_PDG_candidates)) continue;
+		
 
           std::vector<double> *temp_data = new std::vector<double>();
           manual_beamPos_data_vector(t->event, t->reco_beam_startX, t->reco_beam_startY, t->reco_beam_startZ,
@@ -2397,24 +2916,156 @@ void Main::Maker::MakeFile()
           if(!manual_beamPos_data(t->event, t->reco_beam_startX, t->reco_beam_startY, t->reco_beam_startZ,
                                 t->reco_beam_trackDirX, t->reco_beam_trackDirY, t->reco_beam_trackDirZ,
                                 t->beam_inst_X, t->beam_inst_Y, t->beam_inst_dirX, t->beam_inst_dirY,
-                                t->beam_inst_dirZ, t->beam_inst_nMomenta, t->beam_inst_nTracks)) continue;
-          if(!endAPA3(t->reco_beam_endZ) )continue;
+                                t->beam_inst_dirZ, t->beam_inst_nMomenta, t->beam_inst_nTracks)) 
+			continue;
+		
+          if(!endAPA3(t->reco_beam_endZ) ) continue;
+	  
+        }//end of if this is a data isdata==1
+        //=============================================================================
+        if(isUpstream == true){
+
+                sliceIDmat_upstream->Fill(true_sliceID, sliceID);
+
+                if(true_sliceID==-1) {true_upstream_neg++;}
+                if(sliceID ==-1) {reco_upstream_neg++;}
+                if(abs(t->true_beam_PDG)==211){
+                  if(true_sliceID==-1) {true_piupstream_neg++;}
+                  if(sliceID ==-1) {reco_piupstream_neg++;}
+               }
+        }
+ 
+        if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211 && isUpstream == false) { 
+            isPiInelastic = true; 
+            sliceIDmat_piinelas->Fill(true_sliceID, sliceID);
+            //if(sliceID==0){
+            //std::cout<<"libo test -------------"<<true_sliceID<<std::endl;
+            //}
+
+            if(true_sliceID==-1) {true_piinelastic_neg++;}
+            if(sliceID ==-1) {reco_piinelastic_neg++;}
+        }
+        else if(*temp_Ptr0 == "Decay" && abs(t->true_beam_PDG) == 211 && isUpstream == false){
+            isPiDecay = true;
+            sliceIDmat_pidecay->Fill(true_sliceID, sliceID);
+
+            if(true_sliceID==-1) {true_pidecay_neg++;}
+            if(sliceID ==-1) {reco_pidecay_neg++;}
+        }
+        else if(abs(t->true_beam_PDG) == 13 && isUpstream == false){
+            isMuon = true;
+            sliceIDmat_mudecay->Fill(true_sliceID, sliceID);
+            if(true_sliceID==-1) {true_muon_neg++;}
+            if(sliceID ==-1) {reco_muon_neg++;}
         }
 
 
 
 
-        //============================================================================
-        std::vector<std::vector<double>> vpitch(nslices+2);
-        std::vector<std::vector<double>> vincE(nslices+2); 
-        std::vector<std::vector<double>> vdEdx(nslices+2);
+        if(true_sliceID>=0){
+        for (int i = 0; i<=true_sliceID; ++i) {
+           if(abs(t->true_beam_PDG) != 211 && abs(t->true_beam_PDG) != 13) continue;
+           if(i<=nslices+1){
+              ++true_incident[i];
+              //select pion
+              if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211 && isUpstream == false){  
+                   ++true_incident_pion[i];
+              } else if(*temp_Ptr0 == "Decay" && abs(t->true_beam_PDG) == 211 && isUpstream == false){
+                   ++true_incident_pion_decay[i];
+                   if(t->reco_beam_endZ==-999){
+                       ++true_incident_pion_decay_reco_nnn[i];
+                   }
+              } else if(abs(t->true_beam_PDG) == 211 && isUpstream == false) {
+                   ++true_incident_pion_elastic[i];   
+              } else if(abs(t->true_beam_PDG) == 13 && isUpstream == false){
+              //select muon
+                   ++true_incident_muon[i];
+                   if(t->reco_beam_endZ==-999){
+                        ++true_incident_muon_decay_reco_nnn[i];
+                   }
+              } else if(isUpstream == true){
+                   ++true_incident_upstream[i];
+                   if(abs(t->true_beam_PDG) == 211) {
+                        ++true_incident_upstream_pion[i];
+                   }
+              }
+           }
+        }
+        }//end of if true sliceID>=0
+        //--------------------------------------------------------
+        
 
-        if(t->reco_beam_incidentEnergies->size()>0){
+
+
+        if(sliceID>=0){
+        for (int i = 0; i<=sliceID; ++i) {
+           if(abs(t->true_beam_PDG) != 211 && abs(t->true_beam_PDG) != 13) continue;
+           if(i<=nslices+1){
+              ++incident[i];
+              //select pion
+              if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211 && isUpstream == false){  
+                   ++incident_pion[i];
+              } else if(*temp_Ptr0 == "Decay" && abs(t->true_beam_PDG) == 211 && isUpstream == false){
+                   ++incident_pion_decay[i];
+              } else if(abs(t->true_beam_PDG) == 211 && isUpstream == false) {
+                   ++incident_pion_elastic[i];   
+              } else if(abs(t->true_beam_PDG) == 13 && isUpstream == false){
+              //select muon
+                   ++incident_muon[i];
+              } else if(isUpstream == true){
+                   ++incident_upstream[i];
+                   if(abs(t->true_beam_PDG)==211){
+                      ++incident_upstream_pion[i];
+                   }
+              }
+           }
+        }
+        } //end of if sliceID>=0;
+
+        if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211 && isUpstream == false && sliceID==0 ) { 
+
+              outfile_pion<<"<<<<<<<<<Run Number is "<<t->run<<" SubRun Number is "<<t->subrun<<"   Event Number is "<<t->event<<"  true slice ID is "<<true_sliceID<<" reco slice ID is "<<sliceID<<std::endl;
+              outfile_pion<<" The end process of this event is "<<*temp_Ptr0<<std::endl;
+              outfile_pion<<" The wire number of this pion is "<<t->reco_beam_calo_wire->back()<<std::endl;
+              outfile_pion<<" True beam_PDG is "<<t->true_beam_PDG<<std::endl;
+              outfile_pion<<" Reco beam PDG is "<<t->reco_beam_true_byHits_PDG<<std::endl;
+              outfile_pion<<" true beam end Z with SCE correction is "<<true_endz<<std::endl;
+              outfile_pion<<" true_beam_end position (X, Y ,Z) is "<<t->true_beam_endX<<"   "<<t->true_beam_endY<<"   "<<t->true_beam_endZ<<std::endl;
+              outfile_pion<<" reco_beam_end position (X, Y, Z) is "<<t->reco_beam_endX<<"   "<<t->reco_beam_endY<<"   "<<t->reco_beam_endZ<<std::endl;
+              for(long unsigned int ntrk=0; ntrk<t->reco_daughter_allTrack_endZ->size() ; ntrk++){
+                   outfile_pion<<"daughter "<<ntrk<<" th PDG is "<<t->reco_daughter_PFP_true_byHits_PDG->at(ntrk)<<"start z is "<<t->reco_daughter_allTrack_startZ->at(ntrk)<<" end Z position is "<<t->reco_daughter_allTrack_endZ->at(ntrk)<<std::endl;
+              }
+        }
+        
+        if(/**temp_Ptr0 == "Decay" && */abs(t->true_beam_PDG)==13 && sliceID != true_sliceID  /*abs(true_endz - t->reco_beam_calo_endZ)>20*/){
+              outfile_muon<<"<<<<<<<<<Run Number is "<<t->run<<" SubRun Number is "<<t->subrun<<"   Event Number is "<<t-> event<<"  true slice ID is "<<true_sliceID<<" reco slice ID is "<<sliceID<<std::endl;
+              outfile_muon<<" The wire number of this muon is "<<t->reco_beam_calo_wire->back()<<std::endl;
+              outfile_muon<<" True beam_PDG is "<<t->true_beam_PDG<<std::endl;
+              outfile_muon<<" true beam end Z with SCE correction is "<<true_endz<<std::endl;
+              outfile_muon<<" true_beam_end position (X, Y ,Z) is "<<t->true_beam_endX<<"   "<<t->true_beam_endY<<"   "<<t->true_beam_endZ<<std::endl;
+              outfile_muon<<" reco_beam_end position (X, Y, Z) is "<<t->reco_beam_endX<<"   "<<t->reco_beam_endY<<"   "<<t->reco_beam_endZ<<std::endl;
+               for(long unsigned int ntrk=0; ntrk<t->reco_daughter_allTrack_endZ->size() ; ntrk++){
+                   outfile_muon<<"daughter "<<ntrk<<" th PDG is "<<t->reco_daughter_PFP_true_byHits_PDG->at(ntrk)<<"start z is "<<t->reco_daughter_allTrack_startZ->at(ntrk)<<" end Z position is "<<t->reco_daughter_allTrack_endZ->at(ntrk)<<std::endl;
+              }
+        }
+      
+        //===========================================================================
+
+        //============================================================================
+        std::vector<std::vector<double>> vpitch(nslices+3);
+        std::vector<std::vector<double>> vincE(nslices+3); 
+        std::vector<std::vector<double>> vdEdx(nslices+3);
+	//Reco INFO
+        /*if(t->reco_beam_incidentEnergies->size()>0){
         for (size_t i = 0; i<t->reco_beam_calo_wire->size(); ++i){
-          int this_wire = t->reco_beam_calo_wire->at(i);
-          int this_sliceID = this_wire/nwires_in_slice;
+          //int this_wire = t->reco_beam_calo_wire->at(i);
+          //int this_sliceID = this_wire/nwires_in_slice;
+          int this_sliceID = int(t->reco_beam_calo_wire_z->back()/thinslicewidth);
+          
+	  if(t->reco_beam_calo_endZ<0) this_sliceID=-1;
+
           //ignore the last slice for pitch and incident energy calculations
-          if (this_sliceID>=sliceID || sliceID>=nslices+2) continue;
+          if (this_sliceID<0 || sliceID>=nslices+3) continue;
           
           double this_incE = t->reco_beam_incidentEnergies->at(i);
           double this_pitch = t->reco_beam_TrkPitch_SCE->at(i);
@@ -2458,6 +3109,31 @@ void Main::Maker::MakeFile()
           }
         }
         }//end of if the size of vpitch vincE vdEdx>0
+	*/
+        	
+	// True INFO
+	/*if (!(t->true_beam_traj_Z_SCE->empty())){
+        	std::vector<std::vector<double>> vincE(nslices+3);
+        	for (size_t i = 0; i<t->true_beam_traj_Z->size()-1; ++i){//last point always has KE = 0
+          		int this_sliceID = int(t->true_beam_traj_Z->back()/thinslicewidth);
+          		double this_incE = t->true_beam_traj_KE->back();
+          		if (this_sliceID>=nslices) continue;
+          		if (this_sliceID<0) continue;
+          		vincE[this_sliceID].push_back(this_incE);
+        	}
+        	for (size_t i = 0; i<vincE.size(); ++i){
+          		if (!vincE[i].empty()){
+            			double sum_incE = 0;
+            			for (size_t j = 0; j<vincE[i].size(); ++j){
+              				sum_incE += vincE[i][j];
+            			}
+            			true_incE[i]->Fill(sum_incE/vincE[i].size());
+          		}
+        	}
+      	}
+   
+
+        */
         if(vpitch.size()==0 || vincE.size()==0){
         LOG_NORMAL()<<"The size of pitch is "<<vpitch.size()<<"   "<<vincE.size()<<std::endl;
         }
@@ -2505,14 +3181,30 @@ void Main::Maker::MakeFile()
                 _event_histo->htotinc_reco_beam_endz[is]->Fill(t->reco_beam_calo_endZ);
             }
         }//loop over all the slices
+
+        //calculate the resolutions of beam endz positions
+
         if(isdata==0){
-           if(*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211){
-              _event_histo->htotinc_reco_beamz_reso->Fill((t->reco_beam_calo_endZ-t->true_beam_endZ));
-              _event_histo->htotinc_reco_beamwire_reso->Fill((t->reco_beam_calo_wire->back()-t->true_beam_slices->back()));
+           /*if(*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211){
+              //_event_histo->htotinc_reco_beamz_reso->Fill((t->reco_beam_calo_wire_z->back() - true_endz));
+              _event_histo->htotinc_reco_beamz_reso->Fill((t->reco_beam_calo_endZ - t->true_beam_endZ));
+              _event_histo->htotinc_reco_beamwire_reso->Fill((t->reco_beam_calo_wire->back() - t->true_beam_slices->back()));
               _event_histo->htotinc_reco_beam_intE_reso->Fill(t->reco_beam_interactingEnergy - t->true_beam_interactingEnergy);
            }
+           if(*temp_Ptr0 == "Decay" && abs(t->true_beam_PDG) == 211){
+              _event_histo->htotdecay_reco_beamz_reso->Fill((t->reco_beam_calo_wire_z->back() - true_endz));
+              _event_histo->htotdecay_reco_beamwire_reso->Fill((t->reco_beam_calo_wire->back() - t->true_beam_slices->back()));
+              _event_histo->htotdecay_reco_beam_intE_reso->Fill(t->reco_beam_interactingEnergy - t->true_beam_interactingEnergy);
+           }
+           if(abs(t->true_beam_PDG) == 13){
+              _event_histo->htotmuon_reco_beamz_reso->Fill((t->reco_beam_calo_wire_z->back() - true_endz));
+              _event_histo->htotmuon_reco_beamwire_reso->Fill((t->reco_beam_calo_wire->back()-t->true_beam_slices->back()));
+              _event_histo->htotmuon_reco_beam_intE_reso->Fill(t->reco_beam_interactingEnergy - t->true_beam_interactingEnergy);
+           }*/
         }
-
+        //===================================================================================
+        //perform APA3 cut as the first cut of interaction selection
+        if(!endAPA3(t->reco_beam_endZ) )continue; 
 
 
         //========================================================================================       
@@ -4319,8 +5011,8 @@ void Main::Maker::MakeFile()
 
   //=========================================================================
   LOG_NORMAL() << "Saving 1D Event Histo." << std::endl;
-
   //file_out->WriteObject(_event_histo_1d, "UBXSecEventHisto1D");
+  
   file_out->WriteObject(_event_histo, "UBXSecEventHisto");
 
   file_out->WriteObject(&hmap_trkmom_geant_pm1_bs, "hmap_trkmom_geant_pm1_bs");
@@ -4337,72 +5029,102 @@ void Main::Maker::MakeFile()
   file_out->WriteObject(&bs_geant_pm1_true_reco_mom, "bs_geant_pm1_true_reco_mom");
   file_out->WriteObject(&bs_geant_pm1_true_reco_costheta, "bs_geant_pm1_true_reco_costheta");
 
+    
 
  
   LOG_NORMAL() << "1D Event Histo saved." << std::endl;
   
  
-  double slcid[nslices+2];
-  double avg_incE[nslices+2];
-  double avg_pitch[nslices+2];
-  double avg_dEdx[nslices+2];
+  double slcid[nslices+3];
+  double avg_incE[nslices+3];
+  double avg_true_incE[nslices+3];
+  double avg_pitch[nslices+3];
+  double avg_dEdx[nslices+3];
 
-  double tempxsec[nslices+2];
-  double tempxsec_chx[nslices+2];
+  double tempxsec[nslices+3];
+  double tempxsec_chx[nslices+3];
 
-  double tempxsec_pmom[nslices+2][nbinspmom];
-  double tempxsec_pcostheta[nslices+2][nbinspcostheta];
-  double tempxsec_pphi[nslices+2][nbinspphi];
+  double tempxsec_pmom[nslices+3][nbinspmom];
+  double tempxsec_pcostheta[nslices+3][nbinspcostheta];
+  double tempxsec_pphi[nslices+3][nbinspphi];
 
-  double tempxsec_chx_test[nslices+2];
-  double tempxsec_abs_test[nslices+2];
+  double tempxsec_chx_test[nslices+3];
+  double tempxsec_abs_test[nslices+3];
+  for(int i=0; i<nslices+3; i++){
+        tempxsec_chx[i]=0.0;
+        tempxsec[i]=0.0;
 
-  double rms_incE[nslices+2];
-  double rms_pitch[nslices+2];
-  double rms_dEdx[nslices+2];
-  double unverr[nslices+2];
-
-
-
+  }
 
 
+  double rms_incE[nslices+3];
+  double rms_true_incE[nslices+3];
+  double rms_pitch[nslices+3];
+  double rms_dEdx[nslices+3];
+  double unverr[nslices+3];
+  double exs_abs[nslices+3];
+  double exs_chx[nslices+3];
 
-  for (int i = 0; i<=nslices+1; ++i){
+
+  std::cout<<"libo test 0"<<std::endl;
+
+
+  for (int i = 0; i<=nslices+2; ++i){
      slcid[i] = i;
-     
      unverr[i] = 0;
-     
-     avg_incE[i] = incE[i]->GetMean();
-     
-     avg_pitch[i] = pitch[i]->GetMean();
-   
-     avg_dEdx[i]= dEdx[i]->GetMean();
+     std::cout<<"libo test i th "<<i<<std::endl;
 
-     rms_incE[i] = incE[i]->GetRMS()/TMath::Sqrt(incE[i]->GetEntries());;
-
-     rms_pitch[i] = pitch[i]->GetRMS()/TMath::Sqrt(pitch[i]->GetEntries());
- 
-     rms_dEdx[i] = dEdx[i]->GetRMS()/TMath::Sqrt(dEdx[i]->GetEntries());
+     if(incE[i]->GetEntries()>0){ 
+        avg_incE[i] = incE[i]->GetMean();
+     }
+     //if(true_incE[i]->GetEntries()>0){ 
+     //   avg_true_incE[i] = true_incE[i]->GetMean();
+     //}
+     if(pitch[i]->GetEntries()>0){
+        avg_pitch[i] = pitch[i]->GetMean();
+     }
+     if(dEdx[i]->GetEntries()>0){
+        avg_dEdx[i]= dEdx[i]->GetMean();
+     }
+     if(incE[i]->GetEntries()>0){
+              rms_incE[i] = incE[i]->GetRMS()/TMath::Sqrt(incE[i]->GetEntries());
+     } else {rms_incE[i]=0;}
+     //if(true_incE[i]->GetEntries()>0){
+     //         rms_true_incE[i] = true_incE[i]->GetRMS()/TMath::Sqrt(true_incE[i]->GetEntries());
+     //} else {rms_true_incE[i]=0;}
+     std::cout<<"libo test second times "<<std::endl;
+     if(pitch[i]->GetEntries()>0){
+              rms_pitch[i] = pitch[i]->GetRMS()/TMath::Sqrt(pitch[i]->GetEntries());
+     } else {rms_pitch[i]=0;}
+     if(dEdx[i]->GetEntries()>0){
+              rms_dEdx[i] = dEdx[i]->GetRMS()/TMath::Sqrt(dEdx[i]->GetEntries());
+     } else {rms_dEdx[i]=0;}
 
      if( incident[i]>0 && avg_pitch[i]>0){
 
-     tempxsec[i]          = MAr/(Density*NA*avg_pitch[i])*log((true_incident_pion[i]+true_incident_pion_elastic[i])/(true_incident_pion[i]+true_incident_pion_elastic[i]-true_abs[i]));
+     tempxsec[i]          = MAr/(Density*NA*avg_pitch[i])*log((true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i])/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]-true_abs[i]));
      //tempxsec[i]          =MAr/(Density*NA*avg_pitch[i])*true_abs[i]/true_incident[i];
 
      for(int nb=0; nb<nbinspmom; nb++){
-          tempxsec_pmom[i][nb]=(1/1e-27)*MAr/(Density*NA*avg_pitch[i])*h_energetic_pmom_gen[i]->GetBinContent(nb+1)/(true_incident_pion[i]+true_incident_pion_elastic[i]);
+          tempxsec_pmom[i][nb]=(1/1e-27)*MAr/(Density*NA*avg_pitch[i])*h_energetic_pmom_gen[i]->GetBinContent(nb+1)/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]);
      }
      for(int nb=0; nb<nbinspcostheta; nb++){
-          tempxsec_pcostheta[i][nb]=(1/1e-27)*MAr/(Density*NA*avg_pitch[i])*h_energetic_pcostheta_gen[i]->GetBinContent(nb+1)/(true_incident_pion[i]+true_incident_pion_elastic[i]);
+          tempxsec_pcostheta[i][nb]=(1/1e-27)*MAr/(Density*NA*avg_pitch[i])*h_energetic_pcostheta_gen[i]->GetBinContent(nb+1)/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]);
      }
      for(int nb=0; nb<nbinspphi; nb++){
-          tempxsec_pphi[i][nb]=(1/1e-27)*MAr/(Density*NA*avg_pitch[i])*h_energetic_pphi_gen[i]->GetEntries()/(true_incident_pion[i]+true_incident_pion_elastic[i]);
+          tempxsec_pphi[i][nb]=(1/1e-27)*MAr/(Density*NA*avg_pitch[i])*h_energetic_pphi_gen[i]->GetEntries()/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]);
      }
-     tempxsec_chx[i]          = MAr/(Density*NA*avg_pitch[i])*log((true_incident_pion[i]+true_incident_pion_elastic[i])/(true_incident_pion[i]+true_incident_pion_elastic[i]-true_chx[i]));
+     if(avg_pitch[i]>0.0001 && true_incident_pion[i]+true_incident_pion_decay[i]>0 && true_chx[i]>0){
+     tempxsec_chx[i]          = MAr/(Density*NA*avg_pitch[i])*log((true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i])/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]-true_chx[i]));
      //tempxsec_chx[i]      =MAr/(Density*NA*avg_pitch[i])*true_chx[i]/true_incident[i];         
-
-     tempxsec_chx_test[i] = true_chx[i]/(true_incident_pion[i]+true_incident_pion_elastic[i]);
-     tempxsec_abs_test[i] = true_abs[i]/(true_incident_pion[i]+true_incident_pion_elastic[i]);
+     }
+     if(i==0){
+           std::cout<<"test chx xsec i =  "<<i<<"    "<<tempxsec_chx[i]<<std::endl;
+           std::cout<<"avg_pitch is "<<avg_pitch[i]<<std::endl;
+           std::cout<<"true_incident pion "<<true_incident_pion[i]<<"  true_incident pion decay is "<<true_incident_pion_decay[i]<<" true_chx  "<<true_chx[i]<<std::endl;
+     }
+     tempxsec_chx_test[i] = true_chx[i]/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]);
+     tempxsec_abs_test[i] = true_abs[i]/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]);
 
 
      } else {tempxsec[i]=0.0; tempxsec_chx[i]=0.0; tempxsec_chx_test[i]=0.0; tempxsec_abs_test[i] = 0.0; }
@@ -4410,7 +5132,9 @@ void Main::Maker::MakeFile()
      tempxsec[i] = tempxsec[i]/1e-27;  
      tempxsec_chx[i] = tempxsec_chx[i]/1e-27;
      
-
+     exs_abs[i] = MAr/(Density*NA*avg_pitch[i])*1e27*sqrt(true_abs[i]+pow(true_abs[i],2)/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]))/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]);
+     exs_chx[i] = MAr/(Density*NA*avg_pitch[i])*1e27*sqrt(true_chx[i]+pow(true_chx[i],2)/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]))/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]);
+ 
   }//end of loop over all the nslices
 
 
@@ -4441,17 +5165,86 @@ void Main::Maker::MakeFile()
       //incE[ig]->Write();
       //pitch[ig]->Write();
   //}
-  Double_t true_abs_new[nslices+2];  
-  Double_t reco_abs_new[nslices+2];  
-  Double_t true_abs_sel_new[nslices+2];  
-  Double_t reco_abs_sel_new[nslices+2];  
+  Double_t true_abs_new[nslices+3];  
+  Double_t true_abs_posneg[nslices+3];
+  Double_t true_inc_posneg[nslices+3];
 
-  Double_t selected_tot_new[nslices+2];
-  Double_t selected_pibkg_new[nslices+2];
-  Double_t selected_mubkg_new[nslices+2];
-  Double_t selected_pibkg_elastic_new[nslices+2];
+  Double_t true_incident_pion_posneg[nslices+3];
+  Double_t true_incident_pion_decay_posneg[nslices+3];
+  Double_t true_incident_upstream_pion_posneg[nslices+3];
+  Double_t true_incident_muon_posneg[nslices+3];
+  Double_t true_incident_upstream_posneg[nslices+3];
 
-  for(int k=0; k<=nslices+1; k++){
+  Double_t reco_incident_pion_posneg[nslices+3];
+  Double_t reco_incident_pion_decay_posneg[nslices+3];
+  Double_t reco_incident_upstream_pion_posneg[nslices+3];
+  Double_t reco_incident_muon_posneg[nslices+3];
+  Double_t reco_incident_upstream_posneg[nslices+3];
+  std::cout<<"<<<<<<<<<<<<<<<check the entries in the slice with sliceID = -1<<<<<< "<<std::endl;
+  std::cout<<"<<<<<<<<<<<true_piinelastic_neg is "<<true_piinelastic_neg<<std::endl;
+  std::cout<<"<<<<<<<<<<<true_pidecay_neg is "<<true_pidecay_neg<<std::endl;
+  std::cout<<"<<<<<<<<<<<true_upstream_neg is"<<true_upstream_neg<<std::endl;
+  std::cout<<"<<<<<<<<<<<true_piupstream_neg is "<<true_piupstream_neg<<std::endl;
+
+
+  std::cout<<"<<<<<<<<<<<true_piabs_neg is "<<true_abs_neg<<std::endl;
+  std::cout<<"<<<<<<<<<<<true_pichx_neg is "<<true_chx_neg<<std::endl;
+  std::cout<<"<<<<<<<<<<<true_pirea_neg is "<<true_rea_neg<<std::endl;
+
+  std::cout<<"<<<<<<<<<<<true_oridecaypi_neg is "<<true_oridecaypi_neg<<std::endl;
+  std::cout<<"<<<<<<<<<<<true_oridecaymu_neg is "<<true_oridecaymu_neg<<std::endl;
+
+
+  Double_t slcid_posneg[nslices+3];
+  for(int ik=0; ik<nslices+3; ik++){
+       slcid_posneg[ik] = ik-1;
+       //std::cout<<"???ik = "<<ik<<"  total upstream  "<<true_incident_upstream[ik]<<std::endl;
+       if(ik==0) { 
+            true_abs_posneg[ik]=true_abs_neg;
+            true_inc_posneg[ik]=true_piinelastic_neg + true_pidecay_neg + true_piupstream_neg 
+                              + true_incident_pion[0] + true_incident_pion_decay[0] + true_incident_upstream_pion[0];
+            true_incident_pion_posneg[ik]=true_piinelastic_neg + true_incident_pion[0];
+            true_incident_pion_decay_posneg[ik] = true_pidecay_neg + true_incident_pion_decay[0];
+            true_incident_upstream_posneg[ik] = true_upstream_neg + true_incident_upstream[0];
+            true_incident_upstream_pion_posneg[ik] = true_piupstream_neg + true_incident_upstream_pion[0];
+            true_incident_muon_posneg[ik] = true_muon_neg + true_incident_muon[0];
+
+            reco_incident_pion_posneg[ik]=reco_piinelastic_neg + incident_pion[0];
+            reco_incident_pion_decay_posneg[ik] = reco_pidecay_neg + incident_pion_decay[0];
+            reco_incident_upstream_posneg[ik] = reco_upstream_neg + incident_upstream[0];
+            reco_incident_upstream_pion_posneg[ik] = reco_piupstream_neg + incident_upstream_pion[0];
+            reco_incident_muon_posneg[ik] = reco_muon_neg + incident_muon[0];
+        }
+       else{ true_abs_posneg[ik]=true_abs[ik-1];
+            true_inc_posneg[ik]=true_incident_pion[ik-1] + true_incident_pion_decay[ik-1] 
+                              + true_incident_upstream_pion[ik-1];
+
+            true_incident_pion_posneg[ik] = true_incident_pion[ik-1];
+            true_incident_pion_decay_posneg[ik] = true_incident_pion_decay[ik-1];
+            true_incident_upstream_posneg[ik] = true_incident_upstream[ik-1];
+            true_incident_upstream_pion_posneg[ik] = true_incident_upstream_pion[ik-1];
+            true_incident_muon_posneg[ik] = true_incident_muon[ik-1];
+
+            reco_incident_pion_posneg[ik] = incident_pion[ik-1];
+            reco_incident_pion_decay_posneg[ik] = incident_pion_decay[ik-1];
+            reco_incident_upstream_posneg[ik] = incident_upstream[ik-1];
+            reco_incident_upstream_pion_posneg[ik] = incident_upstream_pion[ik-1];
+            reco_incident_muon_posneg[ik] = incident_muon[ik-1];
+         }
+  }
+
+  Double_t reco_abs_new[nslices+3];  
+  Double_t true_abs_sel_new[nslices+3];  
+  Double_t reco_abs_sel_new[nslices+3];  
+
+  Double_t selected_tot_new[nslices+3];
+  Double_t selected_pibkg_new[nslices+3];
+  Double_t selected_mubkg_new[nslices+3];
+  Double_t selected_pibkg_elastic_new[nslices+3];
+  
+
+
+  for(int k=0; k<=nslices+2; k++){
       true_abs_new[k]=true_abs[k];
       reco_abs_new[k]=reco_abs[k];
       true_abs_sel_new[k]=true_abs_sel[k];
@@ -4466,8 +5259,26 @@ void Main::Maker::MakeFile()
       }
   }
 
+  sliceIDmat_piinelas->SetTitle("");
+  sliceIDmat_piinelas->GetXaxis()->SetTitle("sliceID [True]");
+  sliceIDmat_piinelas->GetYaxis()->SetTitle("sliceID [Reco]");
+  sliceIDmat_pidecay->SetTitle("");
+  sliceIDmat_pidecay->GetXaxis()->SetTitle("sliceID [True]");
+  sliceIDmat_pidecay->GetYaxis()->SetTitle("sliceID [Reco]");
+  sliceIDmat_mudecay->SetTitle("");
+  sliceIDmat_mudecay->GetXaxis()->SetTitle("sliceID [True]");
+  sliceIDmat_mudecay->GetYaxis()->SetTitle("sliceID [Reco]");
+  sliceIDmat_upstream->SetTitle("");
+  sliceIDmat_upstream->GetXaxis()->SetTitle("sliceID [True]");
+  sliceIDmat_upstream->GetYaxis()->SetTitle("sliceID [Reco]");
+    
+ 
   sliceIDmat_abs_den->Write();
   sliceIDmat_abs_num->Write();
+  sliceIDmat_piinelas->Write();
+  sliceIDmat_pidecay->Write();
+  sliceIDmat_mudecay->Write();
+  sliceIDmat_upstream->Write();
 
 
   output_sliceIDmat.Close();
@@ -4475,51 +5286,83 @@ void Main::Maker::MakeFile()
   string outfilename="/dune/app/users/jiang/dunetpc_analysis/PionAbsChxAna/UBAna/Main/mac/output_graphs.root";
 
   TFile output_newsf(outfilename.c_str(), "RECREATE");
+  TGraph *gr_intabs_posneg_slc=new TGraph(nslices+3, slcid_posneg, true_abs_posneg);
+  gr_intabs_posneg_slc->Write("gr_intabs_posneg_slc");
+
+  TGraph *gr_inc_posneg_slc=new TGraph(nslices+3, slcid_posneg, true_inc_posneg);
+  gr_inc_posneg_slc->Write("gr_inc_posneg_slc");
 
 
-  gr_inc_truepion_slc = new TGraph(nslices+2, slcid, true_incident_pion);
-  gr_inc_truemuon_slc = new TGraph(nslices+2, slcid, true_incident_muon); 
-  gr_inc_truepionelastic_slc =new TGraph(nslices+2,slcid, true_incident_pion_elastic);
-  gr_inc_truepion_pandora_identified_slc = new TGraph(nslices+2, slcid, true_incident_pandora_identified);
+  gr_inc_slc = new TGraph(nslices+3, slcid, true_incident);
+  gr_inc_truepion_slc = new TGraph(nslices+3, slcid_posneg, true_incident_pion_posneg);
+  gr_inc_truemuon_slc = new TGraph(nslices+3, slcid_posneg, true_incident_muon_posneg); 
+  gr_inc_truepionelastic_slc =new TGraph(nslices+3,slcid_posneg, true_incident_pion_elastic);
+  gr_inc_truepiondecay_slc = new TGraph(nslices+3, slcid_posneg, true_incident_pion_decay_posneg);
+
+  TGraph *gr_inc_truepiondecay_reco_nnn_slc = new TGraph(nslices+3, slcid, true_incident_pion_decay_reco_nnn);
+  gr_inc_truepiondecay_reco_nnn_slc->Write("gr_inc_truepiondecay_reco_nnn_slc");
+  TGraph *gr_inc_truemuondecay_reco_nnn_slc = new TGraph(nslices+3, slcid, true_incident_muon_decay_reco_nnn);
+  gr_inc_truemuondecay_reco_nnn_slc->Write("gr_inc_truemuondecay_reco_nnn_slc");
+  gr_inc_truepion_pandora_identified_slc = new TGraph(nslices+3, slcid, true_incident_pandora_identified);
+
+  gr_inc_trueupstream_slc = new TGraph(nslices+3, slcid_posneg, true_incident_upstream_posneg);
+  gr_inc_trueupstream_pion_slc = new TGraph(nslices+3, slcid_posneg, true_incident_upstream_pion_posneg);
 
 
-  gr_inc_reco_slc = new TGraph(nslices+2, slcid, incident);
-  gr_inc_recopion_slc = new TGraph(nslices+2, slcid, incident_pion);
-  gr_inc_recomuon_slc = new TGraph(nslices+2, slcid, incident_muon);
-  gr_inc_recopionelastic_slc = new TGraph(nslices+2, slcid, incident_pion_elastic);
-
-  gr_int_slc = new TGraph(nslices+2, slcid, true_interaction);
-  gr_intabs_slc = new TGraph(nslices+2, slcid, true_abs_new);
-  gr_intabs_sel_slc = new TGraph(nslices+2, slcid, true_abs_sel_new);
-
-  gr_recoabs_slc = new TGraph(nslices+2, slcid, reco_abs_new);
-  gr_recoabs_sel_slc = new TGraph(nslices+2, slcid, reco_abs_sel_new);
-
-  gr_selected_tot_slc = new TGraph(nslices+2, slcid, selected_tot_new);
-  gr_selected_pibkg_slc = new TGraph(nslices+2, slcid, selected_pibkg_new);
-  gr_selected_pibkg_elastic_slc = new TGraph(nslices+2, slcid, selected_pibkg_elastic_new);
-  gr_selected_mubkg_slc = new TGraph(nslices+2, slcid, selected_mubkg_new);
- 
-
-  gr_intchx_slc = new TGraph(nslices+2, slcid, true_chx);
+  LOG_NORMAL()<<"set all the graphs of the true incident"<<std::endl;
+  gr_inc_reco_slc = new TGraph(nslices+3, slcid, incident);
+  gr_inc_recopion_slc = new TGraph(nslices+3, slcid_posneg, reco_incident_pion_posneg);
+  gr_inc_recomuon_slc = new TGraph(nslices+3, slcid_posneg, reco_incident_muon_posneg);
+  gr_inc_recopiondecay_slc = new TGraph(nslices+3, slcid_posneg, reco_incident_pion_decay_posneg);
+  gr_inc_recopionelastic_slc = new TGraph(nslices+3, slcid_posneg, incident_pion_elastic);
+  gr_inc_upstream_slc = new TGraph(nslices+3, slcid_posneg, reco_incident_upstream_posneg);
+  gr_inc_upstream_pion_slc = new TGraph(nslices+3, slcid_posneg, reco_incident_upstream_pion_posneg);
 
 
-  gr_incE_slc = new TGraphAsymmErrors(nslices+2, slcid, avg_incE, unverr, unverr, rms_incE, rms_incE);
-  gr_pitch_slc = new TGraphAsymmErrors(nslices+2, slcid, avg_pitch, unverr, unverr, rms_pitch, rms_pitch);
+  LOG_NORMAL()<<"set all the graphs of the reco incident"<<std::endl;
+  gr_int_slc = new TGraph(nslices+3, slcid, true_interaction);
+  //abs interaction
+  gr_intabs_slc = new TGraph(nslices+3, slcid, true_abs_new);
+
+  gr_intabs_pi_slc = new TGraph(nslices+3, slcid, true_abs_pandora_identified);
+  gr_intabs_bq_slc = new TGraph(nslices+3, slcid, true_abs_beam_qualified);
+
+  gr_intabs_sel_slc = new TGraph(nslices+3, slcid, true_abs_sel_new);
+
+  gr_recoabs_slc = new TGraph(nslices+3, slcid, reco_abs_new);
+  gr_recoabs_sel_slc = new TGraph(nslices+3, slcid, reco_abs_sel_new);
+
+  gr_selected_tot_slc = new TGraph(nslices+3, slcid, selected_tot_new);
+  gr_selected_pibkg_slc = new TGraph(nslices+3, slcid, selected_pibkg_new);
+  gr_selected_pibkg_elastic_slc = new TGraph(nslices+3, slcid, selected_pibkg_elastic_new);
+  gr_selected_mubkg_slc = new TGraph(nslices+3, slcid, selected_mubkg_new);
+  //chx interaction
+  gr_intchx_slc = new TGraph(nslices+3, slcid, true_chx);
+
+
+  gr_incE_slc = new TGraphAsymmErrors(nslices+3, slcid, avg_incE, unverr, unverr, rms_incE, rms_incE);
+
+  gr_true_incE_slc = new TGraphAsymmErrors(nslices+3, slcid, avg_true_incE, unverr, unverr, rms_incE, rms_incE);
+
+
+  gr_pitch_slc = new TGraphAsymmErrors(nslices+3, slcid, avg_pitch, unverr, unverr, rms_pitch, rms_pitch);
 
 
 
-  gr_tempxsec_slc = new TGraph(nslices+2, slcid, tempxsec);
-  gr_tempxsec_chx_slc = new TGraph(nslices+2, slcid, tempxsec_chx);
+  TGraph *gr_tempxsec_slc = new TGraph(nslices+3, slcid, tempxsec);
+  TGraph *gr_tempxsec_chx_slc = new TGraph(nslices+3, slcid, tempxsec_chx);
+
+  TGraph *gr_tempxserror_slc = new TGraph(nslices+3, slcid, exs_abs);
+  TGraph *gr_tempxserror_chx_slc = new TGraph(nslices+3, slcid, exs_chx);
+  
+
+  gr_tempxsec_chx_test_slc = new TGraph(nslices+3, slcid, tempxsec_chx_test);
+  gr_tempxsec_abs_test_slc = new TGraph(nslices+3, slcid, tempxsec_abs_test);
 
 
-  gr_tempxsec_chx_test_slc = new TGraph(nslices+2, slcid, tempxsec_chx_test);
-  gr_tempxsec_abs_test_slc = new TGraph(nslices+2, slcid, tempxsec_abs_test);
-
-
-  TGraph *gr_tempxsec_pmom_slc[nslices+2];
-  TGraph *gr_tempxsec_pcostheta_slc[nslices+2];
-  TGraph *gr_tempxsec_pphi_slc[nslices+2];
+  TGraph *gr_tempxsec_pmom_slc[nslices+3];
+  TGraph *gr_tempxsec_pcostheta_slc[nslices+3];
+  TGraph *gr_tempxsec_pphi_slc[nslices+3];
 
   for(int idx=0; idx<=nslices+1; idx++){
        double pxmom[nbinspmom];
@@ -4558,27 +5401,38 @@ void Main::Maker::MakeFile()
 
   }
 
-  gr_tempxsec_vs_incE_slc = new TGraph(nslices+2, avg_incE, tempxsec);
+  gr_tempxsec_vs_incE_slc = new TGraph(nslices+3, avg_incE, tempxsec);
 
-  gr_tempxsec_chx_vs_incE_slc = new TGraph(nslices+2, avg_incE, tempxsec_chx);
+  gr_tempxsec_chx_vs_incE_slc = new TGraph(nslices+3, avg_incE, tempxsec_chx);
 
 
-
+  gr_inc_slc->Write("gr_inc_slc");
   gr_inc_truepion_slc->Write("gr_inc_truepion_slc");
   gr_inc_truemuon_slc->Write("gr_inc_truemuon_slc");
   gr_inc_truepionelastic_slc->Write("gr_inc_truepionelastic_slc");
+  gr_inc_truepiondecay_slc->Write("gr_inc_truepiondecay_slc");
   gr_inc_truepion_pandora_identified_slc->Write("gr_inc_truepion_pandora_identified_slc");
- 
+  gr_inc_trueupstream_slc->Write("gr_inc_trueupstream_slc");
+  gr_inc_trueupstream_pion_slc->Write("gr_inc_trueupstream_pion_slc");
   gr_inc_reco_slc->Write("gr_inc_reco_slc");   
 
-  gr_int_slc->Write("gr_int_slc");
 
 
   gr_inc_recomuon_slc->Write("gr_inc_recomuon_slc");   
   gr_inc_recopion_slc->Write("gr_inc_recopion_slc");   
   gr_inc_recopionelastic_slc->Write("gr_inc_recopionelastic_slc");   
+  gr_inc_recopiondecay_slc->Write("gr_inc_recopiondecay_slc");   
+  gr_inc_upstream_slc->Write("gr_inc_upstream_slc");
+  gr_inc_upstream_pion_slc->Write("gr_inc_upstream_pion_slc");
+
+  gr_int_slc->Write("gr_int_slc");
+
 
   gr_intabs_slc->Write("gr_intabs_slc");
+  gr_intabs_pi_slc->Write("gr_intabs_pi_slc");
+  gr_intabs_bq_slc->Write("gr_intabs_bq_slc");
+
+
   gr_intabs_sel_slc->Write("gr_intabs_sel_slc");
 
   gr_recoabs_slc->Write("gr_recoabs_slc");
@@ -4593,11 +5447,15 @@ void Main::Maker::MakeFile()
 
 
   gr_incE_slc->Write("gr_incE_slc");
+  gr_true_incE_slc->Write("gr_true_incE_slc");
   gr_pitch_slc->Write("gr_pitch_slc");
 
 
   gr_tempxsec_slc->Write("gr_tempxsec_slc");
   gr_tempxsec_chx_slc->Write("gr_tempxsec_chx_slc");
+
+  gr_tempxserror_slc->Write("gr_tempxserror_slc");
+  gr_tempxserror_chx_slc->Write("gr_tempxserror_chx_slc");
 
   gr_tempxsec_chx_test_slc->Write("gr_tempxsec_chx_test_slc");
   gr_tempxsec_abs_test_slc->Write("gr_tempxsec_abs_test_slc");
@@ -4840,6 +5698,76 @@ void Main::Maker::MakeFile()
   std::cout<<"total number of gammas (trknhits) "<<totalgamma_trknhits<<std::endl;
   std::cout<<"total number of gammas (trkdist) "<<totalgamma_trkdist<<std::endl;
   std::cout<<"total number of gammas (trkeng) "<<totalgamma_trkeng<<std::endl;
+
+  //==========================================================================
+
+
+
+  std::cout<<"total interaction in the first 3slices is "<<Nint3slice<<std::endl;
+  std::cout<<"total interaction in the first 3slices after pandora identification is "<<Nint3slice_pi<<std::endl;
+  std::cout<<"total interaction in the first 3slices after beam qualification is "<<Nint3slice_bq<<std::endl;
+
+
+  std::cout<<"Total muon and pion events is "<<Nmupi<<std::endl;
+
+  std::cout<<"total pioninelastic interaction is "<<Nintpioninelastic<<std::endl;
+  std::cout<<"total piondecay interaction is "<<Nintpiondecay<<std::endl;
+  std::cout<<"total muon interaction is "<<Nintmuon<<std::endl;
+  std::cout<<"total upstream interaction is "<<Nintupstream<<std::endl;
+
+  std::cout<<"total upstream interaction (test) is "<<Nintupstream_test<<std::endl;
+
+  std::cout<<"(pi) pioninelastic interaction is "<<Nintpioninelastic_pi<<std::endl;
+  std::cout<<"(pi) piondecay interaction is "<<Nintpiondecay_pi<<std::endl;
+  std::cout<<"(pi) muon interaction is "<<Nintmuon_pi<<std::endl;
+  std::cout<<"(pi) upstream interaction is "<<Nintupstream_pi<<std::endl;
+
+  std::cout<<"(bq_x) pioninelastic interaction is "<<Nintpioninelastic_bq_x<<std::endl;
+  std::cout<<"(bq_x) piondecay interaction is "<<Nintpiondecay_bq_x<<std::endl;
+  std::cout<<"(bq_x) muon interaction is "<<Nintmuon_bq_x<<std::endl;
+  std::cout<<"(bq_x) upstream interaction is "<<Nintupstream_bq_x<<std::endl;
+
+  std::cout<<"(bq_y) pioninelastic interaction is "<<Nintpioninelastic_bq_y<<std::endl;
+  std::cout<<"(bq_y) piondecay interaction is "<<Nintpiondecay_bq_y<<std::endl;
+  std::cout<<"(bq_y) muon interaction is "<<Nintmuon_bq_y<<std::endl;
+  std::cout<<"(bq_y) upstream interaction is "<<Nintupstream_bq_y<<std::endl;
+
+  std::cout<<"(bq_z) pioninelastic interaction is "<<Nintpioninelastic_bq_z<<std::endl;
+  std::cout<<"(bq_z) piondecay interaction is "<<Nintpiondecay_bq_z<<std::endl;
+  std::cout<<"(bq_z) muon interaction is "<<Nintmuon_bq_z<<std::endl;
+  std::cout<<"(bq_z) upstream interaction is "<<Nintupstream_bq_z<<std::endl;
+
+  std::cout<<"(bq_cos) pioninelastic interaction is "<<Nintpioninelastic_bq_cos<<std::endl;
+  std::cout<<"(bq_cos) piondecay interaction is "<<Nintpiondecay_bq_cos<<std::endl;
+  std::cout<<"(bq_cos) muon interaction is "<<Nintmuon_bq_cos<<std::endl;
+  std::cout<<"(bq_cos) upstream interaction is "<<Nintupstream_bq_cos<<std::endl;
+
+  std::cout<<"(bq_APA3) pioninelastic interaction is "<<Nintpioninelastic_bq_APA3<<std::endl;
+  std::cout<<"(bq_APA3) piondecay interaction is "<<Nintpiondecay_bq_APA3<<std::endl;
+  std::cout<<"(bq_APA3) muon interaction is "<<Nintmuon_bq_APA3<<std::endl;
+  std::cout<<"(bq_APA3) upstream interaction is "<<Nintupstream_bq_APA3<<std::endl;
+
+  std::cout<<"(bq_vsize) pioninelastic interaction is "<<Nintpioninelastic_bq_vsize<<std::endl;
+  std::cout<<"(bq_vsize) piondecay interaction is "<<Nintpiondecay_bq_vsize<<std::endl;
+  std::cout<<"(bq_vsize) muon interaction is "<<Nintmuon_bq_vsize<<std::endl;
+  std::cout<<"(bq_vsize) upstream interaction is "<<Nintupstream_bq_vsize<<std::endl;
+
+
+  std::cout<<"(bq) pioninelastic interaction is "<<Nintpioninelastic_bq<<std::endl;
+  std::cout<<"(bq) piondecay interaction is "<<Nintpiondecay_bq<<std::endl;
+  std::cout<<"(bq) muon interaction is "<<Nintmuon_bq<<std::endl;
+  std::cout<<"(bq) upstream interaction is "<<Nintupstream_bq<<std::endl;
+
+
+
+  //Calculate cross sections
+  /*RooUnfoldBayes   unfold (&response, nevt_recosliceid_inelastic_cuts, 4);    // OR
+  TH1D *nevt_truesliceid_inelastic_test = (TH1D*) unfold.Hreco();
+  TCanvas *C = new TCanvas("Ctest", "Ctest",1200, 900);
+  nevt_truesliceid_inelastic_test0->Draw("hist");
+  C->SaveAs("h_libojiang.png"); 
+  */
+
 
 
   //==========================================================================
