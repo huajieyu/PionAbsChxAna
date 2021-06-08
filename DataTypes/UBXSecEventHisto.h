@@ -129,6 +129,7 @@ namespace DataTypes {
 
 
     TH2D* h_muon_beamendzvsp;
+
     TH1D* h_muon_beamendz_true;
     TH1D* h_muon_beamendz_reco;
     TH1D* h_pion_beamendz_true;
@@ -139,6 +140,21 @@ namespace DataTypes {
 
     TH1D* h_upstream_beamendz_true;
     TH1D* h_upstream_beamendz_reco;
+
+    TH1D* h_beamendz_data;
+
+
+
+    TH1D* hcuts_muon_beamendz_true;
+    TH1D* hcuts_muon_beamendz_reco;
+    TH1D* hcuts_pion_beamendz_true;
+    TH1D* hcuts_pion_beamendz_reco;
+
+    TH1D* hcuts_pion_decay_beamendz_true;
+    TH1D* hcuts_pion_decay_beamendz_reco;
+
+    TH1D* hcuts_upstream_beamendz_true;
+    TH1D* hcuts_upstream_beamendz_reco;
 
 
 
@@ -182,6 +198,21 @@ namespace DataTypes {
     TH1D* h_data_beam_deltay;
     TH1D* h_data_beam_deltaz;
     TH1D* h_data_beam_cos;
+
+    TH1D* h_mc_beam_deltax;
+    TH1D* h_mc_beam_deltay;
+    TH1D* h_mc_beam_deltaz;
+    TH1D* h_mc_beam_cos;
+
+    TH1D* h_data_beamtype;
+    TH1D* h_mc_beamtype_muon;
+    TH1D* h_mc_beamtype_pion;
+
+    TH1D *h_beam_trackscore_collection;
+    TH1D *h_beam_trackscore_collection_pion;
+    TH1D *h_beam_trackscore_collection_muon;
+    TH1D *h_beam_trackscore_collection_proton;
+    TH1D *h_beam_trackscore_collection_other;
 
     TH1D* h_ispiinelastic_beam_deltax;
     TH1D* h_ispiinelastic_beam_deltay;
@@ -235,6 +266,26 @@ namespace DataTypes {
     TH1D* h_upstream_proton;
     TH1D* h_upstream_gamma;
     TH1D* h_upstream_other;
+
+    TH1D* h_beam_trklen_total;
+    TH1D* h_beam_trklen_muon;
+    TH1D* h_beam_trklen_pion;
+
+    TH1D* h_beamdeltaz_primarypion_afterbqxycut;
+    TH1D* h_beamdeltaz_primarymuon_afterbqxycut;
+    TH1D* h_beamdeltaz_primaryproton_afterbqxycut;
+    TH1D* h_beamdeltaz_primaryelectron_afterbqxycut;
+    TH1D* h_beamdeltaz_cosmic_afterbqxycut;
+    TH1D* h_beamdeltaz_primarynottrig_afterbqxycut;
+    TH1D* h_beamdeltaz_other_afterbqxycut;
+
+
+
+
+
+
+
+	  
 
 
   protected:

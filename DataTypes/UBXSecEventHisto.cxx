@@ -126,17 +126,27 @@ namespace DataTypes {
       }//end of looping over all the slices
 
       h_muon_beamendzvsp=new TH2D("h_muon_beamendzvsp", "h_muon_beamendzvsp", 100, 0.0, 500, 100, 0, 1.5);
-      h_muon_beamendz_true=new TH1D("h_muon_beamendz_true", "h_muon_beamendz_true", 100, 0.0, 500.);
-      h_muon_beamendz_reco=new TH1D("h_muon_beamendz_reco", "h_muon_beamendz_reco", 100, 0.0, 500.);
-      h_pion_beamendz_true=new TH1D("h_pion_beamendz_true", "h_pion_beamendz_true", 100, 0.0, 500.);
-      h_pion_beamendz_reco=new TH1D("h_pion_beamendz_reco", "h_pion_beamendz_reco", 100, 0.0, 500.);
-      h_pion_decay_beamendz_true=new TH1D("h_pion_decay_beamendz_true", "h_pion_decay_beamendz_true", 100, 0.0, 500.);
-      h_pion_decay_beamendz_reco=new TH1D("h_pion_decay_beamendz_reco", "h_pion_decay_beamendz_reco", 100, 0.0, 500.);
-      h_upstream_beamendz_true=new TH1D("h_upstream_beamendz_true", "h_upstream_beamendz_true", 100, 0.0, 500.);
-      h_upstream_beamendz_reco=new TH1D("h_upstream_beamendz_reco", "h_upstream_beamendz_reco", 100, 0.0, 500.);
+
+      h_muon_beamendz_true=new TH1D("h_muon_beamendz_true", "h_muon_beamendz_true", 100, -100.0, 500.);
+      h_muon_beamendz_reco=new TH1D("h_muon_beamendz_reco", "h_muon_beamendz_reco", 100, -100.0, 500.);
+      h_pion_beamendz_true=new TH1D("h_pion_beamendz_true", "h_pion_beamendz_true", 100, -100.0, 500.);
+      h_pion_beamendz_reco=new TH1D("h_pion_beamendz_reco", "h_pion_beamendz_reco", 100, -100.0, 500.);
+      h_pion_decay_beamendz_true=new TH1D("h_pion_decay_beamendz_true", "h_pion_decay_beamendz_true", 100, -100.0, 500.);
+      h_pion_decay_beamendz_reco=new TH1D("h_pion_decay_beamendz_reco", "h_pion_decay_beamendz_reco", 100, -100.0, 500.);
+      h_upstream_beamendz_true=new TH1D("h_upstream_beamendz_true", "h_upstream_beamendz_true", 100, -100.0, 500.);
+      h_upstream_beamendz_reco=new TH1D("h_upstream_beamendz_reco", "h_upstream_beamendz_reco", 100, -100.0, 500.);
+
+      hcuts_muon_beamendz_true=new TH1D("hcuts_muon_beamendz_true", "hcuts_muon_beamendz_true", 100, -100.0, 500.);
+      hcuts_muon_beamendz_reco=new TH1D("hcuts_muon_beamendz_reco", "hcuts_muon_beamendz_reco", 100, -100.0, 500.);
+      hcuts_pion_beamendz_true=new TH1D("hcuts_pion_beamendz_true", "hcuts_pion_beamendz_true", 100, -100.0, 500.);
+      hcuts_pion_beamendz_reco=new TH1D("hcuts_pion_beamendz_reco", "hcuts_pion_beamendz_reco", 100, -100.0, 500.);
+      hcuts_pion_decay_beamendz_true=new TH1D("hcuts_pion_decay_beamendz_true", "hcuts_pion_decay_beamendz_true", 100, -100.0, 500.);
+      hcuts_pion_decay_beamendz_reco=new TH1D("hcuts_pion_decay_beamendz_reco", "hcuts_pion_decay_beamendz_reco", 100, -100.0, 500.);
+      hcuts_upstream_beamendz_true=new TH1D("hcuts_upstream_beamendz_true", "hcuts_upstream_beamendz_true", 100, -100.0, 500.);
+      hcuts_upstream_beamendz_reco=new TH1D("hcuts_upstream_beamendz_reco", "hcuts_upstream_beamendz_reco", 100, -100.0, 500.);
 
 
-
+      h_beamendz_data=new TH1D("h_beamendz_data","h_beamendz_data", 100, -100., 500.);
 
 
       h_truepion_beam_deltax = new TH1D("h_truepion_beam_deltax", "h_truepion_beam_deltax", 100, -20, 40);
@@ -179,6 +189,28 @@ namespace DataTypes {
       h_data_beam_deltay = new TH1D("h_data_beam_deltay", "h_data_beam_deltay", 100, -20, 40);
       h_data_beam_deltaz = new TH1D("h_data_beam_deltaz", "h_data_beam_deltaz", 100, 0, 40);
       h_data_beam_cos = new TH1D("h_data_beam_cos", "h_data_beam_cos", 100, -1., 1.);
+
+      h_mc_beam_deltax = new TH1D("h_mc_beam_deltax", "h_mc_beam_deltax", 100, -20, 40);
+      h_mc_beam_deltay = new TH1D("h_mc_beam_deltay", "h_mc_beam_deltay", 100, -20, 40);
+      h_mc_beam_deltaz = new TH1D("h_mc_beam_deltaz", "h_mc_beam_deltaz", 100, 0, 40);
+      h_mc_beam_cos = new TH1D("h_mc_beam_cos", "h_mc_beam_cos", 100, -1., 1.);
+
+      h_data_beamtype=new TH1D("h_data_beamtype", "h_data_beamtype", 2, -0.5, 1.5);
+      h_mc_beamtype_muon=new TH1D("h_mc_beamtype_muon", "h_mc_beamtype_muon", 2, -0.5, 1.5);
+      h_mc_beamtype_pion=new TH1D("h_mc_beamtype_pion", "h_mc_beamtype_pion", 2, -0.5, 1.5);
+
+
+
+      h_beam_trackscore_collection=new TH1D("h_beam_trackscore_collection","h_beam_trackscore_collection", 100, 0.0, 1.0);
+      h_beam_trackscore_collection_pion=new TH1D("h_beam_trackscore_collection_pion","h_beam_trackscore_collection_pion", 100, 0.0, 1.0);
+      h_beam_trackscore_collection_muon=new TH1D("h_beam_trackscore_collection_muon","h_beam_trackscore_collection_muon", 100, 0.0, 1.0);
+      h_beam_trackscore_collection_proton=new TH1D("h_beam_trackscore_collection_proton","h_beam_trackscore_collection_proton", 100, 0.0, 1.0);
+
+      h_beam_trackscore_collection_other=new TH1D("h_beam_trackscore_collection_other","h_beam_trackscore_collection_other", 100, 0.0, 1.0);
+
+
+
+
 
       h_ispiinelastic_beam_deltax = new TH1D("h_ispiinelastic_beam_deltax", "h_ispiinelastic_beam_deltax", 100, -10., 10.);
       h_ispiinelastic_beam_deltay = new TH1D("h_ispiinelastic_beam_deltay", "h_ispiinelastic_beam_deltay", 100, -10., 10.);
@@ -243,6 +275,26 @@ namespace DataTypes {
      h_upstream_proton = new TH1D("h_upstream_proton", "h_upstream_proton", 100, -70.0, 230);
      h_upstream_gamma = new TH1D("h_upstream_gamma", "h_upstream_gamma", 100, -70.0, 230);
      h_upstream_other = new TH1D("h_upstream_other", "h_upstream_other", 100, -70.0, 230);
+
+     int trklennbins=21;
+     double trklenbins[22];
+     for(int i=0; i<22; i++){
+	if(i<21){
+	trklenbins[i]=i*10;
+	}else{trklenbins[i]=600;}
+     }	
+
+     h_beam_trklen_total=new TH1D("h_beam_trklen_total", "h_beam_trklen_total", trklennbins, trklenbins);
+     h_beam_trklen_pion=new TH1D("h_beam_trklen_pion", "h_beam_trklen_pion", trklennbins, trklenbins);
+     h_beam_trklen_muon=new TH1D("h_beam_trklen_muon", "h_beam_trklen_muon", trklennbins, trklenbins);
+
+     h_beamdeltaz_primarypion_afterbqxycut=new TH1D("h_beamdeltaz_primarypion_afterbqxycut","h_beamdeltaz_primarypion_afterbqxycut", 100, 20, 40);
+     h_beamdeltaz_primarymuon_afterbqxycut=new TH1D("h_beamdeltaz_primarymuon_afterbqxycut","h_beamdeltaz_primarymuon_afterbqxycut", 100, 20, 40);
+     h_beamdeltaz_primaryproton_afterbqxycut=new TH1D("h_beamdeltaz_primaryproton_afterbqxycut","h_beamdeltaz_primaryproton_afterbqxycut", 100, 20, 40);
+     h_beamdeltaz_primaryelectron_afterbqxycut=new TH1D("h_beamdeltaz_primaryelectron_afterbqxycut","h_beamdeltaz_primaryelectron_afterbqxycut", 100, 20, 40);;
+     h_beamdeltaz_cosmic_afterbqxycut=new TH1D("h_beamdeltaz_cosmic_afterbqxycut","h_beamdeltaz_cosmic_afterbqxycut", 100, 20, 40);
+     h_beamdeltaz_primarynottrig_afterbqxycut=new TH1D("h_beamdeltaz_primarynottrig_afterbqxycut","h_beamdeltaz_primarynottrig_afterbqxycut", 100, 20, 40);
+     h_beamdeltaz_other_afterbqxycut=new TH1D("h_beamdeltaz_other_afterbqxycut","h_beamdeltaz_other_afterbqxycut", 100, 20, 40);
 
 
 

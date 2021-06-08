@@ -1904,6 +1904,13 @@ void Main::Maker::MakeFile()
   int Nintupstream_bq=0;
 
 
+  int Nint_pdgcut=0;
+  int Nint_beamtypecut=0;
+  int Nint_beamqualitycut=0;
+  int Nint_APA3cut=0;
+  int Nint_calosizecut=0;
+  int Nint_tmdqdxcut=0;
+
   int TestGenSig=0;
 
   int n_bins_mumom = 50;
@@ -2071,7 +2078,7 @@ void Main::Maker::MakeFile()
                               t->reco_beam_trackDirX, t->reco_beam_trackDirY, t->reco_beam_trackDirZ,
                               t->true_beam_startDirX, t->true_beam_startDirY, t->true_beam_startDirZ,
                               t->true_beam_startX, t->true_beam_startY, t->true_beam_startZ)) continue;
-        if(!endAPA3(t->reco_beam_endZ) )continue;
+        if(!endAPA3(t->reco_beam_calo_endZ) )continue;
         fpion_evt_index.push_back(i);
         }
   }
@@ -2251,7 +2258,6 @@ void Main::Maker::MakeFile()
         }//end of is isdata==0
         //std::cout<<"end of setting all the Weight Names of the bootstraps; is it data? "<<isdata<<std::endl;	
 	//========================================================================
-        h_Evttot->Fill(event_weight);
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         //set the map of wire number and incident particles
         //hit-by-hit wire z position
@@ -2636,12 +2642,44 @@ void Main::Maker::MakeFile()
           } //end of for loop
 	  //#0 cut require the MC is either pion or muon events
           if(abs(t->true_beam_PDG) != 211 && abs(t->true_beam_PDG) !=13) continue;//passCuts = false;
+          h_Evttot->Fill(event_weight);
+	  Nint_pdgcut++;
+	  double beam_trklen=TMath::Sqrt(TMath::Power((t->reco_beam_calo_startX-t->reco_beam_calo_endX),2.0)
+	  				+TMath::Power((t->reco_beam_calo_startY-t->reco_beam_calo_endY),2.0)
+	  				+TMath::Power((t->reco_beam_calo_startZ-t->reco_beam_calo_endZ),2.0));
+
+	  //double beam_trklen=t->reco_beam_alt_len;
+	  _event_histo->h_beam_trklen_total->Fill(beam_trklen);
+	  if(abs(t->true_beam_PDG)==211){_event_histo->h_beam_trklen_pion->Fill(beam_trklen);}
+	  if(abs(t->true_beam_PDG)==13){_event_histo->h_beam_trklen_muon->Fill(beam_trklen);}
+
 	  passCuts = true;
-          
+          if(abs(t->true_beam_PDG)==13) _event_histo->h_mc_beamtype_muon->Fill(isBeamType(t->reco_beam_type));
+          if(abs(t->true_beam_PDG)==211) _event_histo->h_mc_beamtype_pion->Fill(isBeamType(t->reco_beam_type));
+          _event_histo->h_beam_trackscore_collection->Fill(t->reco_beam_PFP_trackScore_collection);
+          if(abs(t->reco_beam_true_byHits_PDG)==211){
+	   	_event_histo->h_beam_trackscore_collection_pion->Fill(t->reco_beam_PFP_trackScore_collection);
+	
+	  } else if(abs(t->reco_beam_true_byHits_PDG)==13){
+   		_event_histo->h_beam_trackscore_collection_muon->Fill(t->reco_beam_PFP_trackScore_collection);
+
+	  } else if(abs(t->reco_beam_true_byHits_PDG)==2212){
+		 _event_histo->h_beam_trackscore_collection_proton->Fill(t->reco_beam_PFP_trackScore_collection);
+          } else{
+		 _event_histo->h_beam_trackscore_collection_other->Fill(t->reco_beam_PFP_trackScore_collection);
+
+          }
+
 	  //#1 beam type cut
 	  //
           if(!isBeamType(t->reco_beam_type)) /*continue;*/ passCuts = false; 
 	  if(passCuts == true){
+
+		  _event_histo->h_mc_beam_deltax->Fill(libobeamdeltax);
+		  _event_histo->h_mc_beam_deltay->Fill(libobeamdeltay);
+ 		  _event_histo->h_mc_beam_deltaz->Fill(libobeamdeltaz);
+		  _event_histo->h_mc_beam_cos->Fill(libobeamcos);
+		  Nint_beamtypecut++;
 	          if(true_sliceID >0 && true_sliceID<=2) {
         	     Nint3slice_pi++;
           	  }
@@ -2674,8 +2712,13 @@ void Main::Maker::MakeFile()
                   }
              }
           }  
+
+
+
+
+
  	  // #2 beam delta x cut
-          if(libobeamdeltax<xlow || libobeamdeltax>xhigh) /*continue;*/ passCuts = false; 
+          //if(libobeamdeltax<xlow || libobeamdeltax>xhigh) /*continue;*/ passCuts = false; 
 	  
 
 	  if(passCuts == true){
@@ -2694,7 +2737,7 @@ void Main::Maker::MakeFile()
           }
 
 	  //#3 beam delta y cut
-          if(libobeamdeltay<ylow || libobeamdeltay>yhigh) /*continue;*/ passCuts = false;
+          //if(libobeamdeltay<ylow || libobeamdeltay>yhigh) /*continue;*/ passCuts = false;
  	   
 	  if(passCuts == true){
 	          if(*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG)==211 && isUpstream == false){
@@ -2710,8 +2753,36 @@ void Main::Maker::MakeFile()
 	             Nintupstream_bq_y++;
 	          }
  	  }
+
+	  //<<<<<<<<<<plot the delta z of cosmics, beam particles<<<<<<<<<<<<<<<<<<<
+	  if(passCuts == true){
+		if(beam_identification=="PrimaryPion"){
+	  		_event_histo->h_beamdeltaz_primarypion_afterbqxycut->Fill(libobeamdeltaz);
+		} else if(beam_identification=="PrimaryMuon"){
+	  		_event_histo->h_beamdeltaz_primarymuon_afterbqxycut->Fill(libobeamdeltaz);
+	
+		} else if(beam_identification=="PrimaryProton"){
+	  		_event_histo->h_beamdeltaz_primaryproton_afterbqxycut->Fill(libobeamdeltaz);
+	
+		} else if(beam_identification=="PrimaryElectron"){
+	  		_event_histo->h_beamdeltaz_primaryelectron_afterbqxycut->Fill(libobeamdeltaz);
+	
+		} else if(beam_identification=="Cosmic"){
+	  		_event_histo->h_beamdeltaz_cosmic_afterbqxycut->Fill(libobeamdeltaz);
+		} else if(beam_identification=="PrimaryBeamNotTrig"){
+
+			_event_histo->h_beamdeltaz_primarynottrig_afterbqxycut->Fill(libobeamdeltaz);	
+
+		} else {
+	  		_event_histo->h_beamdeltaz_other_afterbqxycut->Fill(libobeamdeltaz);
+	
+		}
+	  }
+
+
+
           //#4 beam delta z cut
-          if(libobeamdeltaz<zlow || libobeamdeltaz>zhigh) /*continue;*/ passCuts = false;
+          //if(libobeamdeltaz<zlow || libobeamdeltaz>zhigh) /*continue;*/ passCuts = false;
 	  
 	  if(passCuts == true){
 	          if(*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG)==211 && isUpstream == false){
@@ -2728,9 +2799,10 @@ void Main::Maker::MakeFile()
 	          }
  	  }
           // #5 beam costheta cut
-          if(libobeamcos<coslow) /*continue;*/ passCuts= false;
+          //if(libobeamcos<coslow) /*continue;*/ passCuts= false;
 	  
 	  if(passCuts == true){
+		 
 	          if(*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG)==211 && isUpstream == false){
 		     Nintpioninelastic_bq_cos++;
 		  }
@@ -2745,16 +2817,18 @@ void Main::Maker::MakeFile()
 	          }
           }
 	  //#6 is a replacement of 2+3+4+5
-          if(!manual_beamPos_mc(t->reco_beam_startX, t->reco_beam_startY, t->reco_beam_startZ, 
-                              t->reco_beam_trackDirX, t->reco_beam_trackDirY, t->reco_beam_trackDirZ,
-                              t->true_beam_startDirX, t->true_beam_startDirY, t->true_beam_startDirZ,
-                              t->true_beam_startX, t->true_beam_startY, t->true_beam_startZ)) /*continue;*/ passCuts = false; 
+          //if(!manual_beamPos_mc(t->reco_beam_startX, t->reco_beam_startY, t->reco_beam_startZ, 
+          //                    t->reco_beam_trackDirX, t->reco_beam_trackDirY, t->reco_beam_trackDirZ,
+          //                    t->true_beam_startDirX, t->true_beam_startDirY, t->true_beam_startDirZ,
+          //                    t->true_beam_startX, t->true_beam_startY, t->true_beam_startZ)) /*continue;*/ passCuts = false; 
 	  
-          
+          if(passCuts==true) Nint_beamqualitycut++;
 	  //#7 is APA3 cut
-          if(!endAPA3(t->reco_beam_endZ) ) /*continue;*/ passCuts = false; 
+          if(!endAPA3(t->reco_beam_calo_endZ) ) /*continue;*/ passCuts = false; 
 	  
           if(passCuts == true){
+
+		  Nint_APA3cut++;
 	          if(*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG)==211 && isUpstream == false){
 		     Nintpioninelastic_bq_APA3++;
 		  }
@@ -2773,6 +2847,7 @@ void Main::Maker::MakeFile()
           if(t->reco_beam_calo_wire->size()==0) /*continue;*/ passCuts = false;
 	  
 	  if(passCuts == true){
+		  Nint_calosizecut++;
 	          if(*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG)==211 && isUpstream == false){
 		     Nintpioninelastic_bq_vsize++;
 		  }
@@ -2817,7 +2892,7 @@ void Main::Maker::MakeFile()
           }
 	  //#9 truncated mean dqdx cut
           if(reco_beam_tmdqdx>2.4) /*continue;*/ passCuts = false; 
-	  
+	  if(passCuts==true) Nint_tmdqdxcut++;
 	  if((isdata==0 && (isInelastic || isDecay)) /*&& t->true_beam_ID == t->reco_beam_true_byHits_ID*/){
 	  	outfile_roounfold<<passCuts<<"    "<<setw(5)<<true_sliceID<<setw(5)<<sliceID<<std::endl;
  	  }
@@ -2926,9 +3001,29 @@ void Main::Maker::MakeFile()
         } //end of processing MC beam selection
      
         if(isdata==1){
+	  //correspond to PDG cut
           if(!data_beam_PID(t->beam_inst_PDG_candidates)) continue;
+          h_Evttot->Fill(event_weight);
+
+	  _event_histo->h_beamendz_data->Fill(t->reco_beam_calo_endZ);
+
+	  Nint_pdgcut++;
+	  double beam_trklen=TMath::Sqrt(TMath::Power((t->reco_beam_calo_startX-t->reco_beam_calo_endX),2.0)
+	  				+TMath::Power((t->reco_beam_calo_startY-t->reco_beam_calo_endY),2.0)
+	  				+TMath::Power((t->reco_beam_calo_startZ-t->reco_beam_calo_endZ),2.0));
+	  //double beam_trklen=t->reco_beam_alt_len;
+	
+	  _event_histo->h_beam_trklen_total->Fill(beam_trklen);
 		
 	  passCuts = true;
+          _event_histo->h_data_beamtype->Fill(isBeamType(t->reco_beam_type));
+
+          _event_histo->h_beam_trackscore_collection->Fill(t->reco_beam_PFP_trackScore_collection);
+
+
+          if(!isBeamType(t->reco_beam_type)) /*continue;*/ passCuts = false; 
+	  if(passCuts==true) Nint_beamtypecut++;
+
           std::vector<double> *temp_data = new std::vector<double>();
           manual_beamPos_data_vector(t->event, t->reco_beam_startX, t->reco_beam_startY, t->reco_beam_startZ,
                                 t->reco_beam_trackDirX, t->reco_beam_trackDirY, t->reco_beam_trackDirZ,
@@ -2938,6 +3033,11 @@ void Main::Maker::MakeFile()
 
           std::vector<double>::iterator it;
           int idx=0;
+	  //more study on beam quanlity
+	  //add Calo size and TMdQdX cut
+
+	  double libobeamcos_data=0;
+	  if(passCuts==true){
           for(it=temp_data->begin(); it != temp_data->end(); ++it){   
             if(idx==0){ 
                _event_histo->h_data_beam_deltax->Fill(*it);   
@@ -2946,29 +3046,44 @@ void Main::Maker::MakeFile()
             }else if(idx==2){
                _event_histo->h_data_beam_deltaz->Fill(*it);
             }else if(idx==3){
+	       libobeamcos_data=*it;
                _event_histo->h_data_beam_cos->Fill(*it);
             }
              idx=idx+1;
           }
-
-          if(!manual_beamPos_data(t->event, t->reco_beam_startX, t->reco_beam_startY, t->reco_beam_startZ,
-                                t->reco_beam_trackDirX, t->reco_beam_trackDirY, t->reco_beam_trackDirZ,
-                                t->beam_inst_X, t->beam_inst_Y, t->beam_inst_dirX, t->beam_inst_dirY,
-                                t->beam_inst_dirZ, t->beam_inst_nMomenta, t->beam_inst_nTracks)) 
-			passCuts = false; //continue;
-		
-          if(!endAPA3(t->reco_beam_endZ) ) passCuts = false; //continue;
-	  //if(passCuts == false) continue;
+	  }
+          //if(libobeamcos_data<coslow) /*continue;*/ passCuts= false;
 	  
+          //if(!manual_beamPos_data(t->event, t->reco_beam_startX, t->reco_beam_startY, t->reco_beam_startZ,
+          //                      t->reco_beam_trackDirX, t->reco_beam_trackDirY, t->reco_beam_trackDirZ,
+          //                      t->beam_inst_X, t->beam_inst_Y, t->beam_inst_dirX, t->beam_inst_dirY,
+          //                      t->beam_inst_dirZ, t->beam_inst_nMomenta, t->beam_inst_nTracks)) 
+	  //		passCuts = false; //continue;
+	  if(passCuts==true) Nint_beamqualitycut++;	
+          if(!endAPA3(t->reco_beam_calo_endZ) ) passCuts = false; //continue;
+	  //if(passCuts == false) continue;
+
+	  if(passCuts==true) Nint_APA3cut++;
+          if(t->reco_beam_calo_wire->size()==0) /*continue;*/ passCuts = false;
+	
+	  if(passCuts ==true) Nint_calosizecut++;
+          vector<double> *beam_dEdX_Ptr=t->reco_beam_calibrated_dEdX_SCE;
+          double reco_beam_tmdqdx = GetTruncatedMean(*beam_dEdX_Ptr, 2, t->reco_beam_calibrated_dEdX_SCE->size() - 5, 0.1, 0.6);
+	  if(reco_beam_tmdqdx >2.4) passCuts = false;
+	  if(passCuts==true) Nint_tmdqdxcut++;
         }//end of if this is a data isdata==1
         //=============================================================================
 
 	//if(passCuts== false) continue;
-
+	
 
 
 LOG_NORMAL()<<"Check if event pass the preselection cut "<<passCuts<< "      "<<std::endl;
 if(passCuts == true ){
+
+	//plot the track length of the beam particles in order to characterize the background
+
+
 
 	if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211){
 		if (t->true_daughter_nPi0 == 0 && t->true_daughter_nPiPlus == 0 && t->true_daughter_nPiMinus ==0){//true absorption
@@ -3111,22 +3226,26 @@ if(passCuts==true){
         if(t->reco_beam_incidentEnergies->size()==t->reco_beam_calo_wire_z->size()
            && t->reco_beam_incidentEnergies->size()>0 && t->reco_beam_calo_wire_z->size()>0 
            && t->reco_beam_TrkPitch_SCE->size()>0 && t->reco_beam_dEdX_SCE->size()>0){
-        for (size_t i = 0; i<t->reco_beam_calo_wire_z->size(); ++i){
-          int this_sliceID = int(t->reco_beam_calo_wire_z->at(i)/thinslicewidth);  //use as temporary calculation
-	  if(t->reco_beam_calo_wire_z->back()<0) this_sliceID=-1;
-          //ignore the last slice for pitch and incident energy calculations
-          if (this_sliceID<0 || sliceID>=nslices+3) continue;
+        	for (size_t i = 0; i<t->reco_beam_calo_wire_z->size(); ++i){
+          		int this_sliceID = int(t->reco_beam_calo_wire_z->at(i)/thinslicewidth);  //use as temporary calculation
+			
+	  		if(t->reco_beam_calo_wire_z->back()<0) this_sliceID=-1;
+			if(this_sliceID>=nslices+1) this_sliceID=nslices+1;
+			std::cout<<"this_sliceID is "<<this_sliceID<<std::endl;
+          		//ignore the last slice for pitch and incident energy calculations
+          		if (this_sliceID<0 || sliceID>=nslices+3) continue;
           
-          double this_incE = t->reco_beam_incidentEnergies->at(i);
-          double this_pitch = t->reco_beam_TrkPitch_SCE->at(i);
-          double this_dEdx = t->reco_beam_dEdX_SCE->at(i);
+          		double this_incE = t->reco_beam_incidentEnergies->at(i);
+          		double this_pitch = t->reco_beam_TrkPitch_SCE->at(i);
+          		double this_dEdx = t->reco_beam_dEdX_SCE->at(i);
 
-          vpitch[this_sliceID].push_back(this_pitch);
-          vincE[this_sliceID].push_back(this_incE);
-          vdEdx[this_sliceID].push_back(this_dEdx);
-        }
+          		vpitch[this_sliceID].push_back(this_pitch);
+          		vincE[this_sliceID].push_back(this_incE);
+          		vdEdx[this_sliceID].push_back(this_dEdx);
+        	}
         }//end of if incidentEnergy vector size>0
-
+	//else{}
+	LOG_NORMAL()<<"vpitch size is "<<vpitch.size()<<" vincE size is "<<vincE.size()<<" dEdx size is "<<vdEdx.size()<<std::endl;
         if(vpitch.size()>0 && vincE.size()>0 && vdEdx.size()>0) {
         for (size_t i = 0; i<vpitch.size(); ++i){
           if (!vpitch[i].empty()){
@@ -3792,7 +3911,7 @@ if(passCuts==true){
        
 
 
-
+if(passCuts == true){
         for(unsigned int jj=0; jj<t->reco_daughter_PFP_trackScore_collection->size(); jj++){
             _event_histo_1d->h_trackscore_all->Fill(t->reco_daughter_PFP_trackScore_collection->at(jj));
             if(t->reco_daughter_PFP_trackScore_collection->at(jj)<trkscorecut){
@@ -4229,6 +4348,7 @@ if(passCuts==true){
 
             //--------------------------------------------------------------------
 	}// end of loop over all the PFP_true_
+}//end of if passCuts == true
         LOG_NORMAL()<<"Start doing event selection for all the pion events"<<std::endl; 
 
 
@@ -4608,35 +4728,15 @@ if(passCuts==true){
                   h_pcostheta1st2nd_ptmissing->Fill(reco_Ptmissing, pcostheta1st2nd);
 
         } //end of calculating kinematic variables for the 2p events
-        for(long unsigned int is=0; is<sizeof(slicebins)/sizeof(slicebins[0])-1; is++){
+	LOG_NORMAL()<<"Calculated all of the events after all the cut"<<std::endl;
+        LOG_NORMAL()<<"is a signal?"<<isSignal_withthresh<<std::endl;
+        LOG_NORMAL()<<"is a chxbac?"<<isChxBKG_withthresh<<std::endl;
+        LOG_NORMAL()<<"is a reabac?"<<isReaBKG_withthresh<<std::endl;
+        LOG_NORMAL()<<"is a Other? "<<isOtherBKG_withthresh<<std::endl;
 
-            if(t->reco_beam_calo_wire->back()>=slicebins[is] && t->reco_beam_calo_wire->back()<slicebins[is+1]){
-                double eincident = 0.0;
-                int nincident = t->reco_beam_calo_wire->back()-slicebins[is]+1;
-                for(int ic=slicebins[is]; ic<=t->reco_beam_calo_wire->back()-1; ic++){
-                    //ic is the wire number over here
-                    if(std::find(t->reco_beam_calo_wire->begin(),t->reco_beam_calo_wire->end(), ic) !=t->reco_beam_calo_wire->end()){
-                      if(t->reco_beam_incidentEnergies->size()>0 && t->reco_beam_TrkPitch_SCE->size()>0){                    
-                         int realindex = -999;
-                         //nh is the wire number find the readindex
-                         for(long unsigned int kk=0; kk<t->reco_beam_calo_wire->size(); kk++){
-                            if(t->reco_beam_calo_wire->at(kk)==ic) {realindex = kk;}
-                         }
-                         if(realindex >=0){
-                            eincident = eincident + t->reco_beam_incidentEnergies->at(realindex);
-                         }
-                      } 
-                       
-                    }
-                }
-                if(nincident>0){
-                       eincident = eincident/(nincident*1.0);
-                       _event_histo->hsel_reco_beam_incidentEnergy[is]->Fill(eincident);
-                }
-            } 
-        }
 
- 
+
+
 
 
         //-----------------------------------------------------------------------------------
@@ -4651,10 +4751,6 @@ if(passCuts==true){
                  _event_histo_1d->h_PiAbs_sig_truevsreco_pmult->Fill(t->true_daughter_nProton, t->reco_daughter_allTrack_ID->size());
                  _event_histo_1d->h_sig_pvsnmult->Fill(t->true_daughter_nProton, t->true_daughter_nNeutron);
 
-
-                 if( t->reco_daughter_allTrack_ID->size() == 3){
-                       //std::cout<<"checking events with 3 reco protons "<<t->true_daughter_nProton<<"     "<<t->true_daughter_nNeutron<<std::endl;
-                 }
 
                  //true to get the true particle multiplicity
                  if(t->reco_daughter_allTrack_ID->size()>0){
@@ -4784,40 +4880,6 @@ if(passCuts==true){
 
                  }
 
-            for(long unsigned int is=0; is<sizeof(slicebins)/sizeof(slicebins[0])-1; is++){
-
-              if(t->reco_beam_calo_wire->back()>=slicebins[is] && t->reco_beam_calo_wire->back()<slicebins[is+1]){
-
-                double eincident = 0.0;
-                int nincident = t->reco_beam_calo_wire->back()-slicebins[is]+1;
-                for(int ic=slicebins[is]; ic<=t->reco_beam_calo_wire->back()-1; ic++){
-                   if(t->reco_beam_calo_wire->size()>0 && t->reco_beam_incidentEnergies->size()>0){
-                    //ic is the wire number over here
-                    if(std::find(t->reco_beam_calo_wire->begin(),t->reco_beam_calo_wire->end(), ic) !=t->reco_beam_calo_wire->end()){
-                      if(t->reco_beam_incidentEnergies->size()>0 && t->reco_beam_TrkPitch_SCE->size()>0){                    
-                         int realindex = -999;
-                         //nh is the wire number find the readindex
-                         for(long unsigned int kk=0; kk<t->reco_beam_calo_wire->size(); kk++){
-                            if(t->reco_beam_calo_wire->at(kk)==ic) {realindex = kk;}
-                         }
-                         if(realindex >=0){
-                            eincident = eincident + t->reco_beam_incidentEnergies->at(realindex);
-                         }
-                      } 
-                       
-                    }//end of if the wire number found in the vector of tracks
-                  }   
-                } //end of loop over all the wires before the end point of a beam track
-                if(nincident>0){
-                     eincident = eincident/(nincident*1.0);
-                     _event_histo->hsig_reco_beam_incidentEnergy[is]->Fill(eincident);
-                }
-              }
-            } 
-
-
-
-
         }//end of if this is a signal event
 
  
@@ -4865,37 +4927,6 @@ if(passCuts==true){
 
              _event_histo_1d->h_reco_photon_chx->Fill(Nreco_pion0);
  
-        for(long unsigned int is=0; is<sizeof(slicebins)/sizeof(slicebins[0])-1; is++){
-
-            if(t->reco_beam_calo_wire->back()>=slicebins[is] && t->reco_beam_calo_wire->back()<slicebins[is+1]){
-
-                double eincident = 0.0;
-                int nincident = t->reco_beam_calo_wire->back()-slicebins[is]+1;
-                for(int ic=slicebins[is]; ic<=t->reco_beam_calo_wire->back()-1; ic++){
-                   if(t->reco_beam_calo_wire->size()>0 && t->reco_beam_incidentEnergies->size()>0){
-                    //ic is the wire number over here
-                    if(std::find(t->reco_beam_calo_wire->begin(),t->reco_beam_calo_wire->end(), ic) !=t->reco_beam_calo_wire->end()){
-                      if(t->reco_beam_incidentEnergies->size()>0 && t->reco_beam_TrkPitch_SCE->size()>0){                    
-                         int realindex = -999;
-                         //nh is the wire number find the readindex
-                         for(long unsigned int kk=0; kk<t->reco_beam_calo_wire->size(); kk++){
-                            if(t->reco_beam_calo_wire->at(kk)==ic) {realindex = kk;}
-                         }
-                         if(realindex >=0){
-                            eincident = eincident + t->reco_beam_incidentEnergies->at(realindex);
-                         }
-                      } 
-                       
-                    }//end of if the wire number found in the vector of tracks
- 
-                   }
-                }//end of loop over all the wire numbers before the end of beam track
-                if(nincident>0){
-                   eincident = eincident/(nincident*1.0);
-                   _event_histo->hchxbac_reco_beam_incidentEnergy[is]->Fill(eincident);
-                } 
-            } 
-        }
   
         }//end of if this is a chxbac event
         else if(isdata==0 && isReaBKG_withthresh) {
@@ -4945,37 +4976,6 @@ if(passCuts==true){
              _event_histo_1d->h_reco_photon_rea->Fill(Nreco_pion0_rea);
 
 
-        for(long unsigned int is=0; is<sizeof(slicebins)/sizeof(slicebins[0])-1; is++){
-
-            if(t->reco_beam_calo_wire->back()>=slicebins[is] && t->reco_beam_calo_wire->back()<slicebins[is+1]){
-
-                double eincident = 0.0;
-                int nincident = t->reco_beam_calo_wire->back()-slicebins[is]+1;
-                for(int ic=slicebins[is]; ic<=t->reco_beam_calo_wire->back()-1; ic++){
-                   if(t->reco_beam_calo_wire->size()>0 && t->reco_beam_incidentEnergies->size()>0){
-                    //ic is the wire number over here
-                    if(std::find(t->reco_beam_calo_wire->begin(),t->reco_beam_calo_wire->end(), ic) !=t->reco_beam_calo_wire->end()){
-                      if(t->reco_beam_incidentEnergies->size()>0 && t->reco_beam_TrkPitch_SCE->size()>0){                    
-                         int realindex = -999;
-                         //nh is the wire number find the readindex
-                         for(long unsigned int kk=0; kk<t->reco_beam_calo_wire->size(); kk++){
-                            if(t->reco_beam_calo_wire->at(kk)==ic) {realindex = kk;}
-                         }
-                         if(realindex >=0){
-                            eincident = eincident + t->reco_beam_incidentEnergies->at(realindex);
-                         }
-                      } 
-                       
-                    }//end of if the wire number found in the vector of tracks
- 
-                   }
-                }//end of loop over all the wire numbers before the end of beam track
-                if(nincident>0){
-                   eincident = eincident/(nincident*1.0);
-                   _event_histo->hreabac_reco_beam_incidentEnergy[is]->Fill(eincident);
-                } 
-            } 
-        }
   
         }//end of if this is a reabac event
         else if(isdata==0)  { 
@@ -5131,7 +5131,7 @@ if(passCuts==true){
      if(dEdx[i]->GetEntries()>0){
               rms_dEdx[i] = dEdx[i]->GetRMS()/TMath::Sqrt(dEdx[i]->GetEntries());
      } else {rms_dEdx[i]=0;}
-     avg_pitch[i]=10; 
+     //avg_pitch[i]=10; 
      if( incident[i]>0 && avg_pitch[i]>0){
 
      tempxsec[i]          = MAr/(Density*NA*avg_pitch[i])*log((true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i])/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]-true_abs[i]));
@@ -5802,7 +5802,13 @@ if(passCuts==true){
   std::cout<<"(bq) muon interaction is "<<Nintmuon_bq<<std::endl;
   std::cout<<"(bq) upstream interaction is "<<Nintupstream_bq<<std::endl;
 
-
+  std::cout<<"Total number of event is (PDG cut)  "<<Nint_pdgcut<<std::endl;
+  std::cout<<"Total number of event is (beamtype cut)  "<<Nint_beamtypecut<<std::endl;
+  std::cout<<"Total number of event is (beamquality cut)  "<<Nint_beamqualitycut<<std::endl;
+  std::cout<<"Total number of event is (APA3 cut)  "<<Nint_APA3cut<<std::endl;
+  std::cout<<"Total number of event is (calosize cut)  "<<Nint_calosizecut<<std::endl;
+  std::cout<<"Total number of event is (tmdqdx cut)  "<<Nint_tmdqdxcut<<std::endl;
+       
 
   //Calculate cross sections
   outfile_roounfold.close();
