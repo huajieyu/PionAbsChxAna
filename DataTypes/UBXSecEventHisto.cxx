@@ -276,14 +276,20 @@ namespace DataTypes {
      h_upstream_gamma = new TH1D("h_upstream_gamma", "h_upstream_gamma", 100, -70.0, 230);
      h_upstream_other = new TH1D("h_upstream_other", "h_upstream_other", 100, -70.0, 230);
 
-     int trklennbins=21;
+     /*int trklennbins=21;
      double trklenbins[22];
      for(int i=0; i<22; i++){
 	if(i<21){
 	trklenbins[i]=i*10;
 	}else{trklenbins[i]=600;}
      }	
-
+     */
+     int trklennbins=60;
+     double trklenbins[61];
+     for(int i=0; i<61; i++){
+	trklenbins[i]=i*10;
+     }	
+    
      h_beam_trklen_total=new TH1D("h_beam_trklen_total", "h_beam_trklen_total", trklennbins, trklenbins);
      h_beam_trklen_pion=new TH1D("h_beam_trklen_pion", "h_beam_trklen_pion", trklennbins, trklenbins);
      h_beam_trklen_muon=new TH1D("h_beam_trklen_muon", "h_beam_trklen_muon", trklennbins, trklenbins);
@@ -295,6 +301,12 @@ namespace DataTypes {
      h_beamdeltaz_cosmic_afterbqxycut=new TH1D("h_beamdeltaz_cosmic_afterbqxycut","h_beamdeltaz_cosmic_afterbqxycut", 100, 20, 40);
      h_beamdeltaz_primarynottrig_afterbqxycut=new TH1D("h_beamdeltaz_primarynottrig_afterbqxycut","h_beamdeltaz_primarynottrig_afterbqxycut", 100, 20, 40);
      h_beamdeltaz_other_afterbqxycut=new TH1D("h_beamdeltaz_other_afterbqxycut","h_beamdeltaz_other_afterbqxycut", 100, 20, 40);
+    h_dminms = new TH1D("h_dminms", "h_dminms", 100, 0.0, 1.0);
+    h_muon_dminms = new TH1D("h_muon_dminms", "h_muon_dminms", 100, 0.0, 1.0);
+    h_pion_dminms = new TH1D("h_pion_dminms", "h_pion_dminms", 100, 0.0, 1.0);
+    h_pion_decay_dminms = new TH1D("h_pion_decay_dminms", "h_pion_decay_dminms", 100, 0.0, 1.0);
+    h_upstream_dminms = new TH1D("h_upstream_dminms", "h_upstream_dminms", 100, 0.0, 1.0);
+
 
 
 

@@ -65,6 +65,7 @@
 
 
 
+
 using namespace DataTypes;
 using namespace Base;
 
@@ -380,7 +381,7 @@ namespace Main{
     const static int thinslicewidth = 10; //cm      
     const static int nwires_in_slice = 20;
     const static int nslices = 480/nwires_in_slice;
-
+    //const static int nslices = 24;
     double intabs_array_den[nslices+3][nslices+3];  
     double intchx_array_den[nslices+3][nslices+3];
 
@@ -524,7 +525,7 @@ namespace Main{
     const double ProtonMass = 0.938272;
     const double PionMass = 0.13957; 
 
-    double cutAPA3_Z = 226.;
+    double cutAPA3_Z = 215.;
     double cut_trackScore = 0.4;
     //daughter Distance cut
 

@@ -280,6 +280,11 @@ namespace DataTypes {
     TH1D* h_beamdeltaz_other_afterbqxycut;
 
 
+    TH1D* h_dminms;
+    TH1D* h_muon_dminms;
+    TH1D* h_pion_dminms;
+    TH1D* h_pion_decay_dminms;
+    TH1D* h_upstream_dminms;
 
 
 
