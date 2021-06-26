@@ -267,14 +267,25 @@ namespace DataTypes {
       h_reco_true_incident_piinelastic->GetXaxis()->SetTitle("True sliceID");
       h_reco_true_incident_piinelastic->GetYaxis()->SetTitle("sliceID");
 
-
-      
      h_upstream_cosmic = new TH1D("h_upstream_cosmic", "h_upstream_cosmic", 100, -70.0, 230);
      h_upstream_pion = new TH1D("h_upstream_pion", "h_upstream_pion", 100, -70.0, 230);
      h_upstream_muon = new TH1D("h_upstream_muon", "h_upstream_muon", 100, -70.0, 230);
      h_upstream_proton = new TH1D("h_upstream_proton", "h_upstream_proton", 100, -70.0, 230);
      h_upstream_gamma = new TH1D("h_upstream_gamma", "h_upstream_gamma", 100, -70.0, 230);
      h_upstream_other = new TH1D("h_upstream_other", "h_upstream_other", 100, -70.0, 230);
+
+     h_bendangle_total = new TH1D("h_bendangle_total", "h_bendangle_total", 200, 0, 0.3*TMath::Pi());
+     h_bendangle_cosmic = new TH1D("h_bendangle_cosmic", "h_bendangle_cosmic", 200, 0, 0.3*TMath::Pi());
+     h_bendangle_pion = new TH1D("h_bendangle_pion", "h_bendangle_pion", 200, 0, 0.3*TMath::Pi());
+     h_bendangle_muon = new TH1D("h_bendangle_muon", "h_bendangle_muon", 200, 0, 0.3*TMath::Pi());
+     h_bendangle_proton = new TH1D("h_bendangle_proton", "h_bendangle_proton", 200, 0, 0.3*TMath::Pi());
+     h_bendangle_gamma = new TH1D("h_bendangle_gamma", "h_bendangle_gamma", 200, 0, 0.3*TMath::Pi());
+     h_bendangle_other = new TH1D("h_bendangle_other", "h_bendangle_other", 200, 0, 0.3*TMath::Pi());
+
+      
+     h_bendangle_piinelastic = new TH1D("h_bendangle_piinelastic", "h_bendangle_piinelastic", 200, 0, 0.3*TMath::Pi());
+     h_bendangle_pidecay = new TH1D("h_bendangle_pidecay", "h_bendangle_pidecay", 200, 0, 0.3*TMath::Pi());
+     h_bendangle_tmuon = new TH1D("h_bendangle_tmuon", "h_bendangle_tmuon", 200, 0, 0.3*TMath::Pi());
 
      /*int trklennbins=21;
      double trklenbins[22];

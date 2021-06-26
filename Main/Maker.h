@@ -549,13 +549,17 @@ namespace Main{
 
     //
     //For MC from Owen Goodwins studies
-    double xlow = -3.,  xhigh = 7.,  ylow = -8.,  yhigh = 7.;
-    double zlow = 27.5,  zhigh = 32.5,  coslow = 0.93;
-    //
+    //double xlow = -3.,  xhigh = 7.,  ylow = -8.,  yhigh = 7.;
+    //double zlow = 27.5,  zhigh = 32.5,  coslow = 0.93;
+    double xlow = -5., xhigh = 14, ylow= -8., yhigh = 10;
+    double zlow = 27, zhigh = 37, coslow = 0.93;
     //For Data from Owen Goodwin
-    double data_xlow = 0., data_xhigh = 10., data_ylow= -5.;
-    double data_yhigh= 10., data_zlow=30., data_zhigh=35., data_coslow=.93;
-
+    //double data_xlow = 0., data_xhigh = 10., data_ylow= -5.;
+    //double data_yhigh= 10.;
+    //double data_zlow=30., data_zhigh=35., data_coslow=.93;
+ 
+    double data_xlow = -5., data_xhigh = 14., data_ylow= -8., data_yhigh=10.;
+    double data_zlow=27, data_zhigh=37, data_coslow = 0.93;
     bool isBeamType(int i);
     bool data_beam_PID(const std::vector<int> *pidCandidates);
 

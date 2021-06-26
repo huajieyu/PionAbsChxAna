@@ -266,6 +266,17 @@ namespace DataTypes {
     TH1D* h_upstream_proton;
     TH1D* h_upstream_gamma;
     TH1D* h_upstream_other;
+    TH1D* h_bendangle_total;
+    TH1D* h_bendangle_cosmic;
+    TH1D* h_bendangle_pion;
+    TH1D* h_bendangle_muon;
+    TH1D* h_bendangle_proton;
+    TH1D* h_bendangle_gamma;
+    TH1D* h_bendangle_other;
+
+    TH1D* h_bendangle_piinelastic;
+    TH1D* h_bendangle_pidecay;
+    TH1D* h_bendangle_tmuon;
 
     TH1D* h_beam_trklen_total;
     TH1D* h_beam_trklen_muon;
