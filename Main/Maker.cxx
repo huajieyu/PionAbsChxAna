@@ -2502,7 +2502,6 @@ void Main::Maker::MakeFile()
                   if(true_sliceID==-1) {true_piupstream_neg++;}
                }
         }
-        //if(true_sliceID>0) isUpstream = false;
         if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211 && isUpstream == false) { 
             isPiInelastic = true; 
             if(true_sliceID==-1) {true_piinelastic_neg++;}
@@ -3025,14 +3024,15 @@ void Main::Maker::MakeFile()
 	  }
   
 
-          //if(!manual_beamPos_mc(t->reco_beam_startX, t->reco_beam_startY, t->reco_beam_startZ, 
-          //                    t->reco_beam_trackDirX, t->reco_beam_trackDirY, t->reco_beam_trackDirZ,
-          //                    t->true_beam_startDirX, t->true_beam_startDirY, t->true_beam_startDirZ,
-          //                    t->true_beam_startX, t->true_beam_startY, t->true_beam_startZ)) /*continue;*/ passCuts = false; 
-          if(libobeamcos<coslow) /*continue;*/ passCuts= false;
-          //if(libobeamdeltaz<zlow /*(|| libobeamdeltaz>zhigh*/) /*continue;*/ passCuts = false;
+          if(!manual_beamPos_mc(t->reco_beam_startX, t->reco_beam_startY, t->reco_beam_startZ, 
+                              t->reco_beam_trackDirX, t->reco_beam_trackDirY, t->reco_beam_trackDirZ,
+                              t->true_beam_startDirX, t->true_beam_startDirY, t->true_beam_startDirZ,
+                              t->true_beam_startX, t->true_beam_startY, t->true_beam_startZ)) /*continue;*/ passCuts = false; 
+          //if(libobeamcos<coslow) /*continue;*/ passCuts= false;
  
  	  if(passCuts == true) Nint_beamqualitynewcut++;
+
+
 
           //BROKEN Track Study
           /*if(t->reco_daughter_allTrack_Theta->size()==1){ //selected events with only 1 daughter particles
@@ -3112,16 +3112,32 @@ void Main::Maker::MakeFile()
 	  if(passCuts == true){
           	if(*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG)==211 && isUpstream == false){
 	  	   Nintpioninelastic_bq++;
+		   _event_histo->h_test_deltax_piinc->Fill(libobeamdeltax);
+		   _event_histo->h_test_deltay_piinc->Fill(libobeamdeltay);
+		   _event_histo->h_test_deltaz_piinc->Fill(libobeamdeltaz);
+		   _event_histo->h_test_cos_piinc->Fill(libobeamcos);
 	  	}
 	  	if(*temp_Ptr0 == "Decay" && abs(t->true_beam_PDG)==211 && isUpstream == false){
 	             Nintpiondecay_bq++;
-	  	}
+		   _event_histo->h_test_deltax_pidec->Fill(libobeamdeltax);
+		   _event_histo->h_test_deltay_pidec->Fill(libobeamdeltay);
+		   _event_histo->h_test_deltaz_pidec->Fill(libobeamdeltaz);
+		   _event_histo->h_test_cos_pidec->Fill(libobeamcos);
+		}
 	  	if(abs(t->true_beam_PDG)==13 && isUpstream == false){
 	             Nintmuon_bq++;
-	  	}
+		   _event_histo->h_test_deltax_muon->Fill(libobeamdeltax);
+		   _event_histo->h_test_deltay_muon->Fill(libobeamdeltay);
+		   _event_histo->h_test_deltaz_muon->Fill(libobeamdeltaz);
+		   _event_histo->h_test_cos_muon->Fill(libobeamcos);
+		}
 	  	if(isUpstream == true){
 	             Nintupstream_bq++;
-	  	}
+		   _event_histo->h_test_deltax_ups->Fill(libobeamdeltax);
+		   _event_histo->h_test_deltay_ups->Fill(libobeamdeltay);
+		   _event_histo->h_test_deltaz_ups->Fill(libobeamdeltaz);
+		   _event_histo->h_test_cos_ups->Fill(libobeamcos);
+		}
 	  }
   
         } //end of processing MC beam selection
@@ -3202,15 +3218,20 @@ void Main::Maker::MakeFile()
 	  if(reco_beam_tmdqdx >2.4) passCuts = false;
 	  if(passCuts==true) Nint_tmdqdxcut++;
 	  	  
-          //if(!manual_beamPos_data(t->event, t->reco_beam_startX, t->reco_beam_startY, t->reco_beam_startZ,
-          //                      t->reco_beam_trackDirX, t->reco_beam_trackDirY, t->reco_beam_trackDirZ,
-          //                      t->beam_inst_X, t->beam_inst_Y, t->beam_inst_dirX, t->beam_inst_dirY,
-          //                      t->beam_inst_dirZ, t->beam_inst_nMomenta, t->beam_inst_nTracks)) 
-	  //		passCuts = false; //continue;
-          if(libobeamcos_data<data_coslow) /*continue;*/ passCuts= false;
+          if(!manual_beamPos_data(t->event, t->reco_beam_startX, t->reco_beam_startY, t->reco_beam_startZ,
+                                t->reco_beam_trackDirX, t->reco_beam_trackDirY, t->reco_beam_trackDirZ,
+                                t->beam_inst_X, t->beam_inst_Y, t->beam_inst_dirX, t->beam_inst_dirY,
+                                t->beam_inst_dirZ, t->beam_inst_nMomenta, t->beam_inst_nTracks)) 
+	  		passCuts = false; //continue;
+          //if(libobeamcos_data<data_coslow) /*continue;*/ passCuts= false;
           //if(libobeamdeltaz_data<data_zlow /*|| libobeamdeltaz_data>zhigh*/) /*continue;*/ passCuts = false;
  	  if(passCuts == true) Nint_beamqualitynewcut++;
-
+	  if(passCuts == true){
+		   _event_histo->h_test_deltax_data->Fill(libobeamdeltax);
+		   _event_histo->h_test_deltay_data->Fill(libobeamdeltay);
+		   _event_histo->h_test_deltaz_data->Fill(libobeamdeltaz);
+		   _event_histo->h_test_cos_data->Fill(libobeamcos);
+	  }
         }//end of if this is a data isdata==1
         //=============================================================================
 
@@ -3765,17 +3786,16 @@ if(passCuts==true){
         //LOG_NORMAL()<<"Start to Fill histograms for chi2 and calculate truncated mean dqdx"<<std::endl;
         //======================================================================
 	//loop over all the daughter particles and get the chi2
-	Chi2 = 0;
+	Chi2 = -999.;
 	TrackScore = 1.5;
         for(unsigned int ipfp=0; ipfp<t->reco_daughter_allTrack_ID->size(); ipfp++){ 
 	   //get the biggest Chi2
-	   if(t->reco_daughter_allTrack_Chi2_proton->at(ipfp)/t->reco_daughter_allTrack_Chi2_ndof->at(ipfp)>Chi2){
+	   if(t->reco_daughter_PFP_trackScore_collection->at(ipfp)>cut_trackScore && t->reco_daughter_allTrack_Chi2_proton->at(ipfp)/t->reco_daughter_allTrack_Chi2_ndof->at(ipfp)>Chi2){
 
 		Chi2 = t->reco_daughter_allTrack_Chi2_proton->at(ipfp)/t->reco_daughter_allTrack_Chi2_ndof->at(ipfp);
 	   }
 	   if(t->reco_daughter_PFP_trackScore_collection->at(ipfp)<TrackScore && t->reco_daughter_PFP_nHits->at(ipfp)>=40){
 		TrackScore = t->reco_daughter_PFP_trackScore_collection->at(ipfp);
-	        ShwEng  = t->reco_daughter_allShower_energy->at(ipfp);
 
 	   }
 
@@ -4054,10 +4074,13 @@ if(passCuts==true){
         Int_t totalrecogamma = 0;
         //loop over all the daughter particles and get the most energetic shower(score<0.3)
         double temp_energy_shw=-999.0;
+	double temp_score_shw=999.0;
         temp_index_shw=-999;
         for(unsigned int gg=0; gg<t->reco_daughter_PFP_trackScore_collection->size(); gg++){
               if(t->reco_daughter_PFP_trackScore_collection->at(gg)>=trkscorecut) continue;
               if(t->reco_daughter_allShower_energy->at(gg)>temp_energy_shw){
+	      //if(t->reco_daughter_PFP_trackScore_collection->at(gg)<temp_score_shw){ 
+	      //get the track with the lowest rack score
                   temp_energy_shw=t->reco_daughter_allShower_energy->at(gg);
                   temp_index_shw=gg;
               }
@@ -4231,7 +4254,8 @@ if(passCuts == true){
             }// end of if isdata==0 ----------------------------------------------------------------
             int dedx_vector_size = t->reco_daughter_allTrack_calibrated_dEdX_SCE->at(jj).size();
             double tme=GetTruncatedMean(t->reco_daughter_allTrack_calibrated_dEdX_SCE->at(jj), 2, dedx_vector_size - 5, 0.1, 0.6); 
-	    if(tme<TrunMeandEdX) TrunMeandEdX = tme; 
+	    if(reco_daughter_allTrack_truncLibo_dEdX_test.at(jj)<TrunMeandEdX && t->reco_daughter_PFP_nHits->at(jj)>=10) {TrunMeandEdX = reco_daughter_allTrack_truncLibo_dEdX_test.at(jj);}
+ 
             _event_histo_1d->h_tmdqdx->Fill(reco_daughter_allTrack_truncLibo_dEdX_test.at(jj));
             _event_histo_1d->h_tmdqdx_new->Fill(tme);
             if(isdata ==0){
@@ -4592,6 +4616,7 @@ if(passCuts == true){
 
         if(temp_index_shw>=0){
 	     ShwDist = daughter_distance3D_shower[temp_index_shw];
+	     ShwEng  = t->reco_daughter_allShower_energy->at(temp_index_shw);
 
              _event_histo_1d->h_energetic_shower_eng_all->Fill(t->reco_daughter_allShower_energy->at(temp_index_shw));
              _event_histo_1d->h_energetic_shower_ang_all->Fill(daughter_angle3D_shower[temp_index_shw]);
@@ -4618,7 +4643,7 @@ if(passCuts == true){
 
         //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< 
 	
-        //if(sel_abs) if(has_shower_Dist(trkscoreref, daughter_shwdis_ptr)) passCuts=false; //continue;
+        if(sel_abs) if(has_shower_Dist(trkscoreref, daughter_shwdis_ptr)) passCuts=false; //continue;
         //if(sel_abs) if(has_shower_Eng(trkscoreref, shwengref)) passCuts=false; //continue;
         //if(sel_abs) if(has_shower_Ang( trkscoreref, daughter_shwang_ptr)) continue;
 	/*
@@ -4648,6 +4673,10 @@ if(passCuts == true){
 	}
 	if(passCuts ==true){
 		//std::cout<<">>>>>>>>>>>Track Score is "<<TrackScore<<std::endl;
+		if(TrunMeandEdX<0){TrunMeandEdX=0;}
+		if(Chi2<0) {Chi2=100;}
+		if(ShwEng<0){ShwEng=0;}
+		
 	        ++selected_tot[sliceID];
 		if (t->reco_daughter_allTrack_ID->size()==0){
 			Nint_0daughters++;
