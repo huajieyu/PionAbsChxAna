@@ -64,8 +64,8 @@ void TMVAClassificationApplication_data( TString myMethodList = "" )
 
   // --- Boosted Decision Trees
 
-  Use["BDTG"] = 1; // uses Gradient Boost
-
+  //Use["BDTG"] = 1; // uses Gradient Boost
+  Use["DNN_CPU"] = 1;
   std::cout << std::endl;
 
   std::cout << "==> Start TMVAClassificationApplication" << std::endl;
@@ -137,15 +137,24 @@ void TMVAClassificationApplication_data( TString myMethodList = "" )
   
   // Book method(s)
   std::cout<<"Try to book method of BDTG"<<std::endl;
-  reader->BookMVA("BDTG", "/dune/app/users/jiangl/dunetpc_analysis/newduneana_May/PionAbsChxAna/Main/mac/dataset/weights/TMVAClassification_BDTG.weights.xml" ); // WEIGHT FILE IS GREEN FILE .XML
+
+  string inputxmlname = "/dune/app/users/jiangl/dunetpc_analysis/newduneana_May/PionAbsChxAna/Main/mac/dataset/weights/TMVAClassification_DNN_CPU.weights.xml";
+  //string inputxmlname = "/dune/app/users/jiangl/dunetpc_analysis/newduneana_May/PionAbsChxAna/Main/mac/dataset/weights/TMVAClassification_BDTG.weights.xml";
+  string methodname = "DNN_CPU";
+  //string methodname = "BDTG";
+
+  reader->BookMVA(methodname, inputxmlname); // WEIGHT FILE IS GREEN FILE .XML
+  //reader->BookMVA("BDTG", "/dune/app/users/jiangl/dunetpc_analysis/newduneana_May/PionAbsChxAna/Main/mac/dataset/weights/TMVAClassification_BDTG.weights.xml" ); // WEIGHT FILE IS GREEN FILE .XML
   std::cout<<">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"<<std::endl;
   // Book output histograms
 
-  UInt_t nbin = 20;
+  UInt_t nbin = 40;
 
-  TH1F   *histBdtG(0);
-
-  if (Use["BDTG"]) histBdtG = new TH1F("BDTG_data_minus","BDTG_data_minus",nbin, -1.0, 1.0);
+  //TH1F   *histBdtG(0);
+  TH1F    *histBdtG;
+  Float_t lowerv=0.0;
+  Float_t upperv=1.0;
+  if (Use[methodname]) histBdtG = new TH1F("BDTG_data_minus","BDTG_data_minus",nbin, lowerv, upperv);
 
   // Prepare input tree (this must be replaced by your data source)
 
@@ -159,7 +168,7 @@ void TMVAClassificationApplication_data( TString myMethodList = "" )
 
   std::cout << "--- Select signal sample" << std::endl;
 
-  TTree* theTree = (TTree*)input->Get("TreeBoth");
+  TTree* theTree = (TTree*)input->Get("TreeBackground");
 
   std::cout << "--- TMVAClassificationApp    : Using input file: " << input->GetName() << std::endl; 
 
@@ -234,12 +243,12 @@ void TMVAClassificationApplication_data( TString myMethodList = "" )
   for (Long64_t ievt = 0; ievt < theTree->GetEntries(); ievt++){
 
     theTree->GetEntry(ievt);
-    std::cout<<"evaluate the score from BDTG method"<<std::endl;
     //Float_t value = reader->EvaluateMVA("BDTG method");
-    Float_t value = reader->EvaluateMVA("BDTG");
+    Float_t value = reader->EvaluateMVA(methodname);
+    std::cout<<"evaluate the score from BDTG method, value is  "<<value<<std::endl;
 
-    if(Use["BDTG"]){
-
+    if(Use[methodname]){
+      
       histBdtG->Fill(value);
 
       output_data << value << " "
@@ -292,7 +301,7 @@ void TMVAClassificationApplication_data( TString myMethodList = "" )
 
   TFile *target  = new TFile( "TMVApp_data.root","RECREATE" );
 
-  if (Use["BDTG"         ])   histBdtG   ->Write(); 
+  if (Use[methodname])   histBdtG   ->Write(); 
 
   std::cout << "--- Created root file: \"TMVApp_data.root\" containing the MVA output histograms" << std::endl;
 
