@@ -1757,31 +1757,47 @@ void Main::Maker::MakeFile()
   }
 
   TTree *treesignal = new TTree("TreeSignal","Variables for Fitting (Signal)");
-  int event, run, subrun;
-  double TrackScore, Chi2, TrunMeandEdX;
-  double ShwDist=0, ShwEng=0, weight=1;
+  Int_t event, run, subrun, ntrk;
+  Float_t TrackScore, Chi2, TrunMeandEdX;
+  Float_t ShwDist=0, ShwEng=0, weight=1;
+  
   treesignal->Branch("event",&event,"event/I");
   treesignal->Branch("run",&run,"run/i");
-  treesignal->Branch("subrum",&subrun,"subrun/I");
-  treesignal->Branch("TrackScore",&TrackScore,"TrackScore/D");
-  treesignal->Branch("Chi2",&Chi2,"Chi2/D");
-  treesignal->Branch("TrunMeandEdX",&TrunMeandEdX,"TrunMeandEdX/D");
-  treesignal->Branch("ShwDist", &ShwDist, "ShwDist/D");
-  treesignal->Branch("ShwEng", &ShwEng, "ShwEng/D");
-  treesignal->Branch("weight", &weight, "weight/D");
-
+  treesignal->Branch("subrun",&subrun,"subrun/I");
+  treesignal->Branch("TrackScore",&TrackScore,"TrackScore/F");
+  treesignal->Branch("Chi2",&Chi2,"Chi2/F");
+  treesignal->Branch("TrunMeandEdX",&TrunMeandEdX,"TrunMeandEdX/F");
+  treesignal->Branch("ShwDist", &ShwDist, "ShwDist/F");
+  treesignal->Branch("ShwEng", &ShwEng, "ShwEng/F");
+  treesignal->Branch("weight", &weight, "weight/F");
+  treesignal->Branch("ntrk", &ntrk, "ntrk/I");
 
 
   TTree *treebackground = new TTree("TreeBackground","Variables for Fitting (Background)");
   treebackground->Branch("event",&event,"event/I");
   treebackground->Branch("run",&run,"run/i");
-  treebackground->Branch("subrum",&subrun,"subrun/I");
-  treebackground->Branch("TrackScore",&TrackScore,"TrackScore/D");
-  treebackground->Branch("Chi2",&Chi2,"Chi2/D");
-  treebackground->Branch("TrunMeandEdX",&TrunMeandEdX,"TrunMeandEdX/D");
-  treebackground->Branch("ShwDist", &ShwDist, "ShwDist/D");
-  treebackground->Branch("ShwEng", &ShwEng, "ShwEng/D");
-  treebackground->Branch("weight", &weight, "weight/D");
+  treebackground->Branch("subrun",&subrun,"subrun/I");
+  treebackground->Branch("TrackScore",&TrackScore,"TrackScore/F");
+  treebackground->Branch("Chi2",&Chi2,"Chi2/F");
+  treebackground->Branch("TrunMeandEdX",&TrunMeandEdX,"TrunMeandEdX/F");
+  treebackground->Branch("ShwDist", &ShwDist, "ShwDist/F");
+  treebackground->Branch("ShwEng", &ShwEng, "ShwEng/F");
+  treebackground->Branch("weight", &weight, "weight/F");
+  treebackground->Branch("ntrk", &ntrk, "ntrk/I");
+
+  TTree *treeboth = new TTree("TreeBoth","Variables for Fitting (Both)");
+  treeboth->Branch("event",&event,"event/I");
+  treeboth->Branch("run",&run,"run/i");
+  treeboth->Branch("subrun",&subrun,"subrun/I");
+  treeboth->Branch("TrackScore",&TrackScore,"TrackScore/F");
+  treeboth->Branch("Chi2",&Chi2,"Chi2/F");
+  treeboth->Branch("TrunMeandEdX",&TrunMeandEdX,"TrunMeandEdX/F");
+  treeboth->Branch("ShwDist", &ShwDist, "ShwDist/F");
+  treeboth->Branch("ShwEng", &ShwEng, "ShwEng/F");
+  treeboth->Branch("weight", &weight, "weight/F");
+  treeboth->Branch("ntrk", &ntrk, "ntrk/I");
+
+
    
   string pattern = filen;
   //string pattern_add = filen_add;
@@ -2256,7 +2272,7 @@ void Main::Maker::MakeFile()
 	event = t->event;
 	run = t->run;
 	subrun = t->subrun;
-	
+	ntrk = t->reco_daughter_PFP_trackScore_collection->size();	
 
 
 
@@ -2305,7 +2321,7 @@ void Main::Maker::MakeFile()
         }  
 
         }//end of is isdata==0
-        //std::cout<<"end of setting all the Weight Names of the bootstraps; is it data? "<<isdata<<std::endl;	
+        LOG_NORMAL()<<"end of setting all the Weight Names of the bootstraps; is it data? "<<isdata<<std::endl;	
 	//========================================================================
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         //set the map of wire number and incident particles
@@ -2432,7 +2448,7 @@ void Main::Maker::MakeFile()
            }
         }//end of selecting pion inclusive events
         
-        //LOG_NORMAL()<<"Start to calculate the average energy and thickness with Tingjun's method"<<std::endl;
+        LOG_NORMAL()<<"Start to calculate the average energy and thickness with Tingjun's method"<<std::endl;
         bool isUpstream = true;
         bool isPiInelastic = false;
         bool isPiDecay = false;
@@ -2581,7 +2597,7 @@ void Main::Maker::MakeFile()
  	}
 	
 	}//////////////////////////////////////////////////
-	//LOG_NORMAL()<<"Get the track with maximum michel score of each category; the number of daughters is "<<t->reco_daughter_PFP_michelScore_collection->size()<<std::endl;
+	LOG_NORMAL()<<"Get the track with maximum michel score of each category; the number of daughters is "<<t->reco_daughter_PFP_michelScore_collection->size()<<std::endl;
 
 	double min_michelscore=0.0;
 	if(t->reco_daughter_PFP_michelScore_collection->size()>0){
@@ -2644,7 +2660,7 @@ void Main::Maker::MakeFile()
                      Nintupstream++;
                 }
         }//end of selecting muon and and pion beam event
-        //LOG_NORMAL()<<"Start to Fill Vector to store energy and thickness"<<std::endl;
+        LOG_NORMAL()<<"Start to Fill Vector to store energy and thickness"<<std::endl;
 	//select muon and pion beam events
 
 	passCuts = true;
@@ -3032,7 +3048,7 @@ void Main::Maker::MakeFile()
  
  	  if(passCuts == true) Nint_beamqualitynewcut++;
 
-
+	  //LOG_NORMAL()<<"Performed the beam quanlity cut"<<std::endl;
 
           //BROKEN Track Study
           /*if(t->reco_daughter_allTrack_Theta->size()==1){ //selected events with only 1 daughter particles
@@ -3105,11 +3121,12 @@ void Main::Maker::MakeFile()
 
 
 
-
+	  LOG_NORMAL()<<"Start to fill histograms for beam quality after the beam quality cut  Pass Cut is "<<passCuts<<std::endl;
 
 
 
 	  if(passCuts == true){
+		//std::cout<<*temp_Ptr0<<"  "<<abs(t->true_beam_PDG)<<"   "<<isUpstream<<std::endl;
           	if(*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG)==211 && isUpstream == false){
 	  	   Nintpioninelastic_bq++;
 		   _event_histo->h_test_deltax_piinc->Fill(libobeamdeltax);
@@ -3117,6 +3134,7 @@ void Main::Maker::MakeFile()
 		   _event_histo->h_test_deltaz_piinc->Fill(libobeamdeltaz);
 		   _event_histo->h_test_cos_piinc->Fill(libobeamcos);
 	  	}
+		//std::cout<<"libo test 0"<<std::endl;
 	  	if(*temp_Ptr0 == "Decay" && abs(t->true_beam_PDG)==211 && isUpstream == false){
 	             Nintpiondecay_bq++;
 		   _event_histo->h_test_deltax_pidec->Fill(libobeamdeltax);
@@ -3124,6 +3142,7 @@ void Main::Maker::MakeFile()
 		   _event_histo->h_test_deltaz_pidec->Fill(libobeamdeltaz);
 		   _event_histo->h_test_cos_pidec->Fill(libobeamcos);
 		}
+		//std::cout<<"libo test 1"<<std::endl;
 	  	if(abs(t->true_beam_PDG)==13 && isUpstream == false){
 	             Nintmuon_bq++;
 		   _event_histo->h_test_deltax_muon->Fill(libobeamdeltax);
@@ -3131,6 +3150,7 @@ void Main::Maker::MakeFile()
 		   _event_histo->h_test_deltaz_muon->Fill(libobeamdeltaz);
 		   _event_histo->h_test_cos_muon->Fill(libobeamcos);
 		}
+		//std::cout<<"libo test 2"<<std::endl;
 	  	if(isUpstream == true){
 	             Nintupstream_bq++;
 		   _event_histo->h_test_deltax_ups->Fill(libobeamdeltax);
@@ -3138,10 +3158,12 @@ void Main::Maker::MakeFile()
 		   _event_histo->h_test_deltaz_ups->Fill(libobeamdeltaz);
 		   _event_histo->h_test_cos_ups->Fill(libobeamcos);
 		}
+		//std::cout<<"libo test 3"<<std::endl;
 	  }
+	  //LOG_NORMAL()<<"End of fill histogram after beam quality cut"<<std::endl;
   
         } //end of processing MC beam selection
-     
+        //LOG_NORMAL()<<"Finished pre-selection for MC events"<<std::endl; 
         if(isdata==1){
 	  //correspond to PDG cut
           if(!data_beam_PID(t->beam_inst_PDG_candidates)) continue;
@@ -3180,12 +3202,16 @@ void Main::Maker::MakeFile()
 
 	  double libobeamcos_data=0;
           double libobeamdeltaz_data=0;
+	  double libobeamdeltax_data=0;
+	  double libobeamdeltay_data=0;
 	  if(passCuts==true){
           for(it=temp_data->begin(); it != temp_data->end(); ++it){   
             if(idx==0){ 
                _event_histo->h_data_beam_deltax->Fill(*it);   
+	       libobeamdeltax_data=*it;
             }else if(idx==1){
                _event_histo->h_data_beam_deltay->Fill(*it);
+	       libobeamdeltay_data=*it;
             }else if(idx==2){
 	       libobeamdeltaz_data=*it;
                _event_histo->h_data_beam_deltaz->Fill(*it);
@@ -3227,19 +3253,18 @@ void Main::Maker::MakeFile()
           //if(libobeamdeltaz_data<data_zlow /*|| libobeamdeltaz_data>zhigh*/) /*continue;*/ passCuts = false;
  	  if(passCuts == true) Nint_beamqualitynewcut++;
 	  if(passCuts == true){
-		   _event_histo->h_test_deltax_data->Fill(libobeamdeltax);
-		   _event_histo->h_test_deltay_data->Fill(libobeamdeltay);
-		   _event_histo->h_test_deltaz_data->Fill(libobeamdeltaz);
-		   _event_histo->h_test_cos_data->Fill(libobeamcos);
+		   _event_histo->h_test_deltax_data->Fill(libobeamdeltax_data);
+		   _event_histo->h_test_deltay_data->Fill(libobeamdeltay_data);
+		   _event_histo->h_test_deltaz_data->Fill(libobeamdeltaz_data);
+		   _event_histo->h_test_cos_data->Fill(libobeamcos_data);
 	  }
         }//end of if this is a data isdata==1
         //=============================================================================
 
 	//if(passCuts== false) continue;
 	
+	LOG_NORMAL()<<"Finished pre-selection "<<std::endl;
 
-
-//LOG_NORMAL()<<"Check if event pass the preselection cut "<<passCuts<< "      "<<std::endl;
 if(passCuts == true ){
 
 	//plot the track length of the beam particles in order to characterize the background
@@ -3365,12 +3390,6 @@ if(passCuts == true ){
         //===========================================================================
 
 
-LOG_NORMAL()<<"Check before performing calcualtion of the pitch and incE"<<std::endl;
-
-
-
-
-
 
 if(passCuts==true){
         //============================================================================
@@ -3378,10 +3397,6 @@ if(passCuts==true){
         std::vector<std::vector<double>> vincE(nslices+3); 
         std::vector<std::vector<double>> vdEdx(nslices+3);
 	//Reco INFO
-	//std::cout<<"incidentEnergies size is "<<t->reco_beam_incidentEnergies->size()<<std::endl;
-	//std::cout<<"calo_wire_z size is "<<t->reco_beam_calo_wire_z->size()<<std::endl;
-	//std::cout<<"TrkPitch_SCE size is "<<t->reco_beam_TrkPitch_SCE->size()<<std::endl;
-	//std::cout<<"dEdX_SCE size is "<<t->reco_beam_dEdX_SCE->size()<<std::endl;
 
 
         if(t->reco_beam_incidentEnergies->size()==t->reco_beam_calo_wire_z->size()
@@ -3406,7 +3421,7 @@ if(passCuts==true){
         	}
         }//end of if incidentEnergy vector size>0
 	//else{}
-	LOG_NORMAL()<<"vpitch size is "<<vpitch.size()<<" vincE size is "<<vincE.size()<<" dEdx size is "<<vdEdx.size()<<std::endl;
+	//LOG_NORMAL()<<"vpitch size is "<<vpitch.size()<<" vincE size is "<<vincE.size()<<" dEdx size is "<<vdEdx.size()<<std::endl;
         if(vpitch.size()>0 && vincE.size()>0 && vdEdx.size()>0) {
         for (size_t i = 0; i<vpitch.size(); ++i){
           if (!vpitch[i].empty()){
@@ -3442,79 +3457,13 @@ if(passCuts==true){
 	
         	
 	//---------------------------------------------------
-        if(vpitch.size()==0 || vincE.size()==0){
-        LOG_NORMAL()<<"The size of pitch is "<<vpitch.size()<<"   "<<vincE.size()<<std::endl;
-        }
-        LOG_NORMAL()<<"End of calculating the thickness and energy with Tingjun's method"<<std::endl;
+        //if(vpitch.size()==0 || vincE.size()==0){
+        //LOG_NORMAL()<<"The size of pitch is "<<vpitch.size()<<"   "<<vincE.size()<<std::endl;
+        //}
+        //LOG_NORMAL()<<"End of calculating the thickness and energy with Tingjun's method"<<std::endl;
  
 }//end of if isInelastic
-        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
-        /*for(long unsigned int i=0; i<sizeof(slicebins)/sizeof(slicebins[0]); i++){
-          slicebins[i]=20*i;
-        }
-        //ignore the last hit in the calculation of thickness and energy
-        //??????????????????????????????????/???????
-        
-        for(long unsigned int is=0; is<sizeof(slicebins)/sizeof(slicebins[0])-1; is++){
-            double eincident = 0.0;
-            int nincident = 0;
-            double slicethickness = 0.0;
-            for(int nh=slicebins[is]; nh<slicebins[is+1]; nh++) {
-                 if(std::find(t->reco_beam_calo_wire->begin(), t->reco_beam_calo_wire->end(), nh) != t->reco_beam_calo_wire->end()) {
-                    if(t->reco_beam_incidentEnergies->size()>0 && t->reco_beam_TrkPitch_SCE->size()>0){                    
-                       nincident = nincident+1;
-                       int realindex = -999;
-                       //nh is the wire number find the readindex
-                       for(long unsigned int kk=0; kk<t->reco_beam_calo_wire->size()-1; kk++){
-                           if(t->reco_beam_calo_wire->at(kk)==nh) {realindex = kk;}
-                       }
-                       if(realindex>=0){ 
-                          eincident = eincident + t->reco_beam_incidentEnergies->at(realindex);
-                          slicethickness = slicethickness + t->reco_beam_TrkPitch_SCE->at(realindex);
-                       }
-                    }
-                 }//end of if the wire number  
-            } // end of loop over all wire in a certain slices [is]
-            if(nincident>0){
-               eincident = eincident/(nincident*1.0);
-               //incidentEnergy = average value of all the hits within the slice
-               
-               _event_histo->htotinc_reco_beam_incidentEnergy[is]->Fill(eincident);
-               _event_histo->htotinc_reco_beam_sliceThickness[is]->Fill(slicethickness);
-            }
-            if(t->reco_beam_calo_wire->back()>slicebins[is] && t->reco_beam_calo_wire->back()<slicebins[is+1]){
-                if(isdata==0){
-                   _event_histo->htotinc_true_beam_trajz[is]->Fill(t->true_beam_traj_Z->back());
-                }
-                _event_histo->htotinc_reco_beam_endz[is]->Fill(t->reco_beam_calo_endZ);
-            }
-        }//loop over all the slices
-
-        LOG_NORMAL()<<"Calculate the resolutions of beam endz positions"<<std::endl;
-	*/
-        if(isdata==0){
-           /*if(*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211){
-              //_event_histo->htotinc_reco_beamz_reso->Fill((t->reco_beam_calo_wire_z->back() - true_endz));
-              _event_histo->htotinc_reco_beamz_reso->Fill((t->reco_beam_calo_endZ - t->true_beam_endZ));
-              _event_histo->htotinc_reco_beamwire_reso->Fill((t->reco_beam_calo_wire->back() - t->true_beam_slices->back()));
-              _event_histo->htotinc_reco_beam_intE_reso->Fill(t->reco_beam_interactingEnergy - t->true_beam_interactingEnergy);
-           }
-           if(*temp_Ptr0 == "Decay" && abs(t->true_beam_PDG) == 211){
-              _event_histo->htotdecay_reco_beamz_reso->Fill((t->reco_beam_calo_wire_z->back() - true_endz));
-              _event_histo->htotdecay_reco_beamwire_reso->Fill((t->reco_beam_calo_wire->back() - t->true_beam_slices->back()));
-              _event_histo->htotdecay_reco_beam_intE_reso->Fill(t->reco_beam_interactingEnergy - t->true_beam_interactingEnergy);
-           }
-           if(abs(t->true_beam_PDG) == 13){
-              _event_histo->htotmuon_reco_beamz_reso->Fill((t->reco_beam_calo_wire_z->back() - true_endz));
-              _event_histo->htotmuon_reco_beamwire_reso->Fill((t->reco_beam_calo_wire->back()-t->true_beam_slices->back()));
-              _event_histo->htotmuon_reco_beam_intE_reso->Fill(t->reco_beam_interactingEnergy - t->true_beam_interactingEnergy);
-           }*/
-        }
-        //===================================================================================
-        //perform APA3 cut as the first cut of interaction selection
-        //if(!endAPA3(t->reco_beam_endZ) )continue; 
-
-
+	LOG_NORMAL()<<"End of calculating the thickness and energy with Tingjun's method"<<std::endl;
         //========================================================================================       
         //Fill true proton momentum
         unsigned int ngen_proton=0; //number of generated protons
@@ -3644,36 +3593,6 @@ if(passCuts==true){
                        _event_histo->h_eff_pcostheta_den->Fill(temp_genpcostheta);
                        _event_histo->h_eff_pphi_den->Fill(temp_genpphi);
           //-----------------------------------------------------------------------------
-          /*for(long unsigned int is=0; is<sizeof(slicebins)/sizeof(slicebins[0])-1; is++){
-
-            if(t->reco_beam_calo_wire->back()>=slicebins[is] && t->reco_beam_calo_wire->back()<slicebins[is+1]){
-                double eincident = 0.0;
-                int nincident = t->reco_beam_calo_wire->back()-slicebins[is]+1;
-                for(int ic=slicebins[is]; ic<=t->reco_beam_calo_wire->back()-1; ic++){
-                    //ic is the wire number over here
-                    if(std::find(t->reco_beam_calo_wire->begin(),t->reco_beam_calo_wire->end(), ic) !=t->reco_beam_calo_wire->end()){
-                      if(t->reco_beam_incidentEnergies->size()>0 && t->reco_beam_TrkPitch_SCE->size()>0){                    
-                         int realindex = -999;
-                         //nh is the wire number find the readindex
-                         for(long unsigned int kk=0; kk<t->reco_beam_calo_wire->size(); kk++){
-                            if(t->reco_beam_calo_wire->at(kk)==ic) {realindex = kk;}
-                         }
-                         if(realindex >=0){
-                            eincident = eincident + t->reco_beam_incidentEnergies->at(realindex);
-                         }
-                      } 
-                       
-                    }
-                }
-                if(nincident>0){
-                       eincident = eincident/(nincident*1.0);
-                       _event_histo->hgen_reco_beam_incidentEnergy[is]->Fill(eincident);
-                }
-            } 
-          }//end of loop over all the slices
-          */
-
-
         if(true_sliceID>=0 && true_sliceID<=nslices+1){
           h_energetic_pmom_gen[true_sliceID]->Fill(temp_genpmom);
           h_energetic_pcostheta_gen[true_sliceID]->Fill(temp_genpcostheta);
@@ -3687,7 +3606,6 @@ if(passCuts==true){
         //-------------------------------------------------------------------------------
         }//end of if this is a generated signal event
         //================================================================
-        //std::cout<<"start to fill the vector with reweight factors"<<t->g4rw_primary_var->size()<<std::endl;
         std::vector<double> wgts_geant_pm1;  //size of wgts_geant_pm1 would be 2*reweight names
         if(passCuts == true && isdata==0 && _fill_bootstrap_geant){
         for(long unsigned int i=0; i<t->g4rw_primary_var->size(); i++){
@@ -3696,7 +3614,6 @@ if(passCuts==true){
         }
         }//end of if isdata for filling reweight factors for Geant4
 
-        //LOG_NORMAL()<<"End of filling the vector with reweight factors"<<t->g4rw_primary_var->size()<<std::endl;
 
         //==================================================================
         if(passCuts == true && isdata==0){
@@ -3752,7 +3669,7 @@ if(passCuts==true){
         //====================================================================
         //----------------------------------------------------------------------------  
         //check how many nucleons 
-        LOG_NORMAL()<<"loop over all the true beam daughter particles"<<std::endl;
+        //LOG_NORMAL()<<"loop over all the true beam daughter particles"<<std::endl;
         for(unsigned indp=0; indp<t->true_beam_daughter_ID->size(); indp++){
 
 
@@ -3834,7 +3751,7 @@ if(passCuts==true){
         }//end of loop over all the daughter PDF particles  
         //--------------------------------------------------------------------------------
 
-        LOG_NORMAL()<<"Loop over all the true beam daughters and fill histograms for start momentum"<<std::endl;
+        //LOG_NORMAL()<<"Loop over all the true beam daughters and fill histograms for start momentum"<<std::endl;
 	std::vector<double> trunmeandqdx_test;
 	std::vector<double> poop_par;
         //======================================================================
@@ -3890,10 +3807,6 @@ if(passCuts==true){
                   _event_histo_1d->h_lownhitsp_endZ->Fill(t->true_beam_daughter_endZ->at(indt)); 
 
 
-                  //std::cout<<"libotest "<<t->run<<"   "<<t->subrun<<"   "<<t->event<<"  "
-                  //std::cout<<t->true_beam_daughter_endProcess->at(indt)<<"  "
-                  //std::cout<<t->true_beam_daughter_startP->at(indt)<<"  "
-                  //std::cout<<t->true_beam_daughter_nHits->at(indt)<<std::endl;    
                   _event_histo_1d->h_nonrecop_momvsnhits->Fill(t->true_beam_daughter_startP->at(indt), t->true_beam_daughter_nHits->at(indt));
                   _event_histo_1d->h_mom_nonrecop->Fill(t->true_beam_daughter_startP->at(indt));
             }
@@ -4646,14 +4559,14 @@ if(passCuts == true){
         if(sel_abs) if(has_shower_Dist(trkscoreref, daughter_shwdis_ptr)) passCuts=false; //continue;
         //if(sel_abs) if(has_shower_Eng(trkscoreref, shwengref)) passCuts=false; //continue;
         //if(sel_abs) if(has_shower_Ang( trkscoreref, daughter_shwang_ptr)) continue;
-	/*
-        if(sel_abs) if(temp_index_shw>=0 && t->reco_daughter_allShower_energy->at(temp_index_shw)>100) passCuts=false;//continue;
-        if(sel_abs) if(temp_index_shw>=0 && daughter_distance3D_shower[temp_index_shw]>7) passCuts=false; //continue;
+	
+        //if(sel_abs) if(temp_index_shw>=0 && t->reco_daughter_allShower_energy->at(temp_index_shw)>100) passCuts=false;//continue;
+        //if(sel_abs) if(temp_index_shw>=0 && daughter_distance3D_shower[temp_index_shw]>7) passCuts=false; //continue;
 
-        if(sel_chx) if(!has_shower_Dist(trkscoreref, daughter_shwdis_ptr)) passCuts=false; //continue;
-        if(sel_chx) if(!has_shower_Eng(trkscoreref, shwengref)) passCuts=false; //continue;
+        //if(sel_chx) if(!has_shower_Dist(trkscoreref, daughter_shwdis_ptr)) passCuts=false; //continue;
+        //if(sel_chx) if(!has_shower_Eng(trkscoreref, shwengref)) passCuts=false; //continue;
 
-	*/
+	
         if(passCuts == true){
 		nevt_recosliceid_selevts_cuts->Fill(sliceID);
         }
@@ -4676,10 +4589,13 @@ if(passCuts == true){
 		if(TrunMeandEdX<0){TrunMeandEdX=0;}
 		if(Chi2<0) {Chi2=100;}
 		if(ShwEng<0){ShwEng=0;}
-		
+		if(TrackScore<0) {TrackScore=0;}	
 	        ++selected_tot[sliceID];
 		if (t->reco_daughter_allTrack_ID->size()==0){
 			Nint_0daughters++;
+		}
+		if(abs(t->true_beam_PDG) == 211 || abs(t->true_beam_PDG) == 13){  
+			treeboth->Fill();
 		}
 		//pion in elastic interaction
         	if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211){  
@@ -5396,7 +5312,7 @@ if(passCuts == true){
   LOG_NORMAL() << "Output file closed." << std::endl;
 
 
-  string outfilename0 = "/dune/app/users/jiang/dunetpc_analysis/newduneana_May/PionAbsChxAna/Main/mac/output_sliceIDmat.root";
+  string outfilename0 = "/dune/app/users/jiangl/dunetpc_analysis/newduneana_May/PionAbsChxAna/Main/mac/output_sliceIDmat.root";
   TFile output_sliceIDmat(outfilename0.c_str(), "RECREATE");
   /*h_true_reco_mom->Write();
   h_true_reco_costheta->Write();
@@ -5533,7 +5449,7 @@ if(passCuts == true){
 
   output_sliceIDmat.Close();
   LOG_NORMAL()<<"output sliceIDmat file closed "<<std::endl; 
-  string outfilename="/dune/app/users/jiang/dunetpc_analysis/newduneana_May/PionAbsChxAna/Main/mac/output_graphs.root";
+  string outfilename="/dune/app/users/jiangl/dunetpc_analysis/newduneana_May/PionAbsChxAna/Main/mac/output_graphs.root";
 
   TFile output_newsf(outfilename.c_str(), "RECREATE");
   TGraph *gr_intabs_posneg_slc=new TGraph(nslices+3, slcid_posneg, true_abs_posneg);
