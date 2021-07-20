@@ -551,15 +551,50 @@ namespace Main{
     //For MC from Owen Goodwins studies
     //double xlow = -3.,  xhigh = 7.,  ylow = -8.,  yhigh = 7.;
     //double zlow = 27.5,  zhigh = 32.5,  coslow = 0.93;
-    double xlow = -5., xhigh = 14, ylow= -8., yhigh = 10;
-    double zlow = 27, zhigh = 37, coslow = 0.93;
+    double xlow = -10., xhigh = 15, ylow= -10., yhigh = 15;
+    double zlow = 25, zhigh = 38, coslow = 0.8;
     //For Data from Owen Goodwin
     //double data_xlow = 0., data_xhigh = 10., data_ylow= -5.;
     //double data_yhigh= 10.;
     //double data_zlow=30., data_zhigh=35., data_coslow=.93;
  
-    double data_xlow = -5., data_xhigh = 14., data_ylow= -8., data_yhigh=10.;
-    double data_zlow=27, data_zhigh=37, data_coslow = 0.93;
+    double data_xlow = -10., data_xhigh = 15., data_ylow= -10., data_yhigh=15.;
+    double data_zlow=25, data_zhigh=38, data_coslow = 0.8;
+
+    const double beam_startX_data = -27.911;
+    const double beam_startY_data = 424.364;
+    const double beam_startZ_data = 3.77836;
+    const double beam_startX_rms_data = 4.71128;
+    const double beam_startY_rms_data = 5.16472;
+    const double beam_startZ_rms_data = 1.10265;
+
+    const double beam_startX_mc = -30.8075;
+    const double beam_startY_mc = 422.41;
+    const double beam_startZ_mc = 0.11171;
+    const double beam_startX_rms_mc = 5.01719;
+    const double beam_startY_rms_mc = 4.50862;
+    const double beam_startZ_rms_mc = 0.217733;
+
+    const double beam_angleX_data = 100.454;
+    const double beam_angleY_data = 103.523;
+    const double beam_angleZ_data = 17.8288;
+
+    const double beam_angleX_mc = 101.578;
+    const double beam_angleY_mc = 101.189;
+    const double beam_angleZ_mc = 16.5942;
+ 
+
+    double beam_dx = -999.;
+    double beam_dy = -999.;
+    double beam_dz = -999.;
+    double beam_dxy = -999.;
+    double beam_costh = -999.;
+    double beamcut_dx_min, beamcut_dx_max;
+    double beamcut_dy_min, beamcut_dy_max;
+    double beamcut_dz_min, beamcut_dz_max;
+    double beamcut_dxy_min, beamcut_dxy_max;
+    double beamcut_costh_min, beamcut_costh_max; 
+
     bool isBeamType(int i);
     bool data_beam_PID(const std::vector<int> *pidCandidates);
 
@@ -676,6 +711,16 @@ namespace Main{
                                  const std::vector<double> &d_dirY,
                                  const std::vector<double> &d_dirZ);
 
+
+
+    // Set beam cut values
+    void SetBeamQualityCuts(double dx_min = 3, double dx_max = -3,
+                            double dy_min = 3, double dy_max = -3,
+                            double dz_min = -3, double dz_max = 3,
+                            double dxy_min = -1, double dxy_max = 3,
+                            double costh_min = 0.95, double costh_max = 2);
+    
+    bool PassBeamQualityCut() const;
 
    double getEta_broken(vector<vector<double>> canddQdx, vector<vector<double>> trkRR, vector<double> trklen,  int muind, vector<double> beamdQdx, vector<double> beamRR, double beamlen);
  

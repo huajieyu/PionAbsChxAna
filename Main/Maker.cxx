@@ -1147,8 +1147,46 @@ const std::vector<double> Main::Maker::compute_angleVertex_shower   ( double bea
 
 
 }
+//---------------------------------------------------------------------------
+bool Main::Maker::PassBeamQualityCut() const{
+  if (beamcut_dx_min<beamcut_dx_max){
+    if (beam_dx<beamcut_dx_min) return false;
+    if (beam_dx>beamcut_dx_max) return false;
+  }
 
+  if (beamcut_dy_min<beamcut_dy_max){
+    if (beam_dy<beamcut_dy_min) return false;
+    if (beam_dy>beamcut_dy_max) return false;
+  }
 
+  if (beamcut_dz_min<beamcut_dz_max){
+    if (beam_dz<beamcut_dz_min) return false;
+    if (beam_dz>beamcut_dz_max) return false;
+  }
+
+  if (beamcut_dxy_min<beamcut_dxy_max){
+    if (beam_dxy<beamcut_dxy_min) return false;
+    if (beam_dxy>beamcut_dxy_max) return false;
+  }
+
+  if (beamcut_costh_min<beamcut_costh_max){
+    if (beam_costh<beamcut_costh_min) return false;
+    if (beam_costh>beamcut_costh_max) return false;
+  }
+
+  return true;
+}
+void Main::Maker::SetBeamQualityCuts(double dx_min, double dx_max,
+                                double dy_min, double dy_max,
+                                double dz_min, double dz_max,
+                                double dxy_min, double dxy_max,
+                                double costh_min, double costh_max){
+  beamcut_dx_min = dx_min; beamcut_dx_max = dx_max;
+  beamcut_dy_min = dy_min; beamcut_dy_max = dy_max;
+  beamcut_dz_min = dz_min; beamcut_dz_max = dz_max;
+  beamcut_dxy_min = dxy_min; beamcut_dxy_max = dxy_max;
+  beamcut_costh_min = costh_min; beamcut_costh_max = costh_max;
+}
 
 //--------------------------------------------------------------------------
 void Main::Maker::SetMomThreshCut(double vmom)
@@ -2663,6 +2701,12 @@ void Main::Maker::MakeFile()
         LOG_NORMAL()<<"Start to Fill Vector to store energy and thickness"<<std::endl;
 	//select muon and pion beam events
 
+
+
+
+
+
+
 	passCuts = true;
 	if(isdata==0){
 	  
@@ -2680,12 +2724,39 @@ void Main::Maker::MakeFile()
           std::string *temp_process_Ptr=t->reco_beam_true_byHits_process;
 
           std::string beam_identification = beam_particle_Identification((*temp_process_Ptr), t->reco_beam_true_byHits_matched, t->reco_beam_true_byHits_origin, t->reco_beam_true_byHits_PDG); 
-          //LOG_NORMAL()<<"Beam Identification is "<<beam_identification<<std::endl;
 
+	  if(!t->reco_beam_calo_wire->empty()){
+		TVector3 pt0(t->reco_beam_calo_startX,
+                t->reco_beam_calo_startY,
+                t->reco_beam_calo_startZ);
+    		TVector3 pt1(t->reco_beam_calo_endX,
+                t->reco_beam_calo_endY,
+                t->reco_beam_calo_endZ);
+    		TVector3 dir = pt1 - pt0;
+    		dir = dir.Unit();
+
+
+          	beam_dx = (t->reco_beam_calo_startX - beam_startX_mc)/beam_startX_rms_mc;
+          	beam_dy = (t->reco_beam_calo_startY - beam_startY_mc)/beam_startY_rms_mc;
+          	beam_dz = (t->reco_beam_calo_startZ - beam_startZ_mc)/beam_startZ_rms_mc;
+          	beam_dxy = sqrt(pow(beam_dx,2) + pow(beam_dy,2));
+
+          	TVector3 beamdir(cos(beam_angleX_mc*TMath::Pi()/180),
+                       cos(beam_angleY_mc*TMath::Pi()/180),
+                       cos(beam_angleZ_mc*TMath::Pi()/180));
+          	beamdir = beamdir.Unit();
+          	beam_costh = dir.Dot(beamdir);
+	  }
           double libobeamdeltax = 0;
           double libobeamdeltay = 0;
           double libobeamdeltaz = 0;
           double libobeamcos = 0;
+
+
+
+
+
+
 
           for( it = temp_mc->begin(); it != temp_mc->end(); ++it )
           { 
@@ -2790,7 +2861,12 @@ void Main::Maker::MakeFile()
           //if(!isBeamType(t->reco_beam_type)) /*continue;*/ passCuts = false; 
 
 
-
+	  if(t->reco_beam_calo_wire->size()>0){
+	    _event_histo->h_reco_beam_startx->Fill(t->reco_beam_calo_startX);
+	    _event_histo->h_reco_beam_starty->Fill(t->reco_beam_calo_startY);
+	    _event_histo->h_reco_beam_startz->Fill(t->reco_beam_calo_startZ);
+	  }
+	
 	  if(passCuts == true){
 		  _event_histo->h_beam_trklen_total->Fill(beam_trklen);
 		  if(abs(t->true_beam_PDG)==211){_event_histo->h_beam_trklen_pion->Fill(beam_trklen);}
@@ -2965,7 +3041,7 @@ void Main::Maker::MakeFile()
           }
           
 	  //#8 vsize cut
-          //if(t->reco_beam_calo_wire->size()==0) /*continue;*/ passCuts = false;
+          if(t->reco_beam_calo_wire->size()==0) /*continue;*/ passCuts = false;
 	  
 	  if(passCuts == true){
 		  Nint_calosizecut++;
@@ -2991,23 +3067,18 @@ void Main::Maker::MakeFile()
           if(abs(t->reco_beam_true_byHits_PDG)==211){
               //Fill the histograms of beam 
               _event_histo->h_reco_beam_pion_tmdqdx->Fill(reco_beam_tmdqdx);
-              //_event_histo->h_reco_beam_costheta_pion->Fill(t->reco_beam_allTrack_trackEndDirZ);
               _event_histo->h_reco_beam_costheta_pion->Fill(t->reco_beam_PFP_trackScore_collection);
           } else if(abs(t->reco_beam_true_byHits_PDG)==13){
               _event_histo->h_reco_beam_muon_tmdqdx->Fill(reco_beam_tmdqdx);
-              //_event_histo->h_reco_beam_costheta_muon->Fill(t->reco_beam_allTrack_trackEndDirZ);
               _event_histo->h_reco_beam_costheta_muon->Fill(t->reco_beam_PFP_trackScore_collection);
           } else if(abs(t->reco_beam_true_byHits_PDG)==2212){
               _event_histo->h_reco_beam_proton_tmdqdx->Fill(reco_beam_tmdqdx);
-              //_event_histo->h_reco_beam_costheta_proton->Fill(t->reco_beam_allTrack_trackEndDirZ);
               _event_histo->h_reco_beam_costheta_proton->Fill(t->reco_beam_PFP_trackScore_collection);
           } else if(abs(t->reco_beam_true_byHits_PDG)==22 || abs(t->reco_beam_true_byHits_PDG)==11){
               _event_histo->h_reco_beam_gamma_tmdqdx->Fill(reco_beam_tmdqdx);
-              //_event_histo->h_reco_beam_costheta_gamma->Fill(t->reco_beam_allTrack_trackEndDirZ);
               _event_histo->h_reco_beam_costheta_gamma->Fill(t->reco_beam_PFP_trackScore_collection);
           } else {
 	      _event_histo->h_reco_beam_other_tmdqdx->Fill(reco_beam_tmdqdx);
-              //_event_histo->h_reco_beam_costheta_other->Fill(t->reco_beam_allTrack_trackEndDirZ);
               _event_histo->h_reco_beam_costheta_other->Fill(t->reco_beam_PFP_trackScore_collection);
           }
           }
@@ -3040,12 +3111,17 @@ void Main::Maker::MakeFile()
 	  }
   
 
-          if(!manual_beamPos_mc(t->reco_beam_startX, t->reco_beam_startY, t->reco_beam_startZ, 
-                              t->reco_beam_trackDirX, t->reco_beam_trackDirY, t->reco_beam_trackDirZ,
-                              t->true_beam_startDirX, t->true_beam_startDirY, t->true_beam_startDirZ,
-                              t->true_beam_startX, t->true_beam_startY, t->true_beam_startZ)) /*continue;*/ passCuts = false; 
+          //if(!manual_beamPos_mc(t->reco_beam_startX, t->reco_beam_startY, t->reco_beam_startZ, 
+          //                    t->reco_beam_trackDirX, t->reco_beam_trackDirY, t->reco_beam_trackDirZ,
+          //                    t->true_beam_startDirX, t->true_beam_startDirY, t->true_beam_startDirZ,
+          //                    t->true_beam_startX, t->true_beam_startY, t->true_beam_startZ)) /*continue;*/ passCuts = false; 
           //if(libobeamcos<coslow) /*continue;*/ passCuts= false;
  
+	  SetBeamQualityCuts();
+	  if(!PassBeamQualityCut())  passCuts  = false;
+
+
+
  	  if(passCuts == true) Nint_beamqualitynewcut++;
 
 	  //LOG_NORMAL()<<"Performed the beam quanlity cut"<<std::endl;
@@ -3163,7 +3239,7 @@ void Main::Maker::MakeFile()
 	  //LOG_NORMAL()<<"End of fill histogram after beam quality cut"<<std::endl;
   
         } //end of processing MC beam selection
-        //LOG_NORMAL()<<"Finished pre-selection for MC events"<<std::endl; 
+        LOG_NORMAL()<<"Finished pre-selection for MC events"<<std::endl; 
         if(isdata==1){
 	  //correspond to PDG cut
           if(!data_beam_PID(t->beam_inst_PDG_candidates)) continue;
@@ -3185,9 +3261,17 @@ void Main::Maker::MakeFile()
 
 	  if(min_michelscore>0.72) passCuts = false;
           //if(!isBeamType(t->reco_beam_type)) /*continue;*/ passCuts = false; 
+	  if(t->reco_beam_calo_wire->size()>0){ 
+	  	_event_histo->h_reco_beam_startx->Fill(t->reco_beam_calo_startX);
+	  	_event_histo->h_reco_beam_starty->Fill(t->reco_beam_calo_startY);
+	  	_event_histo->h_reco_beam_startz->Fill(t->reco_beam_calo_startZ);
+	  }
 	  if(passCuts==true){ Nint_beamtypecut++;
 	  	_event_histo->h_beam_trklen_total->Fill(beam_trklen);
 	  }
+
+
+	  //LOG_NORMAL()<<"Start to perform the beam quality cut for data"<<std::endl;
           std::vector<double> *temp_data = new std::vector<double>();
           manual_beamPos_data_vector(t->event, t->reco_beam_startX, t->reco_beam_startY, t->reco_beam_startZ,
                                 t->reco_beam_trackDirX, t->reco_beam_trackDirY, t->reco_beam_trackDirZ,
@@ -3199,6 +3283,26 @@ void Main::Maker::MakeFile()
           int idx=0;
 	  //more study on beam quanlity
 	  //add Calo size and TMdQdX cut
+	  if(!t->reco_beam_calo_wire->empty()){
+		TVector3 pt0(t->reco_beam_calo_startX,
+                t->reco_beam_calo_startY,
+                t->reco_beam_calo_startZ);
+    		TVector3 pt1(t->reco_beam_calo_endX,
+                t->reco_beam_calo_endY,
+                t->reco_beam_calo_endZ);
+    		TVector3 dir = pt1 - pt0;
+    		dir = dir.Unit();
+
+	  	beam_dx = (t->reco_beam_calo_startX - beam_startX_data)/beam_startX_rms_data;
+          	beam_dy = (t->reco_beam_calo_startY - beam_startY_data)/beam_startY_rms_data;
+          	beam_dz = (t->reco_beam_calo_startZ - beam_startZ_data)/beam_startZ_rms_data;
+          	beam_dxy = sqrt(pow(beam_dx,2) + pow(beam_dy,2));
+ 	  	TVector3 beamdir(cos(beam_angleX_data*TMath::Pi()/180),
+                       cos(beam_angleY_data*TMath::Pi()/180),
+                       cos(beam_angleZ_data*TMath::Pi()/180));
+      	  	beamdir = beamdir.Unit();
+      	  	beam_costh = dir.Dot(beamdir);
+     	  }
 
 	  double libobeamcos_data=0;
           double libobeamdeltaz_data=0;
@@ -3236,14 +3340,17 @@ void Main::Maker::MakeFile()
 	  //if(passCuts == false) continue;
 
 	  if(passCuts==true) Nint_APA3cut++;
-          //if(t->reco_beam_calo_wire->size()==0) /*continue;*/ passCuts = false;
+          if(t->reco_beam_calo_wire->size()==0) /*continue;*/ passCuts = false;
 	
 	  if(passCuts ==true) Nint_calosizecut++;
+
+
+	  //LOG_NORMAL()<<"Start to perform dEdX cut to beam particles of data"<<std::endl;
           vector<double> *beam_dEdX_Ptr=t->reco_beam_calibrated_dEdX_SCE;
           double reco_beam_tmdqdx = GetTruncatedMean(*beam_dEdX_Ptr, 2, t->reco_beam_calibrated_dEdX_SCE->size() - 5, 0.1, 0.6);
 	  if(reco_beam_tmdqdx >2.4) passCuts = false;
 	  if(passCuts==true) Nint_tmdqdxcut++;
-	  	  
+	  //LOG_NORMAL()<<"Start to perform beam quality cut to beam particles of data"<<std::endl; 
           if(!manual_beamPos_data(t->event, t->reco_beam_startX, t->reco_beam_startY, t->reco_beam_startZ,
                                 t->reco_beam_trackDirX, t->reco_beam_trackDirY, t->reco_beam_trackDirZ,
                                 t->beam_inst_X, t->beam_inst_Y, t->beam_inst_dirX, t->beam_inst_dirY,
@@ -3251,6 +3358,10 @@ void Main::Maker::MakeFile()
 	  		passCuts = false; //continue;
           //if(libobeamcos_data<data_coslow) /*continue;*/ passCuts= false;
           //if(libobeamdeltaz_data<data_zlow /*|| libobeamdeltaz_data>zhigh*/) /*continue;*/ passCuts = false;
+	  SetBeamQualityCuts();
+	  if(!PassBeamQualityCut())  passCuts  = false;
+
+
  	  if(passCuts == true) Nint_beamqualitynewcut++;
 	  if(passCuts == true){
 		   _event_histo->h_test_deltax_data->Fill(libobeamdeltax_data);
@@ -3258,12 +3369,13 @@ void Main::Maker::MakeFile()
 		   _event_histo->h_test_deltaz_data->Fill(libobeamdeltaz_data);
 		   _event_histo->h_test_cos_data->Fill(libobeamcos_data);
 	  }
+	  //LOG_NORMAL()<<"Performed all the cuts to data beam particles"<<std::endl;
         }//end of if this is a data isdata==1
         //=============================================================================
 
 	//if(passCuts== false) continue;
 	
-	LOG_NORMAL()<<"Finished pre-selection "<<std::endl;
+	//LOG_NORMAL()<<"Finished pre-selection "<<std::endl;
 
 if(passCuts == true ){
 
