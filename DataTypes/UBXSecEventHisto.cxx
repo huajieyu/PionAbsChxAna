@@ -62,41 +62,10 @@ namespace DataTypes {
       h_gen_recovstrue_beamz = new TH2D("h_gen_recovstrue_beamz","h_gen_recovstrue_beamz", 300, 0.0, 300.0, 300, 0.0, 300.0);
       h_gen_recovstrue_beamwire = new TH2D("h_gen_recovstrue_beamwire","h_gen_recovstrue_beamwire", 601, -0.5, 600.5, 601, -0.5, 600.5);
 
-      htotinc_reco_beamz_reso = new TH1D("htotinc_reco_beamz_reso", "htotinc_reco_beamz_reso", 100, -30., 50.); 
-      htotinc_reco_beamz_reso->GetXaxis()->SetTitle("End Z resolution");      
-      htotinc_reco_beamz_reso->GetYaxis()->SetTitle("incident particles");      
 
-      htotinc_reco_beamwire_reso = new TH1D("htotinc_reco_beamwire_reso", "htotinc_reco_beamwire_reso", 151, -50.5, 100.5); 
-      htotinc_reco_beamwire_reso->GetXaxis()->SetTitle("Wire # resolution");
-      htotinc_reco_beamwire_reso->GetYaxis()->SetTitle("incident particles");      
 
-      htotinc_reco_beam_intE_reso = new TH1D("htotinc_reco_beam_intE_reso", "htotinc_reco_beam_intE_reso", 100, -300., 100.); 
-      htotinc_reco_beam_intE_reso->GetXaxis()->SetTitle("Interacting Energy resolution");
-      htotinc_reco_beam_intE_reso->GetYaxis()->SetTitle("interacting #pi");      
 
-      htotdecay_reco_beamz_reso = new TH1D("htotdecay_reco_beamz_reso", "htotdecay_reco_beamz_reso", 100, -100., 100.); 
-      htotdecay_reco_beamz_reso->GetXaxis()->SetTitle("End Z resolution");      
-      htotdecay_reco_beamz_reso->GetYaxis()->SetTitle("decayident particles");      
 
-      htotdecay_reco_beamwire_reso = new TH1D("htotdecay_reco_beamwire_reso", "htotdecay_reco_beamwire_reso", 151, -50.5, 100.5); 
-      htotdecay_reco_beamwire_reso->GetXaxis()->SetTitle("Wire # resolution");
-      htotdecay_reco_beamwire_reso->GetYaxis()->SetTitle("decayident particles");      
-
-      htotdecay_reco_beam_intE_reso = new TH1D("htotdecay_reco_beam_intE_reso", "htotdecay_reco_beam_intE_reso", 100, -300., 100.); 
-      htotdecay_reco_beam_intE_reso->GetXaxis()->SetTitle("Interacting Energy resolution");
-      htotdecay_reco_beam_intE_reso->GetYaxis()->SetTitle("interacting #pi");      
-
-      htotmuon_reco_beamz_reso = new TH1D("htotmuon_reco_beamz_reso", "htotmuon_reco_beamz_reso", 100, -100., 100.); 
-      htotmuon_reco_beamz_reso->GetXaxis()->SetTitle("End Z resolution");      
-      htotmuon_reco_beamz_reso->GetYaxis()->SetTitle("muonident particles");      
-
-      htotmuon_reco_beamwire_reso = new TH1D("htotmuon_reco_beamwire_reso", "htotmuon_reco_beamwire_reso", 151, -50.5, 100.5); 
-      htotmuon_reco_beamwire_reso->GetXaxis()->SetTitle("Wire # resolution");
-      htotmuon_reco_beamwire_reso->GetYaxis()->SetTitle("muonident particles");      
-
-      htotmuon_reco_beam_intE_reso = new TH1D("htotmuon_reco_beam_intE_reso", "htotmuon_reco_beam_intE_reso", 100, -300., 100.); 
-      htotmuon_reco_beam_intE_reso->GetXaxis()->SetTitle("Interacting Energy resolution");
-      htotmuon_reco_beam_intE_reso->GetYaxis()->SetTitle("interacting #pi");      
 
 
 
@@ -194,6 +163,36 @@ namespace DataTypes {
       h_mc_beam_deltay = new TH1D("h_mc_beam_deltay", "h_mc_beam_deltay", 100, -20, 40);
       h_mc_beam_deltaz = new TH1D("h_mc_beam_deltaz", "h_mc_beam_deltaz", 100, 0, 40);
       h_mc_beam_cos = new TH1D("h_mc_beam_cos", "h_mc_beam_cos", 100, -1., 1.);
+
+      h_test_deltax_piinc = new TH1D("h_test_deltax_piinc", "h_test_deltax_piinc", 100, -20, 20);
+      h_test_deltay_piinc = new TH1D("h_test_deltay_piinc", "h_test_deltay_piinc", 100, -20, 20);
+      h_test_deltaz_piinc = new TH1D("h_test_deltaz_piinc", "h_test_deltaz_piinc", 100, -20, 40);
+      h_test_cos_piinc = new TH1D("h_test_cos_piinc", "h_test_cos_piinc", 100, -0, 1.0);
+
+      h_test_deltax_pidec = new TH1D("h_test_deltax_pidec", "h_test_deltax_pidec", 100, -20, 20);
+      h_test_deltay_pidec = new TH1D("h_test_deltay_pidec", "h_test_deltay_pidec", 100, -20, 20);
+      h_test_deltaz_pidec = new TH1D("h_test_deltaz_pidec", "h_test_deltaz_pidec", 100, -20, 40);
+      h_test_cos_pidec = new TH1D("h_test_cos_pidec", "h_test_cos_pidec", 100, -0, 1.0);
+
+
+      h_test_deltax_muon = new TH1D("h_test_deltax_muon", "h_test_deltax_muon", 100, -20, 20);
+      h_test_deltay_muon = new TH1D("h_test_deltay_muon", "h_test_deltay_muon", 100, -20, 20);
+      h_test_deltaz_muon = new TH1D("h_test_deltaz_muon", "h_test_deltaz_muon", 100, -20, 40);
+      h_test_cos_muon = new TH1D("h_test_cos_muon", "h_test_cos_muon", 100, -0, 1.0);
+
+      h_test_deltax_ups = new TH1D("h_test_deltax_ups", "h_test_deltax_ups", 100, -20, 20);
+      h_test_deltay_ups = new TH1D("h_test_deltay_ups", "h_test_deltay_ups", 100, -20, 20);
+      h_test_deltaz_ups = new TH1D("h_test_deltaz_ups", "h_test_deltaz_ups", 100, -20, 40);
+      h_test_cos_ups = new TH1D("h_test_cos_ups", "h_test_cos_ups", 100, -0, 1.0);
+
+
+      h_test_deltax_data = new TH1D("h_test_deltax_data", "h_test_deltax_data", 100, -20, 20);
+      h_test_deltay_data = new TH1D("h_test_deltay_data", "h_test_deltay_data", 100, -20, 20);
+      h_test_deltaz_data = new TH1D("h_test_deltaz_data", "h_test_deltaz_data", 100, -20, 40);
+      h_test_cos_data = new TH1D("h_test_cos_data", "h_test_cos_data", 100, -0, 1.0);
+
+
+
 
       h_data_beamtype=new TH1D("h_data_beamtype", "h_data_beamtype", 2, -0.5, 1.5);
       h_mc_beamtype_muon=new TH1D("h_mc_beamtype_muon", "h_mc_beamtype_muon", 2, -0.5, 1.5);
@@ -318,7 +317,9 @@ namespace DataTypes {
     h_pion_decay_dminms = new TH1D("h_pion_decay_dminms", "h_pion_decay_dminms", 100, 0.0, 1.0);
     h_upstream_dminms = new TH1D("h_upstream_dminms", "h_upstream_dminms", 100, 0.0, 1.0);
 
-
+    h_reco_beam_startx = new TH1D("h_reco_beam_startx", "h_reco_beam_startx", 100, -80, 20);
+    h_reco_beam_starty = new TH1D("h_reco_beam_starty", "h_reco_beam_starty", 100, 360, 500);
+    h_reco_beam_startz = new TH1D("h_reco_beam_startz", "h_reco_beam_startz", 100, -5, 10);
 
 
     }
