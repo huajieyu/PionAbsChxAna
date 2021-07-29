@@ -2529,7 +2529,7 @@ void Main::Maker::MakeFile()
 		} 
 		else if(abs(t->reco_beam_true_byHits_PDG)==2212){
 			_event_histo->h_upstream_proton->Fill(true_endz);
-			_event_histo->h_bendangle_muon->Fill(bendangle);
+			_event_histo->h_bendangle_proton->Fill(bendangle);
 		} 
 		else if(abs(t->reco_beam_true_byHits_PDG)==22 ||abs(t->reco_beam_true_byHits_PDG)==11){
 			_event_histo->h_upstream_gamma->Fill(true_endz);
@@ -2747,6 +2747,7 @@ void Main::Maker::MakeFile()
           	beamdir = beamdir.Unit();
           	beam_costh = dir.Dot(beamdir);
 	  }
+////////////Old beam quality cut//////////////////////
           double libobeamdeltax = 0;
           double libobeamdeltay = 0;
           double libobeamdeltaz = 0;
@@ -2826,6 +2827,8 @@ void Main::Maker::MakeFile()
              }
             idx=idx+1;
           } //end of for loop
+//////////////End Old Beam Quality Cut/////////////
+
 	  //#0 cut require the MC is either pion or muon events
           if(abs(t->true_beam_PDG) != 211 && abs(t->true_beam_PDG) !=13) continue;//passCuts = false;
           h_Evttot->Fill(event_weight);
@@ -3085,16 +3088,7 @@ void Main::Maker::MakeFile()
 	  //#9 truncated mean dqdx cut
           if(reco_beam_tmdqdx>2.4) /*continue;*/ passCuts = false; 
 	  if(passCuts==true) Nint_tmdqdxcut++;
-	  if((isdata==0 && (isInelastic || isDecay)) /*&& t->true_beam_ID == t->reco_beam_true_byHits_ID*/){
-	  	outfile_roounfold<<passCuts<<"    "<<setw(5)<<true_sliceID<<setw(5)<<sliceID<<std::endl;
- 	  }
-	  //if(passCuts==false) continue;
-
-	  if(isdata==0 && (passCuts == true && isInelastic)){
-		 nevt_truesliceid_inelastic_cuts->Fill(true_sliceID);
-	         nevt_recosliceid_inelastic_cuts->Fill(sliceID);
-	  }
-
+	  
 	  if(passCuts == true){
           	if(*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG)==211 && isUpstream == false){
 	  	   Nintpioninelastic_tm++;
@@ -3120,10 +3114,16 @@ void Main::Maker::MakeFile()
 	  SetBeamQualityCuts();
 	  if(!PassBeamQualityCut())  passCuts  = false;
 
-
-
  	  if(passCuts == true) Nint_beamqualitynewcut++;
+	  if((isdata==0 && (isInelastic || isDecay)) /*&& t->true_beam_ID == t->reco_beam_true_byHits_ID*/){
+	  	outfile_roounfold<<passCuts<<"    "<<setw(5)<<true_sliceID<<setw(5)<<sliceID<<std::endl;
+ 	  }
+	  //if(passCuts==false) continue;
 
+	  if(isdata==0 && (passCuts == true && isInelastic)){
+		 nevt_truesliceid_inelastic_cuts->Fill(true_sliceID);
+	         nevt_recosliceid_inelastic_cuts->Fill(sliceID);
+	  }
 	  //LOG_NORMAL()<<"Performed the beam quanlity cut"<<std::endl;
 
           //BROKEN Track Study
