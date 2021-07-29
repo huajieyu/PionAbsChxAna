@@ -95,18 +95,6 @@ namespace DataTypes {
     TH2D*  h_gen_recovstrue_beamz; 
     TH2D*  h_gen_recovstrue_beamwire; 
 
-    TH1D*  htotinc_reco_beamz_reso;
-    TH1D*  htotinc_reco_beamwire_reso;
-    TH1D*  htotinc_reco_beam_intE_reso;
-
-    TH1D*  htotdecay_reco_beamz_reso;
-    TH1D*  htotdecay_reco_beamwire_reso;
-    TH1D*  htotdecay_reco_beam_intE_reso;
-
-    TH1D*  htotmuon_reco_beamz_reso;
-    TH1D*  htotmuon_reco_beamwire_reso;
-    TH1D*  htotmuon_reco_beam_intE_reso;
-
 
 
     Double_t slicebins[25];
@@ -231,8 +219,31 @@ namespace DataTypes {
     TH1D* h_isupstream_beam_deltaz;
     TH1D* h_isupstream_beam_cos;
 
+    TH1D* h_test_deltax_piinc;
+    TH1D* h_test_deltay_piinc;
+    TH1D* h_test_deltaz_piinc;
+    TH1D* h_test_cos_piinc;
 
-
+    TH1D* h_test_deltax_pidec;
+    TH1D* h_test_deltay_pidec;
+    TH1D* h_test_deltaz_pidec;
+    TH1D* h_test_cos_pidec;
+	    
+    TH1D* h_test_deltax_muon;
+    TH1D* h_test_deltay_muon;
+    TH1D* h_test_deltaz_muon;
+    TH1D* h_test_cos_muon;
+	    
+    TH1D* h_test_deltax_ups;
+    TH1D* h_test_deltay_ups;
+    TH1D* h_test_deltaz_ups;
+    TH1D* h_test_cos_ups;
+	
+    TH1D* h_test_deltax_data;
+    TH1D* h_test_deltay_data;
+    TH1D* h_test_deltaz_data;
+    TH1D* h_test_cos_data;
+	
 
 
     TH1D* h_reco_beam_tmdqdx;
@@ -298,7 +309,9 @@ namespace DataTypes {
     TH1D* h_upstream_dminms;
 
 
-
+    TH1D* h_reco_beam_startx;
+    TH1D* h_reco_beam_starty;
+    TH1D* h_reco_beam_startz;
 
 
 	  
