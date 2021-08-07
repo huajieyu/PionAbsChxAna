@@ -3383,7 +3383,7 @@ if(passCuts == true ){
 
 
 
-	if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211){
+	if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211 && isUpstream == false){
 		if (t->true_daughter_nPi0 == 0 && t->true_daughter_nPiPlus == 0 && t->true_daughter_nPiMinus ==0){//true absorption
 		       if(sliceID == -1){
 	                 	reco_abs_neg++;
@@ -3574,7 +3574,7 @@ if(passCuts==true){
         //}
         //LOG_NORMAL()<<"End of calculating the thickness and energy with Tingjun's method"<<std::endl;
  
-}//end of if isInelastic
+}//end of if passCuts
 	LOG_NORMAL()<<"End of calculating the thickness and energy with Tingjun's method"<<std::endl;
         //========================================================================================       
         //Fill true proton momentum
@@ -3585,7 +3585,7 @@ if(passCuts==true){
 	for(unsigned int ind=0; ind<t->true_beam_daughter_PDG->size(); ind++){
 
            if(abs(t->true_beam_daughter_PDG->at(ind))==2212) 
-           {_event_histo_1d->h_orimom_proton->Fill(t->true_beam_daughter_startP->at(ind));}
+           {_event_histo_1d->h_orimom_proton->Fill(t->true_beam_daughter_startP->at(ind)); ngen_proton++;}
            else if(abs(t->true_beam_daughter_PDG->at(ind))==2112) 
            {_event_histo_1d->h_orimom_neutron->Fill(t->true_beam_daughter_startP->at(ind));}
            else if(abs(t->true_beam_daughter_PDG->at(ind))==211) 
@@ -3613,8 +3613,6 @@ if(passCuts==true){
 
 
            ngen_par++;
-           if(abs(t->true_beam_daughter_PDG->at(ind))!=2212) continue;
- 		     ngen_proton++;
         }
         }//end of if isdata==0 
 
@@ -4597,7 +4595,7 @@ if(passCuts == true){
 
 
 
-        //if(ntmdqdxcand_withthresh> 0) passCuts = false;//continue;
+        if(ntmdqdxcand_withthresh> 0) passCuts = false;//continue;
 	if(passCuts ==true){
         Ntotal_tmdqdx++;
         if(isSignal_withthresh) {Ntmcutabs_withthresh++;
@@ -4618,7 +4616,7 @@ if(passCuts == true){
 	LOG_NORMAL()<<"Performed Truncated Mean dEdX cut"<<std::endl;
 
         //If there are any more cuts, add them here
-        //if(nonprotoncand_withthresh> 0) passCuts = false; //continue; 
+        if(nonprotoncand_withthresh> 0) passCuts = false; //continue; 
 	if (passCuts ==true){
         Ntotal_chi2++;
 
@@ -4668,7 +4666,7 @@ if(passCuts == true){
 
         //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< 
 	
-        if(sel_abs) if(has_shower_Dist(trkscoreref, daughter_shwdis_ptr)) passCuts=false; //continue;
+       if(sel_abs) if(has_shower_Dist(trkscoreref, daughter_shwdis_ptr)) passCuts=false; //continue;
         //if(sel_abs) if(has_shower_Eng(trkscoreref, shwengref)) passCuts=false; //continue;
         //if(sel_abs) if(has_shower_Ang( trkscoreref, daughter_shwang_ptr)) continue;
 	
@@ -5424,7 +5422,7 @@ if(passCuts == true){
   LOG_NORMAL() << "Output file closed." << std::endl;
 
 
-  string outfilename0 = "/dune/app/users/jiangl/dunetpc_analysis/newduneana_May/PionAbsChxAna/Main/mac/output_sliceIDmat.root";
+  string outfilename0 = "/dune/app/users/mmatt15/PionAbsChxAna/Main/mac/output_sliceIDmat.root";
   TFile output_sliceIDmat(outfilename0.c_str(), "RECREATE");
   /*h_true_reco_mom->Write();
   h_true_reco_costheta->Write();
@@ -5561,7 +5559,7 @@ if(passCuts == true){
 
   output_sliceIDmat.Close();
   LOG_NORMAL()<<"output sliceIDmat file closed "<<std::endl; 
-  string outfilename="/dune/app/users/jiangl/dunetpc_analysis/newduneana_May/PionAbsChxAna/Main/mac/output_graphs.root";
+  string outfilename="/dune/app/users/mmatt15/PionAbsChxAna/Main/mac/output_graphs.root";
 
   TFile output_newsf(outfilename.c_str(), "RECREATE");
   TGraph *gr_intabs_posneg_slc=new TGraph(nslices+3, slcid_posneg, true_abs_posneg);
