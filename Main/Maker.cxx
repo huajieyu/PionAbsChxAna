@@ -2746,6 +2746,76 @@ void Main::Maker::MakeFile()
                        cos(beam_angleZ_mc*TMath::Pi()/180));
           	beamdir = beamdir.Unit();
           	beam_costh = dir.Dot(beamdir);
+		/////////////Matt//////////////
+
+	 	if(isMuon) {
+			_event_histo->h_ismuon_beam_deltax->Fill(beam_dx);
+			_event_histo->h_ismuon_beam_deltay->Fill(beam_dy);
+			_event_histo->h_ismuon_beam_deltaz->Fill(beam_dz);		
+			_event_histo->h_ismuon_beam_cos->Fill(beam_costh);	
+		}
+		if(isPiInelastic) {
+			_event_histo->h_ispiinelastic_beam_deltax->Fill(beam_dx);
+			_event_histo->h_ispiinelastic_beam_deltay->Fill(beam_dy);
+			_event_histo->h_ispiinelastic_beam_deltaz->Fill(beam_dz);		
+			_event_histo->h_ispiinelastic_beam_cos->Fill(beam_costh);	
+		}
+		if(isPiDecay) {
+			_event_histo->h_ispidecay_beam_deltax->Fill(beam_dx);
+			_event_histo->h_ispidecay_beam_deltay->Fill(beam_dy);
+			_event_histo->h_ispidecay_beam_deltaz->Fill(beam_dz);		
+			_event_histo->h_ispidecay_beam_cos->Fill(beam_costh);	
+		}
+		if(isUpstream) {
+			_event_histo->h_isupstream_beam_deltax->Fill(beam_dx);
+			_event_histo->h_isupstream_beam_deltay->Fill(beam_dy);
+			_event_histo->h_isupstream_beam_deltaz->Fill(beam_dz);		
+			_event_histo->h_isupstream_beam_cos->Fill(beam_costh);	
+		}
+		//------------------------------------------------------------
+		if(beam_identification == "PrimaryPion") {
+			_event_histo->h_truepion_beam_deltax->Fill(beam_dx);		
+			_event_histo->h_truepion_beam_deltay->Fill(beam_dy);	
+			_event_histo->h_truepion_beam_deltaz->Fill(beam_dz);
+			_event_histo->h_truepion_beam_cos->Fill(beam_costh);	
+		}
+		else if(beam_identification == "PrimaryMuon") {
+			_event_histo->h_truemuon_beam_deltax->Fill(beam_dx);		
+			_event_histo->h_truemuon_beam_deltay->Fill(beam_dy);	
+			_event_histo->h_truemuon_beam_deltaz->Fill(beam_dz);
+			_event_histo->h_truemuon_beam_cos->Fill(beam_costh);	
+		}
+		else if(beam_identification == "PrimaryProton") {
+			_event_histo->h_trueproton_beam_deltax->Fill(beam_dx);		
+			_event_histo->h_trueproton_beam_deltay->Fill(beam_dy);	
+			_event_histo->h_trueproton_beam_deltaz->Fill(beam_dz);
+			_event_histo->h_trueproton_beam_cos->Fill(beam_costh);	
+		}
+		else if(beam_identification == "PrimaryElectron") {
+			_event_histo->h_trueelectron_beam_deltax->Fill(beam_dx);		
+			_event_histo->h_trueelectron_beam_deltay->Fill(beam_dy);	
+			_event_histo->h_trueelectron_beam_deltaz->Fill(beam_dz);
+			_event_histo->h_trueelectron_beam_cos->Fill(beam_costh);	
+		}
+		else if(beam_identification == "Cosmic") {
+			_event_histo->h_truecosmic_beam_deltax->Fill(beam_dx);		
+			_event_histo->h_truecosmic_beam_deltay->Fill(beam_dy);	
+			_event_histo->h_truecosmic_beam_deltaz->Fill(beam_dz);
+			_event_histo->h_truecosmic_beam_cos->Fill(beam_costh);	
+		}
+		else if(beam_identification == "PrimaryBeamNotTrig") {
+			_event_histo->h_truenottrig_beam_deltax->Fill(beam_dx);		
+			_event_histo->h_truenottrig_beam_deltay->Fill(beam_dy);	
+			_event_histo->h_truenottrig_beam_deltaz->Fill(beam_dz);
+			_event_histo->h_truenottrig_beam_cos->Fill(beam_costh);	
+		}
+		else {
+			_event_histo->h_trueother_beam_deltax->Fill(beam_dx);		
+			_event_histo->h_trueother_beam_deltay->Fill(beam_dy);	
+			_event_histo->h_trueother_beam_deltaz->Fill(beam_dz);
+			_event_histo->h_trueother_beam_cos->Fill(beam_costh);	
+		}						
+		///////////End Matt////////////	
 	  }
 ////////////Old beam quality cut//////////////////////
           double libobeamdeltax = 0;
@@ -2759,7 +2829,7 @@ void Main::Maker::MakeFile()
 
 
 
-          for( it = temp_mc->begin(); it != temp_mc->end(); ++it )
+         /* for( it = temp_mc->begin(); it != temp_mc->end(); ++it )
           { 
             if(idx==0){
                  libobeamdeltax = *it;
@@ -2826,7 +2896,7 @@ void Main::Maker::MakeFile()
 
              }
             idx=idx+1;
-          } //end of for loop
+          }*/ //end of for loop
 //////////////End Old Beam Quality Cut/////////////
 
 	  //#0 cut require the MC is either pion or muon events
