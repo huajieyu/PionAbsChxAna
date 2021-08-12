@@ -3351,8 +3351,13 @@ void Main::Maker::MakeFile()
 
           std::vector<double>::iterator it;
           int idx=0;
-	  //more study on beam quanlity
+	  //more study on beam quality
 	  //add Calo size and TMdQdX cut
+	  double libobeamcos_data=0;
+          double libobeamdeltaz_data=0;
+	  double libobeamdeltax_data=0;
+	  double libobeamdeltay_data=0;
+ 
 	  if(!t->reco_beam_calo_wire->empty()){
 		TVector3 pt0(t->reco_beam_calo_startX,
                 t->reco_beam_calo_startY,
@@ -3372,8 +3377,22 @@ void Main::Maker::MakeFile()
                        cos(beam_angleZ_data*TMath::Pi()/180));
       	  	beamdir = beamdir.Unit();
       	  	beam_costh = dir.Dot(beamdir);
+		//////////Matt/////////////
+		if(passCuts==true){
+			_event_histo->h_data_beam_deltax->Fill(beam_dx);
+			_event_histo->h_data_beam_deltay->Fill(beam_dy);
+			_event_histo->h_data_beam_deltaz->Fill(beam_dz);
+			_event_histo->h_data_beam_cos->Fill(beam_costh);
+			
+			libobeamdeltax_data = beam_dx;
+			libobeamdeltay_data = beam_dy;
+			libobeamdeltaz_data = beam_dz;
+			libobeamcos_data = beam_costh;
+		}
+		////////End Matt///////////
      	  }
 
+	/*
 	  double libobeamcos_data=0;
           double libobeamdeltaz_data=0;
 	  double libobeamdeltax_data=0;
@@ -3395,7 +3414,7 @@ void Main::Maker::MakeFile()
             }
              idx=idx+1;
           }
-	  }
+	  }*/
           //if(libobeamcos_data<coslow) /*continue;*/ passCuts= false;
 	  
           //if(!manual_beamPos_data(t->event, t->reco_beam_startX, t->reco_beam_startY, t->reco_beam_startZ,
