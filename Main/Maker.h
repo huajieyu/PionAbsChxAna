@@ -426,14 +426,14 @@ namespace Main{
     double incident_upstream[nslices+3];
     double incident_upstream_pion[nslices+3];
 
-    double incident_ps[nslices+3];
+    double interaction_ps[nslices+3];
 
-    double incident_pion_ps[nslices+3];
-    double incident_pion_decay_ps[nslices+3];
-    double incident_pion_elastic_ps[nslices+3];
-    double incident_muon_ps[nslices+3];
-    double incident_upstream_ps[nslices+3];
-    double incident_upstream_pion_ps[nslices+3];
+    double interaction_pion_ps[nslices+3];
+    double interaction_pion_decay_ps[nslices+3];
+    double interaction_pion_elastic_ps[nslices+3];
+    double interaction_muon_ps[nslices+3];
+    double interaction_upstream_ps[nslices+3];
+    double interaction_upstream_pion_ps[nslices+3];
 
 
     double true_incident_pandora_identified[nslices+3]; 

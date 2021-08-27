@@ -3625,28 +3625,27 @@ if(passCuts == true ){
         } //end of if sliceID>=0;
 
 	//Matt
-	for(int j=0;j<=true_sliceID;j++){
+	if(sliceID>=0){
            if(abs(t->true_beam_PDG) != 211 && abs(t->true_beam_PDG) != 13) continue;
-	   if(j<=nslices+1){
-		incident_ps[j]++;
+	  
+		interaction_ps[sliceID]++;
 		if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211 && isUpstream == false){  
-                   ++incident_pion_ps[j];
+                   ++interaction_pion_ps[sliceID];
               } else if(*temp_Ptr0 == "Decay" && abs(t->true_beam_PDG) == 211 && isUpstream == false){
-                   ++incident_pion_decay_ps[j];
+                   ++interaction_pion_decay_ps[sliceID];
               } else if(abs(t->true_beam_PDG) == 211 && isUpstream == false) {
-                   ++incident_pion_elastic_ps[j];   
+                   ++interaction_pion_elastic_ps[sliceID];   
               } else if(abs(t->true_beam_PDG) == 13 && isUpstream == false){
               //select muon
-                   ++incident_muon_ps[j];
+                   ++interaction_muon_ps[sliceID];
               } else if(isUpstream == true){
-                   ++incident_upstream_ps[j];
+                   ++interaction_upstream_ps[sliceID];
                    if(abs(t->true_beam_PDG)==211){
-                      ++incident_upstream_pion_ps[j];
+                      ++interaction_upstream_pion_ps[sliceID];
                    }	
 	   }	
+	
 	}
-	}
-
         if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211 && isUpstream == false && sliceID==0 ) { 
 
               outfile_pion<<"<<<<<<<<<Run Number is "<<t->run<<" SubRun Number is "<<t->subrun<<"   Event Number is "<<t->event<<"  true slice ID is "<<true_sliceID<<" reco slice ID is "<<sliceID<<std::endl;
