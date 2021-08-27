@@ -331,6 +331,33 @@ namespace DataTypes {
     h_reco_beam_startz = new TH1D("h_reco_beam_startz", "h_reco_beam_startz", 100, -5, 10);
 
 
+    h_beam_intKE_true = new TH1D("h_true_beam_intKE", "h_true_beam_intKE",25,400,900);
+    h_beam_intKE_true_piinelastic = new TH1D("h_beam_intKE_true_piinelastic","h_beam_intKE_true_piinelastic",25,400,900);
+    h_beam_intKE_true_pidecay = new TH1D("h_beam_intKE_true_pidecay","h_beam_intKE_true_pidecay",25,400,900);
+    h_beam_intKE_true_muon = new TH1D("h_beam_intKE_true_muon","h_beam_intKE_true_muon",25,400,900);
+    h_beam_intKE_true_upstream = new TH1D("h_beam_intKE_true_upstream","h_beam_intKE_true_upstream",25,400,900);
+
+    h_beam_intKE_true_aftercut = new TH1D("h_true_beam_intKE_aftercut", "h_true_beam_intK_aftercutE",25,400,900);
+    h_beam_intKE_true_piinelastic_aftercut = new TH1D("h_beam_intKE_true_piinelastic_aftercut","h_beam_intKE_true_piinelastic_aftercut",25,400,900);
+    h_beam_intKE_true_pidecay_aftercut = new TH1D("h_beam_intKE_true_pidecay_aftercut","h_beam_intKE_true_pidecay_aftercut",25,400,900);
+    h_beam_intKE_true_muon_aftercut = new TH1D("h_beam_intKE_true_muon_aftercut","h_beam_intKE_true_muon_aftercut",25,400,900);
+    h_beam_intKE_true_upstream_aftercut = new TH1D("h_beam_intKE_true_upstream_aftercut","h_beam_intKE_true_upstream_aftercut",25,400,900);
+
+ 
+
+    h_beam_intKE_reco = new TH1D("h_beam_intKE_reco","h_beam_intKE_reco",25,400,900);
+    h_beam_intKE_reco_piinelastic = new TH1D("h_beam_intKE_reco_piinelastic","h_beam_intKE_reco_piinelastic",25,400,900);
+    h_beam_intKE_reco_pidecay = new TH1D("h_beam_intKE_reco_pidecay","h_beam_intKE_reco_pidecay",25,400,900);
+    h_beam_intKE_reco_muon = new TH1D("h_beam_intKE_reco_muon","h_beam_intKE_reco_muon",25,400,900);
+    h_beam_intKE_reco_upstream = new TH1D("h_beam_intKE_reco_upstream","h_beam_intKE_reco_upstream",25,400,900);
+
+    h_beam_intKE_reco_aftercut = new TH1D("h_reco_beam_intKE_aftercut", "h_reco_beam_intK_aftercutE",25,400,900);
+    h_beam_intKE_reco_piinelastic_aftercut = new TH1D("h_beam_intKE_reco_piinelastic_aftercut","h_beam_intKE_reco_piinelastic_aftercut",25,400,900);
+    h_beam_intKE_reco_pidecay_aftercut = new TH1D("h_beam_intKE_reco_pidecay_aftercut","h_beam_intKE_reco_pidecay_aftercut",25,400,900);
+    h_beam_intKE_reco_muon_aftercut = new TH1D("h_beam_intKE_reco_muon_aftercut","h_beam_intKE_reco_muon_aftercut",25,400,900);
+    h_beam_intKE_reco_upstream_aftercut = new TH1D("h_beam_intKE_reco_upstream_aftercut","h_beam_intKE_reco_upstream_aftercut",25,400,900);
+
+
     }
 
 

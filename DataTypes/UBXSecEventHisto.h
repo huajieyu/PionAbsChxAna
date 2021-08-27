@@ -313,8 +313,30 @@ namespace DataTypes {
     TH1D* h_reco_beam_starty;
     TH1D* h_reco_beam_startz;
 
+    TH1D* h_beam_intKE_true;
+    TH1D* h_beam_intKE_true_piinelastic; 
+    TH1D* h_beam_intKE_true_pidecay;
+    TH1D* h_beam_intKE_true_muon;
+    TH1D* h_beam_intKE_true_upstream;	  
 
-	  
+    TH1D* h_beam_intKE_true_aftercut;
+    TH1D* h_beam_intKE_true_piinelastic_aftercut; 
+    TH1D* h_beam_intKE_true_pidecay_aftercut;
+    TH1D* h_beam_intKE_true_muon_aftercut;
+    TH1D* h_beam_intKE_true_upstream_aftercut; 
+
+
+    TH1D* h_beam_intKE_reco;
+    TH1D* h_beam_intKE_reco_piinelastic; 
+    TH1D* h_beam_intKE_reco_pidecay;
+    TH1D* h_beam_intKE_reco_muon;
+    TH1D* h_beam_intKE_reco_upstream;
+
+    TH1D* h_beam_intKE_reco_aftercut;
+    TH1D* h_beam_intKE_reco_piinelastic_aftercut; 
+    TH1D* h_beam_intKE_reco_pidecay_aftercut;
+    TH1D* h_beam_intKE_reco_muon_aftercut;
+    TH1D* h_beam_intKE_reco_upstream_aftercut; 
 
 
   protected:

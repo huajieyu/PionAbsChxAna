@@ -2450,6 +2450,9 @@ void Main::Maker::MakeFile()
 	if(abs(t->true_beam_PDG)==211){//all the pions
 		nevt_truesliceid_pion_all->Fill(true_sliceID);
 	}
+
+        bool isInelastic = abs(t->true_beam_PDG) == 211 && *temp_Ptr0 == "pi+Inelastic";
+
 	//CATEGORY 2 "pion Inelastics"
         if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211){  //std::cout<<"signal"<<std::endl;
            _event_histo->htotinc_true_beamwire->Fill((true_endz-0.5603500-0.479/2)/0.479);           
@@ -2470,6 +2473,8 @@ void Main::Maker::MakeFile()
                  true_rea_neg++;
                  }
            }
+
+
 
            if (true_sliceID>=0 && true_sliceID <= nslices+1){
               ++true_interaction[true_sliceID];
@@ -2575,11 +2580,15 @@ void Main::Maker::MakeFile()
         }
         
 
+
+
         if(true_sliceID>=0){
         for (int i = 0; i<=true_sliceID; ++i) {
            if(abs(t->true_beam_PDG) != 211 && abs(t->true_beam_PDG) != 13) continue;
            if(i<=nslices+1){
-              ++true_incident[i];
+	      if(isInelastic){
+                ++true_incident[i];
+	      }
               //select pion
               if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211 && isUpstream == false){  
                    ++true_incident_pion[i];
@@ -2607,7 +2616,7 @@ void Main::Maker::MakeFile()
         }
         }//end of selecting the events with true sliceID>=0
         //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<     
-        bool isInelastic = abs(t->true_beam_PDG) == 211 && *temp_Ptr0 == "pi+Inelastic";
+        //bool isInelastic = abs(t->true_beam_PDG) == 211 && *temp_Ptr0 == "pi+Inelastic";
         bool isDecay = abs(t->true_beam_PDG) == 211 && *temp_Ptr0 == "Decay";
 
 
@@ -5557,6 +5566,8 @@ if(passCuts == true){
      }
      else{
        tempxsec_inel[i] =MAr/(Density*NA*avg_pitch[i])*log((true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i])/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]-true_interaction[i])); 
+     //tempxsec_inel[i]=MAr/(Density*NA*avg_pitch[i])*log(true_incident[i]/(true_incident[i]-true_interaction[i]));
+
      }
      if(tempxsec_inel[i]>1e100){tempxsec_inel[i]=0;}
      //tempxsec[i]          =MAr/(Density*NA*avg_pitch[i])*true_abs[i]/true_incident[i];
