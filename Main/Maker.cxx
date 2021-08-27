@@ -2101,6 +2101,8 @@ void Main::Maker::MakeFile()
 
   TGraph *gr_inc_truepion_pandora_identified_slc;
 
+  TGraph *gr_incident_pion_ps; //Incident pi inelastic after preselection
+
   TGraph *gr_inc_truepion_slc;       //incident in true slice
   TGraph *gr_inc_truemuon_slc;  //incident in true slice (muon)  
   TGraph *gr_inc_truepionelastic_slc;
@@ -2152,7 +2154,7 @@ void Main::Maker::MakeFile()
   TGraph *gr_tempxsec_abs_test_slc;
 
   TGraph *gr_tempxsec_vs_incE_slc;
-
+  TGraph *gr_tempxsec_inel_vs_incE_slc;
   TGraph *gr_tempxsec_chx_vs_incE_slc;
 
 
@@ -2702,13 +2704,40 @@ void Main::Maker::MakeFile()
 	//select muon and pion beam events
 
 
-
-
+       if(abs(t->true_beam_PDG) == 211 || abs(t->true_beam_PDG) == 13){
+	//ESlice - fill histograms, piinelastic, pidecay, muon, upstream
+	if(isdata==0){
+		double true_beam_endKE = t->true_beam_interactingEnergy;
+		double reco_beam_endKE = t->reco_beam_interactingEnergy;
+		if(abs(t->true_beam_PDG) == 211 || abs(t->true_beam_PDG) == 13){
+			_event_histo->h_beam_intKE_true->Fill(true_beam_endKE);	
+			_event_histo->h_beam_intKE_reco->Fill(reco_beam_endKE);	
+			if(*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211){
+				_event_histo->h_beam_intKE_true_piinelastic->Fill(true_beam_endKE);	
+				_event_histo->h_beam_intKE_reco_piinelastic->Fill(reco_beam_endKE);	
+			}
+			else if(*temp_Ptr0 == "piDecay" && abs(t->true_beam_PDG) == 211){
+				_event_histo->h_beam_intKE_true_pidecay->Fill(true_beam_endKE);
+				_event_histo->h_beam_intKE_reco_pidecay->Fill(reco_beam_endKE);
+			}
+			else if(isUpstream==true){
+				_event_histo->h_beam_intKE_true_upstream->Fill(true_beam_endKE);
+				_event_histo->h_beam_intKE_reco_upstream->Fill(reco_beam_endKE);
+			}
+		
+			else if(abs(t->true_beam_PDG) == 13){
+				_event_histo->h_beam_intKE_true_muon->Fill(true_beam_endKE);
+				_event_histo->h_beam_intKE_reco_muon->Fill(reco_beam_endKE);
+			}
+		}
+	 }	
+	}
 
 
 
 	passCuts = true;
 	if(isdata==0){
+          if(abs(t->true_beam_PDG) != 211 && abs(t->true_beam_PDG) !=13) continue;//passCuts = false;
 	  
 	  //std::cout<<"This is a MC event"<<std::endl;	
 	  //calculate beam displacement before beam cuts
@@ -3467,9 +3496,39 @@ void Main::Maker::MakeFile()
 	//LOG_NORMAL()<<"Finished pre-selection "<<std::endl;
 
 if(passCuts == true ){
+	//Add ESlice here
+	//true_beam_endP - convert to KE
+	//fill histogram - 25 bins 400-900 MeV
+	if(isdata==0){
+		double true_beam_endKE = t->true_beam_interactingEnergy;
+		double reco_beam_endKE = t->reco_beam_interactingEnergy;
+		if(abs(t->true_beam_PDG) == 211 || abs(t->true_beam_PDG)==13){
+			_event_histo->h_beam_intKE_true_aftercut->Fill(true_beam_endKE);	
+			_event_histo->h_beam_intKE_reco_aftercut->Fill(reco_beam_endKE);
+			if(*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG)==211){
+				_event_histo->h_beam_intKE_true_piinelastic_aftercut->Fill(true_beam_endKE);	
+				_event_histo->h_beam_intKE_reco_piinelastic_aftercut->Fill(reco_beam_endKE);		
+			}
+			else if(*temp_Ptr0 == "piDecay" && abs(t->true_beam_PDG)==211){
+				_event_histo->h_beam_intKE_true_pidecay_aftercut->Fill(true_beam_endKE);
+				_event_histo->h_beam_intKE_reco_pidecay_aftercut->Fill(reco_beam_endKE);
+			}
+			else if(isUpstream==true){
+				_event_histo->h_beam_intKE_true_upstream_aftercut->Fill(true_beam_endKE);
+				_event_histo->h_beam_intKE_reco_upstream_aftercut->Fill(reco_beam_endKE);
+			}
+			else if(abs(t->true_beam_PDG) == 13){
+				_event_histo->h_beam_intKE_true_muon_aftercut->Fill(true_beam_endKE);
+				_event_histo->h_beam_intKE_reco_muon_aftercut->Fill(reco_beam_endKE);
+			}
+		}
+	}	
+	//divide into Piinelastic, pion decay, muon and upstream
+	//Also do before preselection and for reco variables
+	//
 
 	//plot the track length of the beam particles in order to characterize the background
-
+	
 
 
 	if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211 && isUpstream == false){
@@ -3555,6 +3614,29 @@ if(passCuts == true ){
            }
         }
         } //end of if sliceID>=0;
+
+	//Matt
+	for(int j=0;j<=true_sliceID;j++){
+           if(abs(t->true_beam_PDG) != 211 && abs(t->true_beam_PDG) != 13) continue;
+	   if(j<=nslices+1){
+		incident_ps[j]++;
+		if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211 && isUpstream == false){  
+                   ++incident_pion_ps[j];
+              } else if(*temp_Ptr0 == "Decay" && abs(t->true_beam_PDG) == 211 && isUpstream == false){
+                   ++incident_pion_decay_ps[j];
+              } else if(abs(t->true_beam_PDG) == 211 && isUpstream == false) {
+                   ++incident_pion_elastic_ps[j];   
+              } else if(abs(t->true_beam_PDG) == 13 && isUpstream == false){
+              //select muon
+                   ++incident_muon_ps[j];
+              } else if(isUpstream == true){
+                   ++incident_upstream_ps[j];
+                   if(abs(t->true_beam_PDG)==211){
+                      ++incident_upstream_pion_ps[j];
+                   }	
+	   }	
+	}
+	}
 
         if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211 && isUpstream == false && sliceID==0 ) { 
 
@@ -5407,6 +5489,7 @@ if(passCuts == true){
 
   double tempxsec[nslices+3];
   double tempxsec_chx[nslices+3];
+  double tempxsec_inel[nslices+3];
 
   double tempxsec_pmom[nslices+3][nbinspmom];
   double tempxsec_pcostheta[nslices+3][nbinspcostheta];
@@ -5417,6 +5500,7 @@ if(passCuts == true){
   for(int i=0; i<nslices+3; i++){
         tempxsec_chx[i]=0.0;
         tempxsec[i]=0.0;
+	tempxsec_inel[i]=0.0;
 
   }
 
@@ -5468,8 +5552,13 @@ if(passCuts == true){
      if( incident[i]>0 && avg_pitch[i]>0){
 
      tempxsec[i]          = MAr/(Density*NA*avg_pitch[i])*log((true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i])/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]-true_abs[i]));
-
-
+     if((true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]-true_interaction[i])==0){
+       tempxsec_inel[i]=0;
+     }
+     else{
+       tempxsec_inel[i] =MAr/(Density*NA*avg_pitch[i])*log((true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i])/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]-true_interaction[i])); 
+     }
+     if(tempxsec_inel[i]>1e100){tempxsec_inel[i]=0;}
      //tempxsec[i]          =MAr/(Density*NA*avg_pitch[i])*true_abs[i]/true_incident[i];
      for(int nb=0; nb<nbinspmom; nb++){
           tempxsec_pmom[i][nb]=(1/1e-27)*MAr/(Density*NA*avg_pitch[i])*h_energetic_pmom_gen[i]->GetBinContent(nb+1)/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]);
@@ -5488,10 +5577,14 @@ if(passCuts == true){
      tempxsec_abs_test[i] = true_abs[i]/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]);
 
 
-     } else {tempxsec[i]=0.0; tempxsec_chx[i]=0.0; tempxsec_chx_test[i]=0.0; tempxsec_abs_test[i] = 0.0; }
+     } else {tempxsec[i]=0.0; tempxsec_inel[i]=0.0; tempxsec_chx[i]=0.0; tempxsec_chx_test[i]=0.0; tempxsec_abs_test[i] = 0.0; }
            
-     tempxsec[i] = tempxsec[i]/1e-27;  
+     tempxsec[i] = tempxsec[i]/1e-27; 
+     tempxsec_inel[i] = tempxsec_inel[i]/1e-27; 
      tempxsec_chx[i] = tempxsec_chx[i]/1e-27;
+
+     cout << "i: " << i <<  " tempxsec_inel[i]: " << tempxsec_inel[i] << endl;
+
      
      exs_abs[i] = MAr/(Density*NA*avg_pitch[i])*1e27*sqrt(true_abs[i]+pow(true_abs[i],2)/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]))/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]);
      exs_chx[i] = MAr/(Density*NA*avg_pitch[i])*1e27*sqrt(true_chx[i]+pow(true_chx[i],2)/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]))/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]);
@@ -5693,6 +5786,8 @@ if(passCuts == true){
   gr_intabs_bq_slc = new TGraph(nslices+3, slcid, true_abs_beam_qualified);
 
   gr_intabs_sel_slc = new TGraph(nslices+3, slcid, true_abs_sel_new);
+  gr_incident_pion_ps = new TGraph(nslices+3, slcid, incident_pion_ps);
+
 
   gr_recoabs_slc = new TGraph(nslices+3, slcid, reco_abs_new);
   gr_recoabs_sel_slc = new TGraph(nslices+3, slcid, reco_abs_sel_new);
@@ -5715,6 +5810,7 @@ if(passCuts == true){
 
 
   TGraph *gr_tempxsec_slc = new TGraph(nslices+3, slcid, tempxsec);
+  TGraph *gr_tempxsec_inel_slc = new TGraph(nslices+3,slcid,tempxsec_inel);
   TGraph *gr_tempxsec_chx_slc = new TGraph(nslices+3, slcid, tempxsec_chx);
 
   TGraph *gr_tempxserror_slc = new TGraph(nslices+3, slcid, exs_abs);
@@ -5767,7 +5863,7 @@ if(passCuts == true){
   }
 
   gr_tempxsec_vs_incE_slc = new TGraph(nslices+3, avg_incE, tempxsec);
-
+  gr_tempxsec_inel_vs_incE_slc = new TGraph(nslices+3, avg_incE, tempxsec_inel);
   gr_tempxsec_chx_vs_incE_slc = new TGraph(nslices+3, avg_incE, tempxsec_chx);
 
 
@@ -5799,6 +5895,7 @@ if(passCuts == true){
 
 
   gr_intabs_sel_slc->Write("gr_intabs_sel_slc");
+  gr_incident_pion_ps->Write("gr_incident_pion_ps");
 
   gr_recoabs_slc->Write("gr_recoabs_slc");
   gr_recoabs_sel_slc->Write("gr_recoabs_sel_slc");
@@ -5817,6 +5914,7 @@ if(passCuts == true){
 
 
   gr_tempxsec_slc->Write("gr_tempxsec_slc");
+  gr_tempxsec_inel_slc->Write("gr_tempxsec_inel_slc");
   gr_tempxsec_chx_slc->Write("gr_tempxsec_chx_slc");
 
   gr_tempxserror_slc->Write("gr_tempxserror_slc");
@@ -5832,7 +5930,8 @@ if(passCuts == true){
   gr_tempxsec_chx_vs_incE_slc->SetName("gr_chx_tempxsec_vs_incE_slc");
   gr_tempxsec_chx_vs_incE_slc->Write();
    
-
+  gr_tempxsec_inel_vs_incE_slc->SetName("gr_inel_tempxsec_vs_incE_slc");
+  gr_tempxsec_inel_vs_incE_slc->Write();
 
   output_newsf.Write();
 
