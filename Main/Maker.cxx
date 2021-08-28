@@ -2102,6 +2102,8 @@ void Main::Maker::MakeFile()
   TGraph *gr_inc_truepion_pandora_identified_slc;
 
   TGraph *gr_interaction_pion_ps; //Incident pi inelastic after preselection
+  TGraph *gr_interaction_ps;
+  TGraph *gr_absorption_sel;
 
   TGraph *gr_inc_truepion_slc;       //incident in true slice
   TGraph *gr_inc_truemuon_slc;  //incident in true slice (muon)  
@@ -3629,10 +3631,10 @@ if(passCuts == true ){
 
 	//Matt
 	if(sliceID>=0){
-           if(abs(t->true_beam_PDG) != 211 && abs(t->true_beam_PDG) != 13) continue;
+           //if(abs(t->true_beam_PDG) != 211 && abs(t->true_beam_PDG) != 13) continue;
 	  
-		interaction_ps[sliceID]++;
-		if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211 && isUpstream == false){  
+	      interaction_ps[sliceID]++;
+	      if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211 && isUpstream == false){  
                    ++interaction_pion_ps[sliceID];
               } else if(*temp_Ptr0 == "Decay" && abs(t->true_beam_PDG) == 211 && isUpstream == false){
                    ++interaction_pion_decay_ps[sliceID];
@@ -3646,7 +3648,7 @@ if(passCuts == true ){
                    if(abs(t->true_beam_PDG)==211){
                       ++interaction_upstream_pion_ps[sliceID];
                    }	
-	   }	
+	      }	
 	
 	}
         if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211 && isUpstream == false && sliceID==0 ) { 
@@ -4889,6 +4891,7 @@ if(passCuts == true){
 		if(abs(t->true_beam_PDG) == 211 || abs(t->true_beam_PDG) == 13){  
 			treeboth->Fill();
 		}
+		++absorption_sel[sliceID];
 		//pion in elastic interaction
         	if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211){  
               		if (t->true_daughter_nPi0 == 0 && t->true_daughter_nPiPlus == 0 && t->true_daughter_nPiMinus ==0){//true absorption
@@ -5800,7 +5803,8 @@ if(passCuts == true){
 
   gr_intabs_sel_slc = new TGraph(nslices+3, slcid, true_abs_sel_new);
   gr_interaction_pion_ps = new TGraph(nslices+3, slcid, interaction_pion_ps);
-
+  gr_interaction_ps = new TGraph(nslices+3, slcid, interaction_ps);
+  gr_absorption_sel = new TGraph(nslices+3, slcid, absorption_sel);
 
   gr_recoabs_slc = new TGraph(nslices+3, slcid, reco_abs_new);
   gr_recoabs_sel_slc = new TGraph(nslices+3, slcid, reco_abs_sel_new);
@@ -5909,7 +5913,8 @@ if(passCuts == true){
 
   gr_intabs_sel_slc->Write("gr_intabs_sel_slc");
   gr_interaction_pion_ps->Write("gr_interaction_pion_ps");
-
+  gr_interaction_ps->Write("gr_interaction_ps");
+  gr_absorption_sel->Write("gr_absorption_sel");
   gr_recoabs_slc->Write("gr_recoabs_slc");
   gr_recoabs_sel_slc->Write("gr_recoabs_sel_slc");
 
