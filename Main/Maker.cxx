@@ -2101,7 +2101,7 @@ void Main::Maker::MakeFile()
 
   TGraph *gr_inc_truepion_pandora_identified_slc;
 
-  TGraph *gr_incident_pion_ps; //Incident pi inelastic after preselection
+  TGraph *gr_interaction_pion_ps; //Incident pi inelastic after preselection
 
   TGraph *gr_inc_truepion_slc;       //incident in true slice
   TGraph *gr_inc_truemuon_slc;  //incident in true slice (muon)  
@@ -2449,9 +2449,16 @@ void Main::Maker::MakeFile()
 	//==================================================================================
 	if(abs(t->true_beam_PDG)==211){//all the pions
 		nevt_truesliceid_pion_all->Fill(true_sliceID);
+	        for (int i = 0; i<=true_sliceID; ++i){
+	            if (i<nslices) ++true_incident[i];
+          	}
 	}
 
         bool isInelastic = abs(t->true_beam_PDG) == 211 && *temp_Ptr0 == "pi+Inelastic";
+	if (isInelastic && true_sliceID < nslices){
+         	++true_interaction[true_sliceID];
+	}
+
 
 	//CATEGORY 2 "pion Inelastics"
         if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211){  //std::cout<<"signal"<<std::endl;
@@ -2477,7 +2484,6 @@ void Main::Maker::MakeFile()
 
 
            if (true_sliceID>=0 && true_sliceID <= nslices+1){
-              ++true_interaction[true_sliceID];
               if (t->true_daughter_nPi0 == 0 && t->true_daughter_nPiPlus == 0 && t->true_daughter_nPiMinus ==0){//true absorption
                   ++true_abs[true_sliceID];
                   dabsintE -> Fill((t->reco_beam_interactingEnergy - t->true_beam_interactingEnergy)/t->true_beam_interactingEnergy);
@@ -2586,9 +2592,6 @@ void Main::Maker::MakeFile()
         for (int i = 0; i<=true_sliceID; ++i) {
            if(abs(t->true_beam_PDG) != 211 && abs(t->true_beam_PDG) != 13) continue;
            if(i<=nslices+1){
-	      if(isInelastic){
-                ++true_incident[i];
-	      }
               //select pion
               if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211 && isUpstream == false){  
                    ++true_incident_pion[i];
@@ -5560,15 +5563,14 @@ if(passCuts == true){
      if( incident[i]>0 && avg_pitch[i]>0){
 
      tempxsec[i]          = MAr/(Density*NA*avg_pitch[i])*log((true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i])/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]-true_abs[i]));
-     if((true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]-true_interaction[i])==0){
+     /*if((true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]-true_interaction[i])==0){
        tempxsec_inel[i]=0;
      }
      else{
-       tempxsec_inel[i] =MAr/(Density*NA*avg_pitch[i])*log((true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i])/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]-true_interaction[i])); 
-     //tempxsec_inel[i]=MAr/(Density*NA*avg_pitch[i])*log(true_incident[i]/(true_incident[i]-true_interaction[i]));
-
+       tempxsec_inel[i]   = MAr/(Density*NA*avg_pitch[i])*log((true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i])/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]-true_interaction[i])); 
      }
      if(tempxsec_inel[i]>1e100){tempxsec_inel[i]=0;}
+     */
      //tempxsec[i]          =MAr/(Density*NA*avg_pitch[i])*true_abs[i]/true_incident[i];
      for(int nb=0; nb<nbinspmom; nb++){
           tempxsec_pmom[i][nb]=(1/1e-27)*MAr/(Density*NA*avg_pitch[i])*h_energetic_pmom_gen[i]->GetBinContent(nb+1)/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]);
@@ -5587,11 +5589,12 @@ if(passCuts == true){
      tempxsec_abs_test[i] = true_abs[i]/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]);
 
 
-     } else {tempxsec[i]=0.0; tempxsec_inel[i]=0.0; tempxsec_chx[i]=0.0; tempxsec_chx_test[i]=0.0; tempxsec_abs_test[i] = 0.0; }
+     } else {tempxsec[i]=0.0; /*tempxsec_inel[i]=0.0;*/ tempxsec_chx[i]=0.0; tempxsec_chx_test[i]=0.0; tempxsec_abs_test[i] = 0.0; }
            
      tempxsec[i] = tempxsec[i]/1e-27; 
-     tempxsec_inel[i] = tempxsec_inel[i]/1e-27; 
+     //tempxsec_inel[i] = tempxsec_inel[i]/1e-27; 
      tempxsec_chx[i] = tempxsec_chx[i]/1e-27;
+     tempxsec_inel[i] = MAr/(Density*NA*thinslicewidth)*log(true_incident[i]/(true_incident[i]-true_interaction[i]))*1e27;
 
      cout << "i: " << i <<  " tempxsec_inel[i]: " << tempxsec_inel[i] << endl;
 
@@ -5614,7 +5617,7 @@ if(passCuts == true){
   LOG_NORMAL() << "Output file closed." << std::endl;
 
 
-  string outfilename0 = "/dune/app/users/mmatt15/PionAbsChxAna/Main/mac/output_sliceIDmat.root";
+  string outfilename0 = "./Main/mac/output_sliceIDmat.root";
   TFile output_sliceIDmat(outfilename0.c_str(), "RECREATE");
   /*h_true_reco_mom->Write();
   h_true_reco_costheta->Write();
@@ -5751,7 +5754,7 @@ if(passCuts == true){
 
   output_sliceIDmat.Close();
   LOG_NORMAL()<<"output sliceIDmat file closed "<<std::endl; 
-  string outfilename="/dune/app/users/mmatt15/PionAbsChxAna/Main/mac/output_graphs.root";
+  string outfilename="./Main/mac/output_graphs.root";
 
   TFile output_newsf(outfilename.c_str(), "RECREATE");
   TGraph *gr_intabs_posneg_slc=new TGraph(nslices+3, slcid_posneg, true_abs_posneg);
@@ -5796,7 +5799,7 @@ if(passCuts == true){
   gr_intabs_bq_slc = new TGraph(nslices+3, slcid, true_abs_beam_qualified);
 
   gr_intabs_sel_slc = new TGraph(nslices+3, slcid, true_abs_sel_new);
-  gr_incident_pion_ps = new TGraph(nslices+3, slcid, incident_pion_ps);
+  gr_interaction_pion_ps = new TGraph(nslices+3, slcid, interaction_pion_ps);
 
 
   gr_recoabs_slc = new TGraph(nslices+3, slcid, reco_abs_new);
@@ -5905,7 +5908,7 @@ if(passCuts == true){
 
 
   gr_intabs_sel_slc->Write("gr_intabs_sel_slc");
-  gr_incident_pion_ps->Write("gr_incident_pion_ps");
+  gr_interaction_pion_ps->Write("gr_interaction_pion_ps");
 
   gr_recoabs_slc->Write("gr_recoabs_slc");
   gr_recoabs_sel_slc->Write("gr_recoabs_sel_slc");
