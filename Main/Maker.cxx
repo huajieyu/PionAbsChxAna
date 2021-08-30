@@ -5806,6 +5806,8 @@ if(passCuts == true){
   gr_interaction_ps = new TGraph(nslices+3, slcid, interaction_ps);
   gr_absorption_sel = new TGraph(nslices+3, slcid, absorption_sel);
 
+  for(int i=0;i<nslices+3;i++){cout << "i: " << i << " interaction_ps[i]: " << interaction_ps[i] << " absorption_sel[i]: " << absorption_sel[i] << endl;}
+
   gr_recoabs_slc = new TGraph(nslices+3, slcid, reco_abs_new);
   gr_recoabs_sel_slc = new TGraph(nslices+3, slcid, reco_abs_sel_new);
 
