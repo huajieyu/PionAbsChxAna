@@ -672,6 +672,18 @@ bool Main::Maker::endAPA3(double reco_beam_endZ){
 
 }
 
+bool Main::Maker::PassMichelScoreCut(double michel_score, int nHits){
+  double daughter_michel_score=-999;
+  if(nHits){ daughter_michel_score = michel_score/(1.0*nHits); }
+  return daughter_michel_score < cut_michelScore;
+}
+
+/*bool Main::Maker::PassMediandEdxCut(vector<double> *reco_beam_calibrated_dEdX_SCE, bool isEmpty){
+  double median_dEdx = -1;
+  if(!isEmpty){ median_dEdx = TMath::Median(reco_beam_calibrated_dEdX_SCE->size(), &(*reco_beam_calibrated_dEdX_SCE)[0]); }
+  return median_dEdx < cut_median_dEdx;
+}*/
+
 bool Main::Maker::has_pi0shower(const std::vector<double> &track_score){
    //calculate the angle between shower start point - vertex direction and
    //the direction of the shower
@@ -2229,7 +2241,6 @@ void Main::Maker::MakeFile()
  
 
 
-
   for (int i = 0; i<=nslices+2; ++i){
 
      interaction[i] = 0;
@@ -2274,6 +2285,8 @@ void Main::Maker::MakeFile()
      reco_abs_sel[i]=0;
      reco_chx_sel[i]=0;
 
+     interaction_ps[i]=0;
+     absorption_sel[i]=0;
 
      selected_tot[i]=0;
      selected_pibkg[i]=0;
@@ -2971,64 +2984,50 @@ void Main::Maker::MakeFile()
 
 	          }
 	  }
-	  //#1 beam type cut
-	  //
-	  if(min_michelscore>0.72) passCuts = false;
-          //if(!isBeamType(t->reco_beam_type)) /*continue;*/ passCuts = false; 
 
-
-	  if(t->reco_beam_calo_wire->size()>0){
-	    _event_histo->h_reco_beam_startx->Fill(t->reco_beam_calo_startX);
-	    _event_histo->h_reco_beam_starty->Fill(t->reco_beam_calo_startY);
-	    _event_histo->h_reco_beam_startz->Fill(t->reco_beam_calo_startZ);
-	  }
-	
+	 //#1 vsize cut
+          if(t->reco_beam_calo_wire->size()==0) /*continue;*/ passCuts = false;
+	  
 	  if(passCuts == true){
-		  _event_histo->h_beam_trklen_total->Fill(beam_trklen);
-		  if(abs(t->true_beam_PDG)==211){_event_histo->h_beam_trklen_pion->Fill(beam_trklen);}
-		  if(abs(t->true_beam_PDG)==13){_event_histo->h_beam_trklen_muon->Fill(beam_trklen);}
-
-		  _event_histo->h_mc_beam_deltax->Fill(libobeamdeltax);
-		  _event_histo->h_mc_beam_deltay->Fill(libobeamdeltay);
- 		  _event_histo->h_mc_beam_deltaz->Fill(libobeamdeltaz);
-		  _event_histo->h_mc_beam_cos->Fill(libobeamcos);
-		  Nint_beamtypecut++;
-	          if(true_sliceID >0 && true_sliceID<=2) {
-        	     Nint3slice_pi++;
-          	  }
-          	  if(*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG)==211 && isUpstream == false){
-		     Nintpioninelastic_pi++;
+		  Nint_calosizecut++;
+	          if(*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG)==211 && isUpstream == false){
+		     Nintpioninelastic_bq_vsize++;
 		  }
 	          if(*temp_Ptr0 == "Decay" && abs(t->true_beam_PDG)==211 && isUpstream == false){
-	             Nintpiondecay_pi++;
+	             Nintpiondecay_bq_vsize++;
 	          }
 	       	  if(abs(t->true_beam_PDG)==13 && isUpstream == false){
-	             Nintmuon_pi++;
+	             Nintmuon_bq_vsize++;
 	          }
 	          if(isUpstream == true){
-	             Nintupstream_pi++;
+	             Nintupstream_bq_vsize++;
 	          }
 	  }
-          if(abs(t->true_beam_PDG) == 211){
-             //Fill the histogram of  the pion beam interacting energy 
-             for(int i=0; i<=true_sliceID; ++i){
-               if(i<=nslices+1){
-                 ++true_incident_pandora_identified[i];
-               }
-             }
+          
+          vector<double> *beam_dEdX_Ptr=t->reco_beam_calibrated_dEdX_SCE;
+          double reco_beam_tmdqdx = GetTruncatedMean(*beam_dEdX_Ptr, 2, t->reco_beam_calibrated_dEdX_SCE->size() - 5, 0.1, 0.6);
+
+          _event_histo->h_reco_beam_tmdqdx->Fill(reco_beam_tmdqdx);
+          if(abs(t->true_beam_PDG) == 211){ 
+          if(abs(t->reco_beam_true_byHits_PDG)==211){
+              //Fill the histograms of beam 
+              _event_histo->h_reco_beam_pion_tmdqdx->Fill(reco_beam_tmdqdx);
+              _event_histo->h_reco_beam_costheta_pion->Fill(t->reco_beam_PFP_trackScore_collection);
+          } else if(abs(t->reco_beam_true_byHits_PDG)==13){
+              _event_histo->h_reco_beam_muon_tmdqdx->Fill(reco_beam_tmdqdx);
+              _event_histo->h_reco_beam_costheta_muon->Fill(t->reco_beam_PFP_trackScore_collection);
+          } else if(abs(t->reco_beam_true_byHits_PDG)==2212){
+              _event_histo->h_reco_beam_proton_tmdqdx->Fill(reco_beam_tmdqdx);
+              _event_histo->h_reco_beam_costheta_proton->Fill(t->reco_beam_PFP_trackScore_collection);
+          } else if(abs(t->reco_beam_true_byHits_PDG)==22 || abs(t->reco_beam_true_byHits_PDG)==11){
+              _event_histo->h_reco_beam_gamma_tmdqdx->Fill(reco_beam_tmdqdx);
+              _event_histo->h_reco_beam_costheta_gamma->Fill(t->reco_beam_PFP_trackScore_collection);
+          } else {
+	      _event_histo->h_reco_beam_other_tmdqdx->Fill(reco_beam_tmdqdx);
+              _event_histo->h_reco_beam_costheta_other->Fill(t->reco_beam_PFP_trackScore_collection);
           }
-          if(*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211) {//choose pion absorptions
-             //true absorption
-             if(t->true_daughter_nPi0 == 0 && t->true_daughter_nPiPlus == 0 && t->true_daughter_nPiMinus ==0){
-                  if(true_sliceID>=0){
-                      ++true_abs_pandora_identified[true_sliceID];      
-                  }
-             }
-          }  
-
-
-
-
+          }
+ 
 
  	  // #2 beam delta x cut
           //if(libobeamdeltax<xlow || libobeamdeltax>xhigh) /*continue;*/ passCuts = false; 
@@ -3156,50 +3155,71 @@ void Main::Maker::MakeFile()
 	          }
           }
           
-	  //#8 vsize cut
-          if(t->reco_beam_calo_wire->size()==0) /*continue;*/ passCuts = false;
-	  
+	  //#8 beam type cut
+	  //
+	  //if(min_michelscore>0.72) passCuts = false;
+          if(!PassMichelScoreCut(t->reco_beam_vertex_michel_score,t->reco_beam_vertex_nHits)) passCuts = false;
+	  //if(!isBeamType(t->reco_beam_type)) /*continue;*/ passCuts = false; 
+
+
+	  if(t->reco_beam_calo_wire->size()>0){
+	    _event_histo->h_reco_beam_startx->Fill(t->reco_beam_calo_startX);
+	    _event_histo->h_reco_beam_starty->Fill(t->reco_beam_calo_startY);
+	    _event_histo->h_reco_beam_startz->Fill(t->reco_beam_calo_startZ);
+	  }
+	
 	  if(passCuts == true){
-		  Nint_calosizecut++;
-	          if(*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG)==211 && isUpstream == false){
-		     Nintpioninelastic_bq_vsize++;
+		  _event_histo->h_beam_trklen_total->Fill(beam_trklen);
+		  if(abs(t->true_beam_PDG)==211){_event_histo->h_beam_trklen_pion->Fill(beam_trklen);}
+		  if(abs(t->true_beam_PDG)==13){_event_histo->h_beam_trklen_muon->Fill(beam_trklen);}
+
+		  _event_histo->h_mc_beam_deltax->Fill(libobeamdeltax);
+		  _event_histo->h_mc_beam_deltay->Fill(libobeamdeltay);
+ 		  _event_histo->h_mc_beam_deltaz->Fill(libobeamdeltaz);
+		  _event_histo->h_mc_beam_cos->Fill(libobeamcos);
+		  Nint_beamtypecut++;
+	          if(true_sliceID >0 && true_sliceID<=2) {
+        	     Nint3slice_pi++;
+          	  }
+          	  if(*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG)==211 && isUpstream == false){
+		     Nintpioninelastic_pi++;
 		  }
 	          if(*temp_Ptr0 == "Decay" && abs(t->true_beam_PDG)==211 && isUpstream == false){
-	             Nintpiondecay_bq_vsize++;
+	             Nintpiondecay_pi++;
 	          }
 	       	  if(abs(t->true_beam_PDG)==13 && isUpstream == false){
-	             Nintmuon_bq_vsize++;
+	             Nintmuon_pi++;
 	          }
 	          if(isUpstream == true){
-	             Nintupstream_bq_vsize++;
+	             Nintupstream_pi++;
 	          }
 	  }
-          
-          vector<double> *beam_dEdX_Ptr=t->reco_beam_calibrated_dEdX_SCE;
-          double reco_beam_tmdqdx = GetTruncatedMean(*beam_dEdX_Ptr, 2, t->reco_beam_calibrated_dEdX_SCE->size() - 5, 0.1, 0.6);
+          if(abs(t->true_beam_PDG) == 211){
+             //Fill the histogram of  the pion beam interacting energy 
+             for(int i=0; i<=true_sliceID; ++i){
+               if(i<=nslices+1){
+                 ++true_incident_pandora_identified[i];
+               }
+             }
+          }
+          if(*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211) {//choose pion absorptions
+             //true absorption
+             if(t->true_daughter_nPi0 == 0 && t->true_daughter_nPiPlus == 0 && t->true_daughter_nPiMinus ==0){
+                  if(true_sliceID>=0){
+                      ++true_abs_pandora_identified[true_sliceID];      
+                  }
+             }
+          }  	
 
-          _event_histo->h_reco_beam_tmdqdx->Fill(reco_beam_tmdqdx);
-          if(abs(t->true_beam_PDG) == 211){ 
-          if(abs(t->reco_beam_true_byHits_PDG)==211){
-              //Fill the histograms of beam 
-              _event_histo->h_reco_beam_pion_tmdqdx->Fill(reco_beam_tmdqdx);
-              _event_histo->h_reco_beam_costheta_pion->Fill(t->reco_beam_PFP_trackScore_collection);
-          } else if(abs(t->reco_beam_true_byHits_PDG)==13){
-              _event_histo->h_reco_beam_muon_tmdqdx->Fill(reco_beam_tmdqdx);
-              _event_histo->h_reco_beam_costheta_muon->Fill(t->reco_beam_PFP_trackScore_collection);
-          } else if(abs(t->reco_beam_true_byHits_PDG)==2212){
-              _event_histo->h_reco_beam_proton_tmdqdx->Fill(reco_beam_tmdqdx);
-              _event_histo->h_reco_beam_costheta_proton->Fill(t->reco_beam_PFP_trackScore_collection);
-          } else if(abs(t->reco_beam_true_byHits_PDG)==22 || abs(t->reco_beam_true_byHits_PDG)==11){
-              _event_histo->h_reco_beam_gamma_tmdqdx->Fill(reco_beam_tmdqdx);
-              _event_histo->h_reco_beam_costheta_gamma->Fill(t->reco_beam_PFP_trackScore_collection);
-          } else {
-	      _event_histo->h_reco_beam_other_tmdqdx->Fill(reco_beam_tmdqdx);
-              _event_histo->h_reco_beam_costheta_other->Fill(t->reco_beam_PFP_trackScore_collection);
-          }
-          }
 	  //#9 truncated mean dqdx cut
-          if(reco_beam_tmdqdx>2.4) /*continue;*/ passCuts = false; 
+          //if(reco_beam_tmdqdx>2.4) /*continue;*/ passCuts = false; 
+	  //if(!PassMediandEdxCut(t->reco_beam_calibrated_dEdX_SCE,t->reco_beam_calo_wire->empty())) passCuts = false;
+	  double median_dEdx = -1;
+	  if(!t->reco_beam_calo_wire->empty()){
+ 	    median_dEdx = TMath::Median(t->reco_beam_calibrated_dEdX_SCE->size(), &(*t->reco_beam_calibrated_dEdX_SCE)[0]);
+	  }
+	  cout << "median_dEdx = " << median_dEdx << endl;
+
 	  if(passCuts==true) Nint_tmdqdxcut++;
 	  
 	  if(passCuts == true){
@@ -3372,7 +3392,8 @@ void Main::Maker::MakeFile()
 
           _event_histo->h_beam_trackscore_collection->Fill(t->reco_beam_PFP_trackScore_collection);
 
-	  if(min_michelscore>0.72) passCuts = false;
+	  //if(min_michelscore>0.72) passCuts = false;
+          if(!PassMichelScoreCut(t->reco_beam_vertex_michel_score,t->reco_beam_vertex_nHits)) passCuts = false; 
           //if(!isBeamType(t->reco_beam_type)) /*continue;*/ passCuts = false; 
 	  if(t->reco_beam_calo_wire->size()>0){ 
 	  	_event_histo->h_reco_beam_startx->Fill(t->reco_beam_calo_startX);
@@ -3480,7 +3501,10 @@ void Main::Maker::MakeFile()
 	  //LOG_NORMAL()<<"Start to perform dEdX cut to beam particles of data"<<std::endl;
           vector<double> *beam_dEdX_Ptr=t->reco_beam_calibrated_dEdX_SCE;
           double reco_beam_tmdqdx = GetTruncatedMean(*beam_dEdX_Ptr, 2, t->reco_beam_calibrated_dEdX_SCE->size() - 5, 0.1, 0.6);
-	  if(reco_beam_tmdqdx >2.4) passCuts = false;
+	  //if(reco_beam_tmdqdx >2.4) passCuts = false;
+	  //if(!PassMediandEdxCut(t->reco_beam_calibrated_dEdX_SCE,t->reco_beam_calo_wire->empty())) passCuts = false;	  
+	  
+
 	  if(passCuts==true) Nint_tmdqdxcut++;
 	  //LOG_NORMAL()<<"Start to perform beam quality cut to beam particles of data"<<std::endl; 
           if(!manual_beamPos_data(t->event, t->reco_beam_startX, t->reco_beam_startY, t->reco_beam_startZ,
@@ -5526,6 +5550,7 @@ if(passCuts == true){
   double unverr[nslices+3];
   double exs_abs[nslices+3];
   double exs_chx[nslices+3];
+  double exs_inel[nslices+3];
 
 
   //std::cout<<"libo test 0"<<std::endl;
@@ -5604,7 +5629,7 @@ if(passCuts == true){
      
      exs_abs[i] = MAr/(Density*NA*avg_pitch[i])*1e27*sqrt(true_abs[i]+pow(true_abs[i],2)/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]))/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]);
      exs_chx[i] = MAr/(Density*NA*avg_pitch[i])*1e27*sqrt(true_chx[i]+pow(true_chx[i],2)/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]))/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]);
- 
+     exs_inel[i] = MAr/(Density*NA*10)*1e27*sqrt(true_interaction[i]+pow(true_interaction[i],2)/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]))/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]); 
   }//end of loop over all the nslices
 
 
@@ -5757,8 +5782,13 @@ if(passCuts == true){
 
   output_sliceIDmat.Close();
   LOG_NORMAL()<<"output sliceIDmat file closed "<<std::endl; 
-  string outfilename="./Main/mac/output_graphs.root";
-
+  string outfilename;
+  if(isdata==0){
+    outfilename="./Main/mac/output_graphs.root";
+  }
+  else if(isdata==1){
+    outfilename="./Main/mac/outfile_graphs_data.root";
+  }
   TFile output_newsf(outfilename.c_str(), "RECREATE");
   TGraph *gr_intabs_posneg_slc=new TGraph(nslices+3, slcid_posneg, true_abs_posneg);
   gr_intabs_posneg_slc->Write("gr_intabs_posneg_slc");
@@ -5834,6 +5864,7 @@ if(passCuts == true){
 
   TGraph *gr_tempxserror_slc = new TGraph(nslices+3, slcid, exs_abs);
   TGraph *gr_tempxserror_chx_slc = new TGraph(nslices+3, slcid, exs_chx);
+  TGraph *gr_tempxserror_inel_slc = new TGraph(nslices+3, slcid, exs_inel);
   
 
   gr_tempxsec_chx_test_slc = new TGraph(nslices+3, slcid, tempxsec_chx_test);
@@ -5939,6 +5970,7 @@ if(passCuts == true){
 
   gr_tempxserror_slc->Write("gr_tempxserror_slc");
   gr_tempxserror_chx_slc->Write("gr_tempxserror_chx_slc");
+  gr_tempxserror_inel_slc->Write("gr_tempxserror_inel_slc");
 
   gr_tempxsec_chx_test_slc->Write("gr_tempxsec_chx_test_slc");
   gr_tempxsec_abs_test_slc->Write("gr_tempxsec_abs_test_slc");

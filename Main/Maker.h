@@ -427,6 +427,7 @@ namespace Main{
     double incident_upstream_pion[nslices+3];
 
     double interaction_ps[nslices+3];
+    double absorption_sel[nslices+3];
 
     double interaction_pion_ps[nslices+3];
     double interaction_pion_decay_ps[nslices+3];
@@ -535,8 +536,10 @@ namespace Main{
     const double PionMass = 0.13957; 
     //const double MuonMass = 0.105658;
 
-    double cutAPA3_Z = 215.;
+    double cutAPA3_Z = 220.;
     double cut_trackScore = 0.4;
+    double cut_michelScore = 0.55;
+    double cut_median_dEdx = 2.4;
     //daughter Distance cut
 
     int temp_index_shw= -999;
@@ -642,6 +645,8 @@ namespace Main{
     std::string beam_particle_Identification(std::string &reco_beam_true_byHits_process, Bool_t &reco_beam_true_byHits_matched, Int_t &reco_beam_true_byHits_origin, Int_t &reco_beam_true_byHits_PDG);
 
     bool endAPA3(double reco_beam_endZ); 
+    bool PassMichelScoreCut(double michel_score, int nHits);
+    bool PassMediandEdxCut(vector<double> reco_beam_calibrated_dEdX_SCE, bool isEmpty);
     //
     //Tag PrimaryPion without elastic Scattering
     bool has_pi0shower(const std::vector<double> &track_score);
