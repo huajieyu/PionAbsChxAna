@@ -394,7 +394,35 @@ namespace Main{
     Int_t nbinspcostheta=12;
     Int_t nbinspphi=12;
 
+    const double eslice_bin_size = 40.; 
+    const double eslice_eStart = 1200.;
+    const double eslice_eEnd = 480.;
+    //int eslice_nBin = (eslice_eStart-eslice_eEnd)/eslice_bin_size;
+    static const int eslice_nBin = 18;
 
+    int true_incident_eslice_pion_inel[eslice_nBin+1];
+    int true_interacting_eslice_pion_inel[eslice_nBin+1];
+    int true_incident_eslice_pion_decay[eslice_nBin+1];
+    int true_interacting_eslice_pion_decay[eslice_nBin+1];
+    int true_incident_eslice_upstream[eslice_nBin+1];
+    int true_interacting_eslice_upstream[eslice_nBin+1];
+    int true_incident_eslice_muon[eslice_nBin+1];
+    int true_interacting_eslice_muon[eslice_nBin+1];
+    int true_incident_eslice_pion_total[eslice_nBin+1];
+    int true_interacting_eslice_pion_total[eslice_nBin+1];
+
+    int reco_incident_eslice_pion_inel[eslice_nBin+1];
+    int reco_interacting_eslice_pion_inel[eslice_nBin+1];
+    int reco_incident_eslice_pion_decay[eslice_nBin+1];
+    int reco_interacting_eslice_pion_decay[eslice_nBin+1];
+    int reco_incident_eslice_upstream[eslice_nBin+1];
+    int reco_interacting_eslice_upstream[eslice_nBin+1];
+    int reco_incident_eslice_muon[eslice_nBin+1];
+    int reco_interacting_eslice_muon[eslice_nBin+1]; 
+    int reco_incident_eslice_pion_total[eslice_nBin+1];
+    int reco_interacting_eslice_pion_total[eslice_nBin+1];	
+
+    int eslice_bins[eslice_nBin+1];
 
     double NA=6.02214076e23;
     double MAr=39.95; //gmol
@@ -646,7 +674,7 @@ namespace Main{
 
     bool endAPA3(double reco_beam_endZ); 
     bool PassMichelScoreCut(double michel_score, int nHits);
-    bool PassMediandEdxCut(vector<double> reco_beam_calibrated_dEdX_SCE, bool isEmpty);
+    bool PassMediandEdxCut(vector<double> *reco_beam_calibrated_dEdX_SCE,bool isEmpty);
     //
     //Tag PrimaryPion without elastic Scattering
     bool has_pi0shower(const std::vector<double> &track_score);

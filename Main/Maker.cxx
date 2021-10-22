@@ -678,11 +678,11 @@ bool Main::Maker::PassMichelScoreCut(double michel_score, int nHits){
   return daughter_michel_score < cut_michelScore;
 }
 
-/*bool Main::Maker::PassMediandEdxCut(vector<double> *reco_beam_calibrated_dEdX_SCE, bool isEmpty){
+bool Main::Maker::PassMediandEdxCut(vector<double> *reco_beam_calibrated_dEdX_SCE, bool isEmpty){
   double median_dEdx = -1;
   if(!isEmpty){ median_dEdx = TMath::Median(reco_beam_calibrated_dEdX_SCE->size(), &(*reco_beam_calibrated_dEdX_SCE)[0]); }
   return median_dEdx < cut_median_dEdx;
-}*/
+}
 
 bool Main::Maker::has_pi0shower(const std::vector<double> &track_score){
    //calculate the angle between shower start point - vertex direction and
@@ -2015,6 +2015,7 @@ void Main::Maker::MakeFile()
   int Nint_APA3cut=0;
   int Nint_calosizecut=0;
   int Nint_tmdqdxcut=0;
+  int Nint_pandoraslicecut=0;
 
   int TestGenSig=0;
 
@@ -3050,11 +3051,11 @@ void Main::Maker::MakeFile()
           if(abs(t->true_beam_PDG) != 211 && abs(t->true_beam_PDG) !=13) continue;//passCuts = false;
           h_Evttot->Fill(event_weight);
 	  Nint_pdgcut++;
-	  double beam_trklen=TMath::Sqrt(TMath::Power((t->reco_beam_calo_startX-t->reco_beam_calo_endX),2.0)
-	  				+TMath::Power((t->reco_beam_calo_startY-t->reco_beam_calo_endY),2.0)
-	  				+TMath::Power((t->reco_beam_calo_startZ-t->reco_beam_calo_endZ),2.0));
+	  //double beam_trklen=TMath::Sqrt(TMath::Power((t->reco_beam_calo_startX-t->reco_beam_calo_endX),2.0)
+	  //				+TMath::Power((t->reco_beam_calo_startY-t->reco_beam_calo_endY),2.0)
+	  //				+TMath::Power((t->reco_beam_calo_startZ-t->reco_beam_calo_endZ),2.0));
 
-	  //double beam_trklen=t->reco_beam_alt_len;
+	  double beam_trklen=t->reco_beam_calo_endZ;
 
 	  passCuts = true;
           if(abs(t->true_beam_PDG)==13) _event_histo->h_mc_beamtype_muon->Fill(isBeamType(t->reco_beam_type));
@@ -3075,6 +3076,10 @@ void Main::Maker::MakeFile()
 
 	          }
 	  }
+
+	 //#0.5 Pandora slice cut
+	 if(t->reco_beam_type != 13) passCuts=false; //Beam particle is track-like
+	 if(passCuts=true) Nint_pandoraslicecut++;
 
 	 //#1 vsize cut
           if(t->reco_beam_calo_wire->size()==0) /*continue;*/ passCuts = false;
@@ -3226,6 +3231,30 @@ void Main::Maker::MakeFile()
           //                    t->true_beam_startDirX, t->true_beam_startDirY, t->true_beam_startDirZ,
           //                    t->true_beam_startX, t->true_beam_startY, t->true_beam_startZ)) /*continue;*/ passCuts = false; 
           if(passCuts==true) Nint_beamqualitycut++;
+
+	  //#6.5 New beam quality cut
+	  //if(!manual_beamPos_mc(t->reco_beam_startX, t->reco_beam_startY, t->reco_beam_startZ, 
+          //                    t->reco_beam_trackDirX, t->reco_beam_trackDirY, t->reco_beam_trackDirZ,
+          //                    t->true_beam_startDirX, t->true_beam_startDirY, t->true_beam_startDirZ,
+          //                    t->true_beam_startX, t->true_beam_startY, t->true_beam_startZ)) /*continue;*/ passCuts = false; 
+          //if(libobeamcos<coslow) /*continue;*/ passCuts= false;
+ 
+	  SetBeamQualityCuts();
+	  if(!PassBeamQualityCut())  passCuts  = false;
+
+ 	  if(passCuts == true) Nint_beamqualitynewcut++;
+	  if((isdata==0 && (isInelastic || isDecay)) /*&& t->true_beam_ID == t->reco_beam_true_byHits_ID*/){
+	  	outfile_roounfold<<passCuts<<"    "<<setw(5)<<true_sliceID<<setw(5)<<sliceID<<std::endl;
+ 	  }
+	  //if(passCuts==false) continue;
+
+	  if(isdata==0 && (passCuts == true && isInelastic)){
+		 nevt_truesliceid_inelastic_cuts->Fill(true_sliceID);
+	         nevt_recosliceid_inelastic_cuts->Fill(sliceID);
+	  }
+	  //LOG_NORMAL()<<"Performed the beam quality cut"<<std::endl;
+
+
 	  //#7 is APA3 cut
           //if(!endAPA3(t->reco_beam_calo_endZ) ) /*continue;*/ passCuts = false; 
 	  if(beam_trklen>220) passCuts = false; 
@@ -3305,11 +3334,12 @@ void Main::Maker::MakeFile()
 	  //#9 truncated mean dqdx cut
           //if(reco_beam_tmdqdx>2.4) /*continue;*/ passCuts = false; 
 	  //if(!PassMediandEdxCut(t->reco_beam_calibrated_dEdX_SCE,t->reco_beam_calo_wire->empty())) passCuts = false;
-	  double median_dEdx = -1;
-	  if(!t->reco_beam_calo_wire->empty()){
- 	    median_dEdx = TMath::Median(t->reco_beam_calibrated_dEdX_SCE->size(), &(*t->reco_beam_calibrated_dEdX_SCE)[0]);
-	  }
-	  cout << "median_dEdx = " << median_dEdx << endl;
+	  if(!PassMediandEdxCut(t->reco_beam_calibrated_dEdX_SCE,t->reco_beam_calo_wire->empty())) passCuts = false;
+	  //double median_dEdx = -1;
+	  //if(!t->reco_beam_calo_wire->empty()){
+ 	  //  median_dEdx = TMath::Median(t->reco_beam_calibrated_dEdX_SCE->size(), &(*t->reco_beam_calibrated_dEdX_SCE)[0]);
+	  //}
+	  //cout << "median_dEdx = " << median_dEdx << endl;
 
 	  if(passCuts==true) Nint_tmdqdxcut++;
 	  
@@ -3329,27 +3359,7 @@ void Main::Maker::MakeFile()
 	  }
   
 
-          //if(!manual_beamPos_mc(t->reco_beam_startX, t->reco_beam_startY, t->reco_beam_startZ, 
-          //                    t->reco_beam_trackDirX, t->reco_beam_trackDirY, t->reco_beam_trackDirZ,
-          //                    t->true_beam_startDirX, t->true_beam_startDirY, t->true_beam_startDirZ,
-          //                    t->true_beam_startX, t->true_beam_startY, t->true_beam_startZ)) /*continue;*/ passCuts = false; 
-          //if(libobeamcos<coslow) /*continue;*/ passCuts= false;
- 
-	  SetBeamQualityCuts();
-	  if(!PassBeamQualityCut())  passCuts  = false;
-
- 	  if(passCuts == true) Nint_beamqualitynewcut++;
-	  if((isdata==0 && (isInelastic || isDecay)) /*&& t->true_beam_ID == t->reco_beam_true_byHits_ID*/){
-	  	outfile_roounfold<<passCuts<<"    "<<setw(5)<<true_sliceID<<setw(5)<<sliceID<<std::endl;
- 	  }
-	  //if(passCuts==false) continue;
-
-	  if(isdata==0 && (passCuts == true && isInelastic)){
-		 nevt_truesliceid_inelastic_cuts->Fill(true_sliceID);
-	         nevt_recosliceid_inelastic_cuts->Fill(sliceID);
-	  }
-	  //LOG_NORMAL()<<"Performed the beam quality cut"<<std::endl;
-
+          
           //BROKEN Track Study
           /*if(t->reco_daughter_allTrack_Theta->size()==1){ //selected events with only 1 daughter particles
                vector<double> *beam_resRange_Ptr = t->reco_beam_resRange_SCE; 
@@ -3481,9 +3491,13 @@ void Main::Maker::MakeFile()
 	
 		
 	  passCuts = true;
-          _event_histo->h_data_beamtype->Fill(isBeamType(t->reco_beam_type));
 
+          _event_histo->h_data_beamtype->Fill(isBeamType(t->reco_beam_type));
           _event_histo->h_beam_trackscore_collection->Fill(t->reco_beam_PFP_trackScore_collection);
+
+	  //#0.5 Pandora Slice cut
+	  if(t->reco_beam_type != 13) passCuts = false; //Beam particle is track-like 
+	  if(passCuts == true) Nint_pandoraslicecut++;
 
 	  //#1 Calo size cut-----------------------------------------
 	  if(t->reco_beam_calo_wire->size()==0) /*continue;*/ passCuts = false;
@@ -3527,7 +3541,6 @@ void Main::Maker::MakeFile()
                        cos(beam_angleZ_data*TMath::Pi()/180));
       	  	beamdir = beamdir.Unit();
       	  	beam_costh = dir.Dot(beamdir);
-		//////////Matt/////////////
 		if(passCuts==true){
 			_event_histo->h_data_beam_deltax->Fill(beam_dx);
 			_event_histo->h_data_beam_deltay->Fill(beam_dy);
@@ -3539,7 +3552,6 @@ void Main::Maker::MakeFile()
 			libobeamdeltaz_data = beam_dz;
 			libobeamcos_data = beam_costh;
 		}
-		////////End Matt///////////
      	  }
 
 	/*
@@ -3573,13 +3585,34 @@ void Main::Maker::MakeFile()
           //                      t->beam_inst_dirZ, t->beam_inst_nMomenta, t->beam_inst_nTracks)) 
 	  //		passCuts = false; //continue;
 	  //if(bendangle==0 || bendangle>0.6) passCuts = false; 
-	  if(passCuts==true) Nint_beamqualitycut++;	
+	  if(passCuts==true) Nint_beamqualitycut++;
+	  
+	  //New beam quality cut?
+	  //LOG_NORMAL()<<"Start to perform beam quality cut to beam particles of data"<<std::endl; 
+          //if(!manual_beamPos_data(t->event, t->reco_beam_startX, t->reco_beam_startY, t->reco_beam_startZ,
+          //                      t->reco_beam_trackDirX, t->reco_beam_trackDirY, t->reco_beam_trackDirZ,
+          //                      t->beam_inst_X, t->beam_inst_Y, t->beam_inst_dirX, t->beam_inst_dirY,
+          //                      t->beam_inst_dirZ, t->beam_inst_nMomenta, t->beam_inst_nTracks)) 
+	  //		passCuts = false; //continue;
+          //if(libobeamcos_data<data_coslow) /*continue;*/ passCuts= false;
+          //if(libobeamdeltaz_data<data_zlow /*|| libobeamdeltaz_data>zhigh*/) /*continue;*/ passCuts = false;
+	  SetBeamQualityCuts();
+	  if(!PassBeamQualityCut())  passCuts  = false;
+ 	  if(passCuts == true) Nint_beamqualitynewcut++;
+	  if(passCuts == true){
+		   _event_histo->h_test_deltax_data->Fill(libobeamdeltax_data);
+		   _event_histo->h_test_deltay_data->Fill(libobeamdeltay_data);
+		   _event_histo->h_test_deltaz_data->Fill(libobeamdeltaz_data);
+		   _event_histo->h_test_cos_data->Fill(libobeamcos_data);
+	  }
+	
 	  //---------------------------------------------------------
 
 	  //#3 APA3 cut----------------------------------------------
 	  //if(!endAPA3(t->reco_beam_calo_endZ) ) passCuts = false; //continue;
-	  if(beam_trklen>220) passCuts = false;
-	  //if(passCuts == false) continue;
+	  //if(beam_trklen>220) passCuts = false;
+	  if(t->reco_beam_calo_endZ > 220.) passCuts=false;
+
 	  if(passCuts==true) Nint_APA3cut++;
 	  //---------------------------------------------------------
 
@@ -3602,30 +3635,11 @@ void Main::Maker::MakeFile()
           vector<double> *beam_dEdX_Ptr=t->reco_beam_calibrated_dEdX_SCE;
           double reco_beam_tmdqdx = GetTruncatedMean(*beam_dEdX_Ptr, 2, t->reco_beam_calibrated_dEdX_SCE->size() - 5, 0.1, 0.6);
 	  //if(reco_beam_tmdqdx >2.4) passCuts = false;
-	  //if(!PassMediandEdxCut(t->reco_beam_calibrated_dEdX_SCE,t->reco_beam_calo_wire->empty())) passCuts = false;	  
+	  if(!PassMediandEdxCut(t->reco_beam_calibrated_dEdX_SCE,t->reco_beam_calo_wire->empty())) passCuts = false;	  
 	  if(passCuts==true) Nint_tmdqdxcut++;
 	  //---------------------------------------------------------
 
-	  //LOG_NORMAL()<<"Start to perform beam quality cut to beam particles of data"<<std::endl; 
-          if(!manual_beamPos_data(t->event, t->reco_beam_startX, t->reco_beam_startY, t->reco_beam_startZ,
-                                t->reco_beam_trackDirX, t->reco_beam_trackDirY, t->reco_beam_trackDirZ,
-                                t->beam_inst_X, t->beam_inst_Y, t->beam_inst_dirX, t->beam_inst_dirY,
-                                t->beam_inst_dirZ, t->beam_inst_nMomenta, t->beam_inst_nTracks)) 
-	  		passCuts = false; //continue;
-          //if(libobeamcos_data<data_coslow) /*continue;*/ passCuts= false;
-          //if(libobeamdeltaz_data<data_zlow /*|| libobeamdeltaz_data>zhigh*/) /*continue;*/ passCuts = false;
-	  SetBeamQualityCuts();
-	  if(!PassBeamQualityCut())  passCuts  = false;
-
-
- 	  if(passCuts == true) Nint_beamqualitynewcut++;
-	  if(passCuts == true){
-		   _event_histo->h_test_deltax_data->Fill(libobeamdeltax_data);
-		   _event_histo->h_test_deltay_data->Fill(libobeamdeltay_data);
-		   _event_histo->h_test_deltaz_data->Fill(libobeamdeltaz_data);
-		   _event_histo->h_test_cos_data->Fill(libobeamcos_data);
-	  }
-	  //LOG_NORMAL()<<"Performed all the cuts to data beam particles"<<std::endl;
+	  	  //LOG_NORMAL()<<"Performed all the cuts to data beam particles"<<std::endl;
         }//end of if this is a data isdata==1
         //=============================================================================
 
@@ -6397,13 +6411,14 @@ if(passCuts == true){
   std::cout<<"(bq) muon interaction is "<<Nintmuon_bq<<std::endl;
   std::cout<<"(bq) upstream interaction is "<<Nintupstream_bq<<std::endl;
 
-  std::cout<<"Total number of event is (PDG cut)  "<<Nint_pdgcut<<std::endl;
-  std::cout<<"Total number of event is (calosize cut)  "<<Nint_calosizecut<<std::endl;
-  std::cout<<"Total number of event is (beamquality cut)  "<<Nint_beamqualitycut<<std::endl;
-  std::cout<<"Total number of event is (APA3 cut)  "<<Nint_APA3cut<<std::endl;
-  std::cout<<"Total number of event is (beamtype cut)  "<<Nint_beamtypecut<<std::endl;
-  std::cout<<"Total number of event is (tmdqdx cut)  "<<Nint_tmdqdxcut<<std::endl;
-  std::cout<<"Total number of event is (beamquality cut)  "<<Nint_beamqualitynewcut<<std::endl;
+  std::cout<<"Total number of events is (PDG cut)  "<<Nint_pdgcut<<std::endl;
+  std::cout<<"Total number of events is (Pandora slice cut)  "<<Nint_pandoraslicecut<<std::endl;
+  std::cout<<"Total number of events is (calosize cut)  "<<Nint_calosizecut<<std::endl;
+  std::cout<<"Total number of events is (beamquality cut)  "<<Nint_beamqualitycut<<std::endl;
+  std::cout<<"Total number of events is (beamquality new cut)  "<<Nint_beamqualitynewcut<<std::endl;
+  std::cout<<"Total number of events is (APA3 cut)  "<<Nint_APA3cut<<std::endl;
+  std::cout<<"Total number of events is (beamtype cut)  "<<Nint_beamtypecut<<std::endl;
+  std::cout<<"Total number of events is (tmdqdx cut)  "<<Nint_tmdqdxcut<<std::endl;
          
   std::cout<<"Total number of events passed preselection is "<<Nint_0daughters<<std::endl;
   std::cout<<"Total number of Signal events passed preselection is "<<Nint_0daughters_piabs<<std::endl;
