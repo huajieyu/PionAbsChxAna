@@ -1756,10 +1756,51 @@ TVector3 Main::Maker::PretendAtBoundary(TVector3 const& point) const
   return {x, y, z};
 }
 
+double Main::Maker::densityEffect(long double beta, double gamma){
 
+   double lar_C = 5.215, lar_x0 = 0.201, lar_x1 = 3, lar_a = 0.196, lar_k = 3;
+   long double x = log10(beta * gamma);
 
+   if( x >= lar_x1 ) return 2*log(10)*x - lar_C;
 
+   else if ( lar_x0 <= x && x < lar_x1) return 2*log(10)*x - lar_C + lar_a * pow(( lar_x1 - x ) , lar_k );
 
+   else return (long double) 0; //if x < lar_x0
+
+}
+
+double Main::Maker::betheBloch(double energy, double mass_particle){
+
+   double K,rho,Z,A, charge, me, I, gamma,  momentum ,wmax, pitch;
+   long double beta;
+   K = 0.307;
+   rho = 1.4;
+   charge = 1;
+   Z = 18; 
+   A = 39.948;
+   I = pow(10,-6)*10.5*18; //MeV
+   me = 0.51; //MeV me*c^2
+   pitch = 1;
+
+   //momentum = sqrt( pow(energy,2) - pow(mass_particle,2));
+   //beta = momentum/sqrt(pow(mass_particle,2) + pow(momentum,2));
+   //gamma =  1/sqrt(1 - pow(beta,2));
+
+    
+   gamma = (energy + mass_particle) / mass_particle;
+   beta = sqrt( 1 - 1/pow(gamma,2));
+
+   wmax = 2*me*pow(beta,2)*pow(gamma,2)/(1+2*gamma*me/mass_particle + pow(me,2)/pow(mass_particle,2));
+    
+    
+   double dEdX;
+   //multiply by rho to have dEdX MeV/cm in LAr
+    
+   dEdX = pitch*(rho*K*Z*pow(charge,2))/(A*pow(beta,2))*(0.5*log(2*me*pow(gamma,2)*pow(beta,2)*wmax/pow(I,2)) - pow(beta,2) - densityEffect( beta, gamma )/2 );
+    
+   return dEdX;
+}
+           
 
 
 void Main::Maker::MakeFile() 
@@ -1896,7 +1937,7 @@ void Main::Maker::MakeFile()
    
   UBXSecEvent * t = new UBXSecEvent(chain_ubxsec);
   //ActivateBranches(t);
-  LOG_NORMAL() << "Declear the OBJECT of UBXSecEvent"<<std::endl;
+  LOG_NORMAL() << "Declare the OBJECT of UBXSecEvent"<<std::endl;
   _event_histo_1d = new UBXSecEventHisto1D();
   _event_histo_1d->InitializeBootstraps();
 
@@ -2312,7 +2353,7 @@ void Main::Maker::MakeFile()
      h_energetic_pphi_gen[i]->SetDirectory(file_out);
   } 
 
-  for(int i=0; i<=eslice_nBin; i++){
+  for(int i=0; i<eslice_nBin; i++){
      true_incident_eslice_pion_inel[i]=0;
      true_interacting_eslice_pion_inel[i]=0;
      true_incident_eslice_pion_decay[i]=0;
@@ -2335,6 +2376,8 @@ void Main::Maker::MakeFile()
      reco_incident_eslice_pion_total[i]=0;
      reco_interacting_eslice_pion_total[i]=0;
 
+     true_abs_eslice[i]=0;
+     true_chx_eslice[i]=0;
   }
 
 
@@ -2429,24 +2472,43 @@ void Main::Maker::MakeFile()
 	//<<<<<<<<<<
 	//<<<<<<<<<< CHECKING MC TRUTH BEFORE PERFORMING ANY CUTS
 	//<<<<<<<<<<        
-	/*int esliceID;
+	int esliceID;
 	int true_esliceID;
-	
-	esliceID = (t->reco_beam_interactingEnergy - eslice_eEnd)/eslice_bin_size;
-	double true_endKE_eslice = TMath::Sqrt(t->true_beam_endP*t->true_beam_endP + PionMass*PionMass) - PionMass;
-	true_esliceID = (true_endKE_eslice - eslice_eEnd)/eslice_bin_size;
+	int start_esliceID;
+	int start_true_esliceID;
+
+	//cout << "Start P: " << t->true_beam_startP << endl;
+	//cout << "Calculated start KE: " << 1000.*(TMath::Sqrt(t->true_beam_startP*t->true_beam_startP + PionMass*PionMass) - PionMass) << endl;
+	//for(int j=0; j<t->true_beam_incidentEnergies->size(); j++){
+	//	double tempasdf = t->true_beam_incidentEnergies->at(j);
+	//	cout << "Incident Energy " << j << " = " << tempasdf << endl;
+	//}
+	cout << "End P: " << t->true_beam_endP << endl;
+
+	esliceID = t->reco_beam_interactingEnergy/eslice_bin_size;
+	double true_endKE_eslice = 1000.*(TMath::Sqrt(t->true_beam_endP*t->true_beam_endP + PionMass*PionMass) - PionMass); //Convert to MeV
+	double start_true_endKE_eslice = 1000.*(TMath::Sqrt(t->true_beam_startP*t->true_beam_startP + PionMass*PionMass) - PionMass); 
+	true_esliceID = true_endKE_eslice/eslice_bin_size;
+	start_true_esliceID = start_true_endKE_eslice/eslice_bin_size;
 	if(true_esliceID < 0 ){true_esliceID = -1;}
 	if(esliceID < 0){esliceID=-1;}
-	*/
+	cout << "true_startKE_eslice: " << start_true_endKE_eslice << endl;
+	cout << "true_endKE_eslice: " << true_endKE_eslice << endl;
+	cout << "start_true_esliceID: " << start_true_esliceID << endl;
+	cout << "true_esliceID: " << true_esliceID << endl;
+	
+	//cout << "esliceID: " << esliceID << ", true_ID: " << true_esliceID << ", true_endKE: " << true_endKE_eslice << endl;
+	
 	
 	
         //int sliceID = t->reco_beam_calo_wire->back()/nwires_in_slice;
         //int sliceID = int(t->reco_beam_calo_wire_z->back()/thinslicewidth);
-	//int sliceID = int(t->reco_beam_calo_endZ/thinslicewidth);        
 	double reco_beam_trklen=TMath::Sqrt(TMath::Power((t->reco_beam_calo_startX-t->reco_beam_calo_endX),2.0)
 	  				+TMath::Power((t->reco_beam_calo_startY-t->reco_beam_calo_endY),2.0)
 	  				+TMath::Power((t->reco_beam_calo_startZ-t->reco_beam_calo_endZ),2.0));
 	
+	//Testing sliceID definition 11.10.21
+	//int sliceID = int(t->reco_beam_calo_endZ/thinslicewidth);        
 	int sliceID = int(reco_beam_trklen/thinslicewidth);
 
         //if(sliceID<0 || t->reco_beam_calo_wire->back()<0) sliceID = -1;
@@ -2461,15 +2523,18 @@ void Main::Maker::MakeFile()
         int true_sliceID = -999;
 
         //true_sliceID = int((true_endz-0.5603500-0.479/2)/0.479/nwires_in_slice); //z=0.56 is z coordinate for wire 0
-        //true_sliceID = int(t->true_beam_endZ/thinslicewidth);
 	double true_beam_trklen=TMath::Sqrt(TMath::Power((t->true_beam_startX-t->true_beam_endX),2.0)
 	  				+TMath::Power((t->true_beam_startY-t->true_beam_endY),2.0)
 	  				+TMath::Power((t->true_beam_startZ-t->true_beam_endZ),2.0));
 	
 
-
+        //true_sliceID = int(t->true_beam_endZ/thinslicewidth);
 	true_sliceID = int(true_beam_trklen/thinslicewidth);
-        //if (true_sliceID <0 || (true_endz-0.5603500-0.479/2)/0.479<0 ) true_sliceID = -1;
+
+	cout << "Trklen Slice ID:\t" << int(reco_beam_trklen/thinslicewidth) << "\ttrue: " << int(true_beam_trklen/thinslicewidth) << endl; 
+	cout << "Endpoint Slice ID:\t" << int(t->reco_beam_calo_endZ/thinslicewidth) << "\ttrue: " << int(t->true_beam_endZ/thinslicewidth) << endl; 
+        
+	//if (true_sliceID <0 || (true_endz-0.5603500-0.479/2)/0.479<0 ) true_sliceID = -1;
         if( true_sliceID<0 || t->true_beam_endZ<0) true_sliceID=-1;
         if (true_sliceID >= nslices+1) true_sliceID = nslices+1;
 
@@ -2544,6 +2609,24 @@ void Main::Maker::MakeFile()
                   ++reco_chx[sliceID];
               } 
            }
+
+           if (t->true_daughter_nPi0 == 0 && t->true_daughter_nPiPlus == 0 && t->true_daughter_nPiMinus ==0){//true absorption
+	     if(true_esliceID==-1){
+	       ++true_abs_eslice_neg;
+	     }
+	     else if(true_esliceID>=0 && true_esliceID < eslice_nBin){
+	       ++true_abs_eslice[true_esliceID];
+	     }
+	   
+	   }
+	   else if (t->true_daughter_nPi0 > 0 && t->true_daughter_nPiPlus == 0 && t->true_daughter_nPiMinus ==0){
+	     if(true_esliceID==-1){
+	        ++true_chx_eslice_neg;
+	      }
+	      else if(true_esliceID>=0 && true_esliceID < eslice_nBin){
+	        ++true_chx_eslice[true_esliceID];
+	      }
+	   } 
         }//end of selecting pion inclusive events
         
         LOG_NORMAL()<<"Start to calculate the average energy and thickness with Tingjun's method"<<std::endl;
@@ -2670,12 +2753,12 @@ void Main::Maker::MakeFile()
         bool isDecay = abs(t->true_beam_PDG) == 211 && *temp_Ptr0 == "Decay";
 
 	/////////////////////////////
-	/*
+	
 	if(abs(t->true_beam_PDG) == 211){
 	 for(int i=0; i<=esliceID; i++){
 	    reco_incident_eslice_pion_total[i]++;
 	  }
-	  for(int i=0; i<=true_esliceID;i++){
+	  for(int i=true_esliceID; i<=start_true_esliceID;i++){
 	    true_incident_eslice_pion_total[i]++;
 	  }
 	  reco_interacting_eslice_pion_total[esliceID]++;
@@ -2686,7 +2769,7 @@ void Main::Maker::MakeFile()
 	  for(int i=0; i<=esliceID; i++){
 	    reco_incident_eslice_pion_inel[i]++;
 	  }
-	  for(int i=0; i<=true_esliceID;i++){
+	  for(int i=true_esliceID; i<=start_true_esliceID;i++){
 	    true_incident_eslice_pion_inel[i]++;
 	  }
 	  reco_interacting_eslice_pion_inel[esliceID]++;
@@ -2697,18 +2780,18 @@ void Main::Maker::MakeFile()
 	  for(int i=0; i<=esliceID; i++){
 	    reco_incident_eslice_pion_decay[i]++;
 	  }
-	  for(int i=0; i<=true_esliceID;i++){
+	  for(int i=true_esliceID; i<=start_true_esliceID;i++){
 	    true_incident_eslice_pion_decay[i]++;
 	  }
 	  reco_interacting_eslice_pion_decay[esliceID]++;
 	  true_interacting_eslice_pion_decay[true_esliceID]++;
 	}
 
-	if(isUpstream){
+	if(isUpstream && abs(t->true_beam_PDG)==211){
 	  for(int i=0; i<=esliceID; i++){
 	    reco_incident_eslice_upstream[i]++;
 	  }
-	  for(int i=0; i<=true_esliceID;i++){
+	  for(int i=true_esliceID; i<=start_true_esliceID;i++){
 	    true_incident_eslice_upstream[i]++;
 	  }
 	  reco_interacting_eslice_upstream[esliceID]++;
@@ -2719,16 +2802,16 @@ void Main::Maker::MakeFile()
 	  for(int i=0; i<=esliceID; i++){
 	    reco_incident_eslice_muon[i]++;
 	  }
-	  for(int i=0; i<=true_esliceID;i++){
+	  for(int i=true_esliceID; i<=start_true_esliceID;i++){
 	    true_incident_eslice_muon[i]++;
 	  }
 	  reco_interacting_eslice_muon[esliceID]++;
 	  true_interacting_eslice_muon[true_esliceID]++;
 	}
 
-	for(int i=0;i<=eslice_nBin;i++){
-		eslice_bins[i] = eslice_eEnd + eslice_bin_size*(i+0.5);
-	}*/	
+	for(int i=0;i<eslice_nBin;i++){
+		eslice_bins[i] = eslice_bin_size*(i+0.5);
+	}
 	/////////////////////////////
 
 	if(isInelastic){
@@ -3049,7 +3132,8 @@ void Main::Maker::MakeFile()
 
 	  //#0 cut require the MC is either pion or muon events
           if(abs(t->true_beam_PDG) != 211 && abs(t->true_beam_PDG) !=13) continue;//passCuts = false;
-          h_Evttot->Fill(event_weight);
+	  if(t->beam_inst_nMomenta != 1 || t->beam_inst_nTracks != 1) continue; //only one beam track/momentum
+	  h_Evttot->Fill(event_weight);
 	  Nint_pdgcut++;
 	  //double beam_trklen=TMath::Sqrt(TMath::Power((t->reco_beam_calo_startX-t->reco_beam_calo_endX),2.0)
 	  //				+TMath::Power((t->reco_beam_calo_startY-t->reco_beam_calo_endY),2.0)
@@ -5643,9 +5727,9 @@ if(passCuts == true){
   double tempxsec_chx[nslices+3];
   double tempxsec_inel[nslices+3];
 
-  //double tempxsec_eslice[eslice_nBin+1];
-  //double tempxsec_eslice_chx[eslice_nBin+1];
-  //double tempxsec_eslice_inel[eslice_nBin+1];
+  double tempxsec_eslice_abs[eslice_nBin];
+  double tempxsec_eslice_chx[eslice_nBin];
+  double tempxsec_eslice_inel[eslice_nBin];
 
   double tempxsec_pmom[nslices+3][nbinspmom];
   double tempxsec_pcostheta[nslices+3][nbinspcostheta];
@@ -5657,13 +5741,12 @@ if(passCuts == true){
         tempxsec_chx[i]=0.0;
         tempxsec[i]=0.0;
 	tempxsec_inel[i]=0.0;
-
   }
-  /*for(int i=0;i<eslice_nBin+1;i++){
-    tempxsec_eslice[i]=0.0;
+  for(int i=0;i<eslice_nBin;i++){
+    tempxsec_eslice_abs[i]=0.0;
     tempxsec_eslice_chx[i]=0.0;
     tempxsec_eslice_inel[i]=0.0;
-  }*/
+  }
 
 
   double rms_incE[nslices+3];
@@ -5713,15 +5796,15 @@ if(passCuts == true){
      //avg_pitch[i]=10; 
      if( incident[i]>0 && avg_pitch[i]>0){
 
-     tempxsec[i]          = MAr/(Density*NA*avg_pitch[i])*log((true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i])/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]-true_abs[i]));
-     /*if((true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]-true_interaction[i])==0){
-       tempxsec_inel[i]=0;
-     }
-     else{
-       tempxsec_inel[i]   = MAr/(Density*NA*avg_pitch[i])*log((true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i])/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]-true_interaction[i])); 
-     }
-     if(tempxsec_inel[i]>1e100){tempxsec_inel[i]=0;}
-     */
+     tempxsec[i] = MAr/(Density*NA*avg_pitch[i])*log((true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i])/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]-true_abs[i]));
+     //if((true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]-true_interaction[i])==0){
+     //  tempxsec_inel[i]=0;
+     //}
+     //else{
+     //  tempxsec_inel[i]   = MAr/(Density*NA*avg_pitch[i])*log((true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i])/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]-true_interaction[i])); 
+     //}
+     //if(tempxsec_inel[i]>1e100){tempxsec_inel[i]=0;}
+     
      //tempxsec[i]          =MAr/(Density*NA*avg_pitch[i])*true_abs[i]/true_incident[i];
      for(int nb=0; nb<nbinspmom; nb++){
           tempxsec_pmom[i][nb]=(1/1e-27)*MAr/(Density*NA*avg_pitch[i])*h_energetic_pmom_gen[i]->GetBinContent(nb+1)/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]);
@@ -5733,14 +5816,14 @@ if(passCuts == true){
           tempxsec_pphi[i][nb]=(1/1e-27)*MAr/(Density*NA*avg_pitch[i])*h_energetic_pphi_gen[i]->GetEntries()/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]);
      }
      if(avg_pitch[i]>0.0001 && true_incident_pion[i]+true_incident_pion_decay[i]>0 && true_chx[i]>0){
-     tempxsec_chx[i]          = MAr/(Density*NA*avg_pitch[i])*log((true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i])/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]-true_chx[i]));
+     tempxsec_chx[i] = MAr/(Density*NA*avg_pitch[i])*log((true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i])/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]-true_chx[i]));
      //tempxsec_chx[i]      =MAr/(Density*NA*avg_pitch[i])*true_chx[i]/true_incident[i];         
      }
      tempxsec_chx_test[i] = true_chx[i]/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]);
      tempxsec_abs_test[i] = true_abs[i]/(true_incident_pion[i]+true_incident_pion_decay[i]+true_incident_upstream_pion[i]);
 
 
-     } else {tempxsec[i]=0.0; /*tempxsec_inel[i]=0.0;*/ tempxsec_chx[i]=0.0; tempxsec_chx_test[i]=0.0; tempxsec_abs_test[i] = 0.0; }
+     } else {tempxsec[i]=0.0; tempxsec_inel[i]=0.0; tempxsec_chx[i]=0.0; tempxsec_chx_test[i]=0.0; tempxsec_abs_test[i] = 0.0; }
            
      tempxsec[i] = tempxsec[i]/1e-27; 
      //tempxsec_inel[i] = tempxsec_inel[i]/1e-27; 
@@ -5756,12 +5839,35 @@ if(passCuts == true){
   }//end of loop over all the nslices
 
   //Loop over eslices to get xsec
-  //for(int i=0; i<eslice_nBin+1;i++){
-  //  tempxsec_eslice[i] = MAr/(Density*NA*eslice_bin_size)* /*dEdx[i]*/ *log((true_incident_eslice_pion_total[i])/(true_incident_eslice_pion_total[i]-/* ? */));
-  //  
-  //} 
+  for(int i=0; i<eslice_nBin;i++){
+    double temp_incident2 = true_incident_eslice_pion_inel[i]+true_incident_eslice_pion_decay[i]+true_incident_upstream[i];
+    double temp_incident = true_incident_eslice_pion_total[i];
+    cout << "Total: " << temp_incident << endl;
+    cout << "I+D+U: " << temp_incident2 << endl << endl;
+    //cout << "E: " << eslice_bins[i] << ", Incident: " << true_incident_eslice_pion_inel[i] << ", Inelastic: " << true_interacting_eslice_pion_inel[i] << ", Bethe-Bloch: " << betheBloch(eslice_bins[i],PionMass) << endl;
+    //cout << "log: " << log((1.0*true_incident_eslice_pion_inel[i])/(1.0*(true_incident_eslice_pion_inel[i]-true_interacting_eslice_pion_inel[i]))) << endl;
+    if((true_incident_eslice_pion_inel[i]-true_interacting_eslice_pion_inel[i]) > 0 && true_incident_eslice_pion_inel[i] > 0){
+    tempxsec_eslice_inel[i] = MAr/(Density*NA*eslice_bin_size)*betheBloch(eslice_bins[i],PionMass)*log((1.0*temp_incident)/(1.0*(temp_incident-true_interacting_eslice_pion_inel[i])));}
+    else{tempxsec_eslice_inel[i]=0;}
+    tempxsec_eslice_inel[i] = tempxsec_eslice_inel[i]/1e-27;
+    //cout << "Eslice inel xsec: E= " << eslice_bins[i] << ", XS= " << tempxsec_eslice_inel[i] << endl << endl; 
+  
+    if((true_incident_eslice_pion_inel[i]-true_abs_eslice[i]) > 0 && true_incident_eslice_pion_inel[i] > 0){
+      tempxsec_eslice_abs[i] = MAr/(Density*NA*eslice_bin_size)*betheBloch(eslice_bins[i],PionMass)*log((1.0*temp_incident)/(1.0*(temp_incident-true_abs_eslice[i])));}
+    else{tempxsec_eslice_abs[i]=0;}
+    //cout << "i=" << i << ", Incident=" << temp_incident << ", Absorption=" << true_abs_eslice[i] << endl;
+    tempxsec_eslice_abs[i] = tempxsec_eslice_abs[i]/1e-27;
+    //cout << "E: " << eslice_bins[i] << ", absorption XS= " << tempxsec_eslice_abs[i] << endl;
+  
+    if((true_incident_eslice_pion_inel[i]-true_chx_eslice[i]) > 0 && true_incident_eslice_pion_inel[i] > 0){
+      tempxsec_eslice_chx[i] = MAr/(Density*NA*eslice_bin_size)*betheBloch(eslice_bins[i],PionMass)*log((1.0*temp_incident)/(1.0*(temp_incident-true_chx_eslice[i])));}
+    else{tempxsec_eslice_chx[i]=0;}
+    //cout << "i=" << i << ", Incident=" << true_incident_eslice_pion_inel[i] << ", Chx=" << true_chx_eslice[i] << endl;
+    tempxsec_eslice_chx[i] = tempxsec_eslice_chx[i]/1e-27;
+    //cout << "E: " << eslice_bins[i] << ", chx XS= " << tempxsec_eslice_chx[i] << endl;
 
-
+  }
+    
 
   file_out->Write();
 
@@ -5992,7 +6098,6 @@ if(passCuts == true){
   TGraph *gr_tempxserror_slc = new TGraph(nslices+3, slcid, exs_abs);
   TGraph *gr_tempxserror_chx_slc = new TGraph(nslices+3, slcid, exs_chx);
   TGraph *gr_tempxserror_inel_slc = new TGraph(nslices+3, slcid, exs_inel);
-  
 
   gr_tempxsec_chx_test_slc = new TGraph(nslices+3, slcid, tempxsec_chx_test);
   gr_tempxsec_abs_test_slc = new TGraph(nslices+3, slcid, tempxsec_abs_test);
@@ -6001,6 +6106,17 @@ if(passCuts == true){
   TGraph *gr_tempxsec_pmom_slc[nslices+3];
   TGraph *gr_tempxsec_pcostheta_slc[nslices+3];
   TGraph *gr_tempxsec_pphi_slc[nslices+3];
+
+  //eslice xsec TGraphs
+  TGraph *gr_tempxsec_eslice_inel = new TGraph(eslice_nBin,eslice_bins,tempxsec_eslice_inel);
+  TGraph *gr_tempxsec_eslice_abs = new TGraph(eslice_nBin,eslice_bins,tempxsec_eslice_abs);
+  TGraph *gr_tempxsec_eslice_chx = new TGraph(eslice_nBin,eslice_bins,tempxsec_eslice_chx);
+
+  TGraph *gr_incident_eslice = new TGraph(eslice_nBin,eslice_bins,true_incident_eslice_pion_inel);
+  TGraph *gr_inelastic_eslice = new TGraph(eslice_nBin,eslice_bins,true_interacting_eslice_pion_inel); 
+  TGraph *gr_absorption_eslice = new TGraph(eslice_nBin,eslice_bins,true_abs_eslice); 
+  TGraph *gr_chx_eslice = new TGraph(eslice_nBin,eslice_bins,true_chx_eslice); 
+  
 
   for(int idx=0; idx<=nslices+1; idx++){
        double pxmom[nbinspmom];
@@ -6111,6 +6227,27 @@ if(passCuts == true){
    
   gr_tempxsec_inel_vs_incE_slc->SetName("gr_inel_tempxsec_vs_incE_slc");
   gr_tempxsec_inel_vs_incE_slc->Write();
+
+  gr_tempxsec_eslice_inel->SetName("gr_tempxsec_eslice_inel");
+  gr_tempxsec_eslice_inel->Write(); 
+
+  gr_tempxsec_eslice_abs->SetName("gr_tempxsec_eslice_abs");
+  gr_tempxsec_eslice_abs->Write();  
+
+  gr_tempxsec_eslice_chx->SetName("gr_tempxsec_eslice_chx");
+  gr_tempxsec_eslice_chx->Write();  
+
+  gr_inelastic_eslice->SetName("gr_inelastic_eslice");
+  gr_inelastic_eslice->Write();
+
+  gr_incident_eslice->SetName("gr_incident_eslice");
+  gr_incident_eslice->Write();
+
+  gr_absorption_eslice->SetName("gr_absorption_eslice");
+  gr_absorption_eslice->Write();
+
+  gr_chx_eslice->SetName("gr_chx_eslice");
+  gr_chx_eslice->Write();
 
   output_newsf.Write();
 
