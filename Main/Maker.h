@@ -179,6 +179,8 @@ namespace Main{
     bool IsInsideBoundaries(TVector3 const& point) const;
     bool IsTooFarFromBoundaries(TVector3 const& point) const;
     TVector3 PretendAtBoundary(TVector3 const& point) const;
+    double densityEffect(long double beta, double gamma);
+    double betheBloch(double energy, double mass_particle);
 
     TH3F *hDz_sim_pos_orig_new;
     TH3F *hDz_sim_neg_orig_new;
@@ -385,8 +387,13 @@ namespace Main{
     double intabs_array_den[nslices+3][nslices+3];  
     double intchx_array_den[nslices+3][nslices+3];
 
-    double intabs_array_num[nslices+3][nslices+3];  
+    double intabs_array_num[nslices+3][nslices+3];
     double intchx_array_num[nslices+3][nslices+3];
+
+    double true_trklen;
+    double reco_trklen;
+    std::vector<double> true_trklen_accum;
+    std::vector<double> reco_trklen_accum;
 
     Int_t nbinse=12; 
     Int_t nbinsthickness = 100;
@@ -394,35 +401,36 @@ namespace Main{
     Int_t nbinspcostheta=12;
     Int_t nbinspphi=12;
 
-    const double eslice_bin_size = 40.; 
-    const double eslice_eStart = 1200.;
-    const double eslice_eEnd = 480.;
+    const double eslice_bin_size = 50.;//MeV 
+    const double eslice_eStart = 0.0;
+    const double eslice_eEnd = 1000.;
     //int eslice_nBin = (eslice_eStart-eslice_eEnd)/eslice_bin_size;
-    static const int eslice_nBin = 18;
+    static const int eslice_nBin = 20;
 
-    int true_incident_eslice_pion_inel[eslice_nBin+1];
-    int true_interacting_eslice_pion_inel[eslice_nBin+1];
-    int true_incident_eslice_pion_decay[eslice_nBin+1];
-    int true_interacting_eslice_pion_decay[eslice_nBin+1];
-    int true_incident_eslice_upstream[eslice_nBin+1];
-    int true_interacting_eslice_upstream[eslice_nBin+1];
-    int true_incident_eslice_muon[eslice_nBin+1];
-    int true_interacting_eslice_muon[eslice_nBin+1];
-    int true_incident_eslice_pion_total[eslice_nBin+1];
-    int true_interacting_eslice_pion_total[eslice_nBin+1];
+    double true_incident_eslice_pion_inel[eslice_nBin];
+    double true_interacting_eslice_pion_inel[eslice_nBin];
+    double true_incident_eslice_pion_decay[eslice_nBin];
+    double true_interacting_eslice_pion_decay[eslice_nBin];
+    double true_incident_eslice_upstream[eslice_nBin];
+    double true_incident_eslice_upstream_pion[eslice_nBin];
+    double true_interacting_eslice_upstream[eslice_nBin];
+    double true_incident_eslice_muon[eslice_nBin];
+    double true_interacting_eslice_muon[eslice_nBin];
+    double true_incident_eslice_pion_total[eslice_nBin];
+    double true_interacting_eslice_pion_total[eslice_nBin];
 
-    int reco_incident_eslice_pion_inel[eslice_nBin+1];
-    int reco_interacting_eslice_pion_inel[eslice_nBin+1];
-    int reco_incident_eslice_pion_decay[eslice_nBin+1];
-    int reco_interacting_eslice_pion_decay[eslice_nBin+1];
-    int reco_incident_eslice_upstream[eslice_nBin+1];
-    int reco_interacting_eslice_upstream[eslice_nBin+1];
-    int reco_incident_eslice_muon[eslice_nBin+1];
-    int reco_interacting_eslice_muon[eslice_nBin+1]; 
-    int reco_incident_eslice_pion_total[eslice_nBin+1];
-    int reco_interacting_eslice_pion_total[eslice_nBin+1];	
+    double reco_incident_eslice_pion_inel[eslice_nBin];
+    double reco_interacting_eslice_pion_inel[eslice_nBin];
+    double reco_incident_eslice_pion_decay[eslice_nBin];
+    double reco_interacting_eslice_pion_decay[eslice_nBin];
+    double reco_incident_eslice_upstream[eslice_nBin];
+    double reco_interacting_eslice_upstream[eslice_nBin];
+    double reco_incident_eslice_muon[eslice_nBin];
+    double reco_interacting_eslice_muon[eslice_nBin]; 
+    double reco_incident_eslice_pion_total[eslice_nBin];
+    double reco_interacting_eslice_pion_total[eslice_nBin];	
 
-    int eslice_bins[eslice_nBin+1];
+    double eslice_bins[eslice_nBin];
 
     double NA=6.02214076e23;
     double MAr=39.95; //gmol
@@ -493,6 +501,12 @@ namespace Main{
     double true_abs_neg = 0;
     double reco_abs_neg = 0;
 
+    double true_abs_eslice[eslice_nBin+1];
+    double true_abs_eslice_neg = 0;
+
+    double true_chx_eslice[eslice_nBin+1];
+    double true_chx_eslice_neg = 0;
+
     double true_chx[nslices+3];
     double reco_chx[nslices+3];
 
@@ -562,7 +576,7 @@ namespace Main{
     const double NeutronMass = 0.93956542; 
     const double ProtonMass = 0.938272;
     const double PionMass = 0.13957; 
-    //const double MuonMass = 0.105658;
+    const double MuonMass = 0.105658;
 
     double cutAPA3_Z = 220.;
     double cut_trackScore = 0.4;
