@@ -1801,6 +1801,21 @@ double Main::Maker::betheBloch(double energy, double mass_particle){
    return dEdX;
 }
            
+void buildIncident(double *incident, int nBin, double initial[], double inter[]){
+
+  for(int i=nBin; i>=0; i--){
+    double birth = initial[i];
+    double death = inter[i];
+    for(int j=i-1; j>=0; j--){
+      incident[j] += birth;
+    }
+    for(int j=i-1; j>=0; j--){
+      incident[j] -= death;
+    }
+  }
+  return;
+}
+
 
 
 void Main::Maker::MakeFile() 
@@ -2356,6 +2371,7 @@ void Main::Maker::MakeFile()
   for(int i=0; i<eslice_nBin; i++){
      true_incident_eslice_pion_inel[i]=0;
      true_interacting_eslice_pion_inel[i]=0;
+     true_initial_eslice_pion_inel[i]=0;
      true_incident_eslice_pion_decay[i]=0;
      true_interacting_eslice_pion_decay[i]=0;
      true_incident_eslice_upstream[i]=0;
@@ -2365,6 +2381,7 @@ void Main::Maker::MakeFile()
      true_interacting_eslice_muon[i]=0;
      true_incident_eslice_pion_total[i]=0;
      true_interacting_eslice_pion_total[i]=0;
+     true_initial_eslice_pion_total[i]=0;
 
      reco_incident_eslice_pion_inel[i]=0;
      reco_interacting_eslice_pion_inel[i]=0;
@@ -2489,10 +2506,13 @@ void Main::Maker::MakeFile()
 	esliceID = t->reco_beam_interactingEnergy/eslice_bin_size;
 	double true_endKE_eslice = 1000.*(TMath::Sqrt(t->true_beam_endP*t->true_beam_endP + PionMass*PionMass) - PionMass); //Convert to MeV
 	double true_startKE_eslice = 1000.*(TMath::Sqrt(t->true_beam_startP*t->true_beam_startP + PionMass*PionMass) - PionMass); 
-	true_esliceID = true_endKE_eslice/eslice_bin_size;
-	start_true_esliceID = true_startKE_eslice/eslice_bin_size;
-	if(true_esliceID < 0 ){true_esliceID = -1;}
+	true_esliceID = int(true_endKE_eslice/eslice_bin_size);
+	start_true_esliceID = int(true_startKE_eslice/eslice_bin_size);
+
+	//checking that a particle does not interact in the bin it starts in
+	if(true_esliceID < 0 || true_esliceID==start_true_esliceID || start_true_esliceID < true_esliceID ){true_esliceID = -1;}
 	if(esliceID < 0){esliceID=-1;}
+
 	//cout << "true_startKE_eslice: " << true_startKE_eslice << endl;
 	cout << "true_endKE_eslice: " << true_endKE_eslice << endl;
 	//cout << "start_true_esliceID: " << start_true_esliceID << endl;
@@ -2693,7 +2713,8 @@ void Main::Maker::MakeFile()
                   ++reco_chx[sliceID];
               } 
            }
-	
+
+	   //Interacting energy	
            if (t->true_daughter_nPi0 == 0 && t->true_daughter_nPiPlus == 0 && t->true_daughter_nPiMinus ==0){//true absorption
 	     if(true_esliceID==-1){
 	       ++true_abs_eslice_neg;
@@ -2711,11 +2732,27 @@ void Main::Maker::MakeFile()
 	        ++true_chx_eslice[true_esliceID];
 	      }
 	   }
-	   if(true_esliceID>=0 && true_esliceID < eslice_nBin){
+	   //Interacting energy
+	   if(true_esliceID>=0 && true_esliceID < eslice_nBin && true_esliceID != start_true_esliceID
+	   && start_true_esliceID >=0 && start_true_esliceID < eslice_nBin){
 	     ++true_interacting_eslice_pion_inel[true_esliceID];
+	     ++true_initial_eslice_pion_inel[start_true_esliceID];
 	   } 
-        }//end of selecting pion inclusive events
-        
+       
+	   //Initial energy 
+	   //if(start_true_esliceID>=0 && start_true_esliceID < eslice_nBin && true_esliceID!=start_true_esliceID){
+	   //  ++true_initial_eslice_pion_inel[start_true_esliceID];
+	   //}  
+	
+	}//end of selecting pion inclusive events
+         
+        if(abs(t->true_beam_PDG)==211 && true_esliceID>=0 && true_esliceID < eslice_nBin && true_esliceID != start_true_esliceID
+	   && start_true_esliceID >=0 && start_true_esliceID < eslice_nBin){
+	  
+	  ++true_interacting_eslice_pion_total[true_esliceID];
+	  ++true_initial_eslice_pion_total[start_true_esliceID];
+	}
+
         LOG_NORMAL()<<"Start to calculate the average energy and thickness with Tingjun's method"<<std::endl;
         bool isUpstream = true;
         bool isPiInelastic = false;
@@ -5824,8 +5861,39 @@ if(passCuts == true){
 
  
   LOG_NORMAL() << "1D Event Histo saved." << std::endl;
-  
  
+
+  //Construct inelastic incident histogram from initial and interacting
+  double true_incident_eslice_pion_inel2[eslice_nBin];
+  double true_incident_eslice_pion_total2[eslice_nBin];
+  
+  for(int i=0;i<eslice_nBin;i++){true_incident_eslice_pion_inel2[i]=0; true_incident_eslice_pion_total2[i]=0;}
+
+  buildIncident(true_incident_eslice_pion_inel2, eslice_nBin, true_initial_eslice_pion_inel, true_interacting_eslice_pion_inel);
+  buildIncident(true_incident_eslice_pion_total2, eslice_nBin, true_initial_eslice_pion_total, true_interacting_eslice_pion_total);
+
+
+for(int i=0;i<eslice_nBin;i++){
+    cout << "i: " << i << " initial: " << true_initial_eslice_pion_total[i] << " Interacting: " << true_interacting_eslice_pion_total[i] << endl;
+  }
+
+/*  for(int i = eslice_nBin-1; i>=0; i--){
+    double birth = true_initial_eslice_pion_inel[i];
+    double death = true_interacting_eslice_pion_inel[i];
+    for(int j=i-1; j>=0; j--){
+      true_incident_eslice_pion_inel2[j] += birth;
+    }
+    for(int j=i-1; j>=0; j--){
+      true_incident_eslice_pion_inel2[j] -= death;
+    } 
+  }
+*/
+  for(int i=0; i<eslice_nBin; i++){
+    cout << "i: " << i <<" total: " << true_incident_eslice_pion_total[i] << " total2: " << true_incident_eslice_pion_total2[i] << endl;
+  }
+
+ 
+  //Declare variables for xsecs 
   double slcid[nslices+3];
   double avg_incE[nslices+3];
   double avg_true_incE[nslices+3];
@@ -5954,7 +6022,7 @@ if(passCuts == true){
   //ESlice Method ///////////////////////////////
   double betheMass = PionMass;
   for(int i=0; i<eslice_nBin;i++){
-    double temp_incident2 = true_incident_eslice_pion_inel[i]+true_incident_eslice_pion_decay[i]+true_incident_eslice_upstream_pion[i];
+    double temp_incident2 = true_incident_eslice_pion_inel2[i]+true_incident_eslice_pion_decay[i]+true_incident_eslice_upstream_pion[i];
     double temp_incident = true_incident_eslice_pion_total[i];
     cout << "Total: " << temp_incident << endl;
     cout << "I+D+U: " << temp_incident2 << endl << endl;

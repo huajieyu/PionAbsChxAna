@@ -409,6 +409,7 @@ namespace Main{
 
     double true_incident_eslice_pion_inel[eslice_nBin];
     double true_interacting_eslice_pion_inel[eslice_nBin];
+    double true_initial_eslice_pion_inel[eslice_nBin];
     double true_incident_eslice_pion_decay[eslice_nBin];
     double true_interacting_eslice_pion_decay[eslice_nBin];
     double true_incident_eslice_upstream[eslice_nBin];
@@ -418,6 +419,7 @@ namespace Main{
     double true_interacting_eslice_muon[eslice_nBin];
     double true_incident_eslice_pion_total[eslice_nBin];
     double true_interacting_eslice_pion_total[eslice_nBin];
+    double true_initial_eslice_pion_total[eslice_nBin];
 
     double reco_incident_eslice_pion_inel[eslice_nBin];
     double reco_interacting_eslice_pion_inel[eslice_nBin];
