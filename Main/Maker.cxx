@@ -69,6 +69,69 @@ void Main::Maker::SetSignalTypeChx(bool v)
 {
   sel_chx = v;
 }
+void fill_initE_interE(TH1D* initE, TH1D* interE, double init_KE, double inter_KE){
+   //make sure incident Pion does not interact in bin it was born
+   int bin_initE = (int) init_KE / bin_size_inc + 1;
+   int bin_interE = (int) inter_KE / bin_size_inc + 1;
+   if( checkBins(init_KE, inter_KE, bin_initE, bin_interE) ){
+
+      initE->SetBinContent( bin_initE, initE->GetBinContent( bin_initE ) + 1);
+      interE->SetBinContent( bin_interE, interE->GetBinContent( bin_interE ) + 1);
+   }
+   return;
+};
+
+void fill_interacting(TH1D* interE, double init_KE, double inter_KE){
+   //make sure incident Pion does not interact in bin it was born
+   int bin_initE = (int) init_KE / bin_size_inc + 1;
+   int bin_interE = (int) inter_KE / bin_size_inc + 1;
+   if( checkBins(init_KE, inter_KE, bin_initE, bin_interE) ){
+      interE->SetBinContent( bin_interE, interE->GetBinContent( bin_interE ) + 1);
+   }
+   return;
+};
+
+void build_incidentHist(TH1D* initialE, TH1D* interE, TH1D* incident){
+
+   int nBin = initialE->GetNbinsX();
+   //std::cout << "New Incident Histo" << std::endl;
+   //std::cout << "Bin Content Overflow InitialE = " << initialE->GetBinContent( nBin + 1) << std::endl;
+   //std::cout << "Bin Content Overflow Interacting E = " << interE->GetBinContent( nBin + 1) << std::endl;
+   //std::cout << "   BIN" << " Birth " << " Death " << " Entry Incident   " << std::endl;
+   //taking care of Overflow bin in order to account for pions that were born + died before we start measuring initE and interE
+
+   for(int i = nBin + 1; i>=1; i--){
+      double birth = initialE->GetBinContent( i );
+      double birth_err = initialE->GetBinError( i );
+      double death = interE->GetBinContent( i );
+      double death_err = interE->GetBinError( i );
+
+      for(int j = i -1; j >= 1; j--){
+         incident->SetBinContent( j, incident->GetBinContent(j) + birth );
+         incident->SetBinError( j, incident->GetBinError(j) + pow( birth_err, 2) );
+      };
+
+      for(int j = i -1; j >= 1; j--){
+         incident->SetBinContent( j, incident->GetBinContent(j) - death );
+         incident->SetBinError( j, incident->GetBinError(j) + pow( death_err, 2) );
+      };
+
+    //std::cout << "   " << i << "      " << birth << "      " << death << "      " << incident->GetBinContent(i) << std::endl;
+
+   };
+
+   //Error Incident Histogram
+   //Inc[3] = init[1] + init[2] - ( inter[1] + inter[2] + inter[3])
+   //Error on Incident is sqrt of sum of squares of errors from initE and interE histo as done before
+
+   for(int i = 1; i <= nBin; i++){
+      incident->SetBinError( i, sqrt( incident->GetBinError(i) ) );
+   };
+
+   return;
+
+};
+
 
 double Main::Maker::getEta_broken(vector<vector<double>> canddQdx, vector<vector<double>> trkRR, vector<double> trklen,  int muind, vector<double> beamdQdx, vector<double> beamRR, double beamlen){
       int nhitmu=0; int nhitp=0; double deltaEmu=0; double deltaEp=0;
@@ -442,58 +505,11 @@ void Main::Maker::FillBootstrap(int m, // true bin m (1 number, unrolled)
 //___________________________________________________________________________________________________
 void Main::Maker::AddPolyBins(UBTH2Poly * h) {
 
-  // std::map<int, std::pair<int, int>> _exclusion_map;
-  // _exclusion_map[0] = std::make_pair(2, 3);
-
-  /*h->SetNBinsX(n_bins_double_mucostheta);
-
-  for (int y = 0; y < n_bins_double_mumom; y++) {
-    for (int x = 0; x < n_bins_double_mucostheta; x++) {
-
-      auto it = _exclusion_map.find(x);
-      if (it != _exclusion_map.end()) {
-        if (y == it->second.first) {
-          h->AddBin(bins_double_mucostheta[it->first], bins_double_mumom[it->second.first], bins_double_mucostheta[it->first+1], bins_double_mumom[it->second.second+1]);
-          continue;
-        } else if (y == it->second.second) {
-          continue;
-        }
-      }
-      h->AddBin(bins_double_mucostheta[x], bins_double_mumom[y], bins_double_mucostheta[x+1], bins_double_mumom[y+1]);
-    }
-  }
-*/
 }
-
-
-
 //___________________________________________________________________________________________________
 void Main::Maker::AddPolyBins(BootstrapTH2DPoly h) {
 
-  // std::map<int, std::pair<int, int>> _exclusion_map;
-  // _exclusion_map[0] = std::make_pair(2, 3);
-
-  // h->SetNBinsX(n_bins_double_mucostheta);
-
- /* for (int y = 0; y < n_bins_double_mumom; y++) {
-    for (int x = 0; x < n_bins_double_mucostheta; x++) {
-
-      auto it = _exclusion_map.find(x);
-      if (it != _exclusion_map.end()) {
-        if (y == it->second.first) {
-          h.AddBin(bins_double_mucostheta[it->first], bins_double_mumom[it->second.first], bins_double_mucostheta[it->first+1], bins_double_mumom[it->second.second+1]);
-          continue;
-        } else if (y == it->second.second) {
-          continue;
-        }
-      }
-      h.AddBin(bins_double_mucostheta[x], bins_double_mumom[y], bins_double_mucostheta[x+1], bins_double_mumom[y+1]);
-    }
-  }
-*/
 }
-
-
 
 //================================================================
 
@@ -1251,37 +1267,6 @@ double Main::Maker::thetax(double theta,double phi){
 }
 
 //========================================================
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 void Main::Maker::LoadHist(){
 
@@ -2504,10 +2489,19 @@ void Main::Maker::MakeFile()
 	cout << "End P: " << t->true_beam_endP << endl;
 
 	esliceID = t->reco_beam_interactingEnergy/eslice_bin_size;
-	double true_endKE_eslice = 1000.*(TMath::Sqrt(t->true_beam_endP*t->true_beam_endP + PionMass*PionMass) - PionMass); //Convert to MeV
+	double true_endKE_eslice = 1000.*(TMath::Sqrt(t-in_true_interE = (int) true_interKE / bin_size_inc + 1;
 	double true_startKE_eslice = 1000.*(TMath::Sqrt(t->true_beam_startP*t->true_beam_startP + PionMass*PionMass) - PionMass); 
+	
+	//Fill histogram of initKE and interKE for inelastic scattering  
+	//from eSliceMethod_trueProcess_trueE.C in Francesca and Jake's branch
+	//fill_initE_interE(h_trueE_truePion_inc_initE, h_trueE_truePion_inc_interE, true_startKE_eslice, true_endKE_eslice);	
+
+	//
 	true_esliceID = int(true_endKE_eslice/eslice_bin_size);
 	start_true_esliceID = int(true_startKE_eslice/eslice_bin_size);
+
+	
+
 
 	//checking that a particle does not interact in the bin it starts in
 	if(true_esliceID < 0 || true_esliceID==start_true_esliceID || start_true_esliceID < true_esliceID ){true_esliceID = -1;}
@@ -2762,12 +2756,6 @@ void Main::Maker::MakeFile()
 	//calculate the bending angle from start to end direction
 	double bendangle=0.0;
 	TVector3 startv3, endv3;
-	//for(int i=0; i<t->reco_beam_calo_startDirX->size(); i++){
-	//if(t->reco_beam_calo_startDirX->size()>0 && t->reco_beam_calo_endDirX->size()>0){
-	//std::cout<<"t->reco_beam_calo_startDir "<<t->reco_beam_calo_startDirX->at(0)<<"  "<<t->reco_beam_calo_startDirY->at(0)<<" "<<t->reco_beam_calo_startDirZ->at(0)<<std::endl;
-	//std::cout<<"t->reco_beam_calo_endDir "<<t->reco_beam_calo_endDirX->at(0)<<"  "<<t->reco_beam_calo_endDirY->at(0)<<" "<<t->reco_beam_calo_endDirZ->at(0)<<std::endl;
-	//startv3.SetXYZ(t->reco_beam_calo_startDirX->at(0), t->reco_beam_calo_startDirY->at(0), t->reco_beam_calo_startDirZ->at(0));
-	//endv3.SetXYZ(t->reco_beam_calo_endDirX->at(0), t->reco_beam_calo_endDirY->at(0), t->reco_beam_calo_endDirZ->at(0));
 	startv3.SetXYZ(t->reco_beam_trackDirX, t->reco_beam_trackDirY, t->reco_beam_trackDirZ);
 	endv3.SetXYZ(t->reco_beam_trackEndDirX, t->reco_beam_trackEndDirY, t->reco_beam_trackEndDirZ);
 	bendangle=startv3.Angle(endv3);
