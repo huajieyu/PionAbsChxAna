@@ -133,7 +133,12 @@ namespace Main{
     void SetSignalTypeAbs(bool);
 
     void SetSignalTypeChx(bool);
- 
+
+    void fill_initE_interE(TH1D* initE, TH1D* interE, double init_KE, double inter_KE);
+
+    void fill_interacting(TH1D* interE, double init_KE, double inter_KE);
+
+    void build_incidentHist(TH1D* initialE, TH1D* interE, TH1D* incident);
 
     /// If true, MEC events are turned off, and MA is scaled up
     void SetMaUpMECOff(bool option) {_maup_mecoff = option;}
