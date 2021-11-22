@@ -2715,29 +2715,31 @@ void Main::Maker::MakeFile()
            }
 
 	   //Interacting energy	
-           if (t->true_daughter_nPi0 == 0 && t->true_daughter_nPiPlus == 0 && t->true_daughter_nPiMinus ==0){//true absorption
-	     if(true_esliceID==-1){
-	       ++true_abs_eslice_neg;
+           	     
+	     if (t->true_daughter_nPi0 == 0 && t->true_daughter_nPiPlus == 0 && t->true_daughter_nPiMinus ==0){//true absorption
+	       if(true_esliceID==-1){
+	         ++true_abs_eslice_neg;
+	       }
+	       else if(true_esliceID>=0 && true_esliceID < eslice_nBin){
+	         ++true_abs_eslice[true_esliceID];
+	       }
 	     }
-	     else if(true_esliceID>=0 && true_esliceID < eslice_nBin){
-	       ++true_abs_eslice[true_esliceID];
+	     //CHX (was Pi0>0) -MM
+	     else if (t->true_daughter_nPi0 == 1 && t->true_daughter_nPiPlus == 0 && t->true_daughter_nPiMinus ==0){
+	       if(true_esliceID==-1){
+	          ++true_chx_eslice_neg;
+	       }
+	       else if(true_esliceID>=0 && true_esliceID < eslice_nBin){
+	          ++true_chx_eslice[true_esliceID];
+	       }
 	     }
-	   
-	   }
-	   else if (t->true_daughter_nPi0 > 0 && t->true_daughter_nPiPlus == 0 && t->true_daughter_nPiMinus ==0){
-	     if(true_esliceID==-1){
-	        ++true_chx_eslice_neg;
-	      }
-	      else if(true_esliceID>=0 && true_esliceID < eslice_nBin){
-	        ++true_chx_eslice[true_esliceID];
-	      }
-	   }
-	   //Interacting energy
-	   if(true_esliceID>=0 && true_esliceID < eslice_nBin && true_esliceID != start_true_esliceID
-	   && start_true_esliceID >=0 && start_true_esliceID < eslice_nBin){
-	     ++true_interacting_eslice_pion_inel[true_esliceID];
-	     ++true_initial_eslice_pion_inel[start_true_esliceID];
-	   } 
+	     if(true_esliceID >=0 && true_esliceID < eslice_nBin && true_esliceID != start_true_esliceID
+	        && start_true_esliceID >=0 && start_true_esliceID < eslice_nBin){
+	     
+	       ++true_interacting_eslice_pion_inel[true_esliceID];
+	       ++true_initial_eslice_pion_inel[start_true_esliceID];
+	     }
+	    
        
 	   //Initial energy 
 	   //if(start_true_esliceID>=0 && start_true_esliceID < eslice_nBin && true_esliceID!=start_true_esliceID){
