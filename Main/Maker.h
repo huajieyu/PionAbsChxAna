@@ -411,33 +411,41 @@ namespace Main{
     const double eslice_eEnd = 1000.;
     //int eslice_nBin = (eslice_eStart-eslice_eEnd)/eslice_bin_size;
     static const int eslice_nBin = 20;
+    const double bin_size_inc = 50;
 
-    double true_incident_eslice_pion_inel[eslice_nBin];
-    double true_interacting_eslice_pion_inel[eslice_nBin];
-    double true_initial_eslice_pion_inel[eslice_nBin];
-    double true_incident_eslice_pion_decay[eslice_nBin];
-    double true_interacting_eslice_pion_decay[eslice_nBin];
-    double true_incident_eslice_upstream[eslice_nBin];
-    double true_incident_eslice_upstream_pion[eslice_nBin];
-    double true_interacting_eslice_upstream[eslice_nBin];
-    double true_incident_eslice_muon[eslice_nBin];
-    double true_interacting_eslice_muon[eslice_nBin];
-    double true_incident_eslice_pion_total[eslice_nBin];
-    double true_interacting_eslice_pion_total[eslice_nBin];
-    double true_initial_eslice_pion_total[eslice_nBin];
+    double true_incident_eslice_pion_inel[eslice_nBin+2];
+    double true_interacting_eslice_pion_inel[eslice_nBin+2];
+    double true_initial_eslice_pion_inel[eslice_nBin+2];
+    double true_incident_eslice_pion_decay[eslice_nBin+2];
+    double true_interacting_eslice_pion_decay[eslice_nBin+2];
+    double true_initial_eslice_pion_decay[eslice_nBin+2];
+    double true_incident_eslice_upstream[eslice_nBin+2];
+    double true_incident_eslice_upstream_pion[eslice_nBin+2];
+    double true_interacting_eslice_upstream[eslice_nBin+2];
+    double true_initial_eslice_upstream[eslice_nBin+2];
+    double true_incident_eslice_muon[eslice_nBin+2];
+    double true_interacting_eslice_muon[eslice_nBin+2];
+    double true_incident_eslice_pion_total[eslice_nBin+2];
+    double true_interacting_eslice_pion_total[eslice_nBin+2];
+    double true_initial_eslice_pion_total[eslice_nBin+2];
 
-    double reco_incident_eslice_pion_inel[eslice_nBin];
-    double reco_interacting_eslice_pion_inel[eslice_nBin];
-    double reco_incident_eslice_pion_decay[eslice_nBin];
-    double reco_interacting_eslice_pion_decay[eslice_nBin];
-    double reco_incident_eslice_upstream[eslice_nBin];
-    double reco_interacting_eslice_upstream[eslice_nBin];
-    double reco_incident_eslice_muon[eslice_nBin];
-    double reco_interacting_eslice_muon[eslice_nBin]; 
-    double reco_incident_eslice_pion_total[eslice_nBin];
-    double reco_interacting_eslice_pion_total[eslice_nBin];	
+    double test_add_upstream_inter_inel[eslice_nBin+2];
+    double test_add_upstream_init_inel[eslice_nBin+2];
+    double test_add_upstream_inter_decay[eslice_nBin+2];
+    double test_add_upstream_init_decay[eslice_nBin+2];
 
-    double eslice_bins[eslice_nBin];
+    double reco_incident_eslice_pion_inel[eslice_nBin+2];
+    double reco_interacting_eslice_pion_inel[eslice_nBin+2];
+    double reco_incident_eslice_pion_decay[eslice_nBin+2];
+    double reco_interacting_eslice_pion_decay[eslice_nBin+2];
+    double reco_incident_eslice_upstream[eslice_nBin+2];
+    double reco_interacting_eslice_upstream[eslice_nBin+2];
+    double reco_incident_eslice_muon[eslice_nBin+2];
+    double reco_interacting_eslice_muon[eslice_nBin+2]; 
+    double reco_incident_eslice_pion_total[eslice_nBin+2];
+    double reco_interacting_eslice_pion_total[eslice_nBin+2];	
+
+    double eslice_bins[eslice_nBin+2];
 
     double NA=6.02214076e23;
     double MAr=39.95; //gmol
@@ -508,10 +516,10 @@ namespace Main{
     double true_abs_neg = 0;
     double reco_abs_neg = 0;
 
-    double true_abs_eslice[eslice_nBin+1];
+    double true_abs_eslice[eslice_nBin+2];
     double true_abs_eslice_neg = 0;
 
-    double true_chx_eslice[eslice_nBin+1];
+    double true_chx_eslice[eslice_nBin+2];
     double true_chx_eslice_neg = 0;
 
     double true_chx[nslices+3];
