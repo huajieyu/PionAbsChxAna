@@ -2692,7 +2692,7 @@ void Main::Maker::MakeFile()
         if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211){  //std::cout<<"signal"<<std::endl;
            _event_histo->htotinc_true_beamwire->Fill((true_endz-0.5603500-0.479/2)/0.479);           
 	   //MM calculate the total inelastic interaction of each eslice bin
-	   if(start_true_esliceID>=0 && start_true_esliceID < eslice_nBin && true_esliceID!=start_true_esliceID){
+	   if(true_esliceID >=0 && true_esliceID <= eslice_nBin+1){
 	     ++true_interacting_eslice_pion_totinel[true_esliceID]; //total number of inelastic interactions including upstream and non-upstream
 	   }  
 	
