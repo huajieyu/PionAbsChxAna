@@ -416,6 +416,7 @@ namespace Main{
     double true_incident_eslice_pion_inel[eslice_nBin+2];
     double true_interacting_eslice_pion_inel[eslice_nBin+2];
     double true_initial_eslice_pion_inel[eslice_nBin+2];
+    double true_interacting_eslice_pion_totinel[eslice_nBin+2];
     double true_incident_eslice_pion_decay[eslice_nBin+2];
     double true_interacting_eslice_pion_decay[eslice_nBin+2];
     double true_initial_eslice_pion_decay[eslice_nBin+2];

@@ -2361,7 +2361,8 @@ void Main::Maker::MakeFile()
 
   for(int i=0; i<=eslice_nBin+1; i++){
      true_incident_eslice_pion_inel[i]=0;
-     true_interacting_eslice_pion_inel[i]=0;
+     true_interacting_eslice_pion_inel[i]=0;  //inelastic interaction of non upstream events
+     true_interacting_eslice_pion_totinel[i]=0; //total inelastic interaction (upstream inelastic + non upstream inelastic)
      true_initial_eslice_pion_inel[i]=0;
      true_incident_eslice_pion_decay[i]=0;
      true_interacting_eslice_pion_decay[i]=0;
@@ -2690,7 +2691,11 @@ void Main::Maker::MakeFile()
 	//CATEGORY 2 "pion Inelastics"
         if (*temp_Ptr0 == "pi+Inelastic" && abs(t->true_beam_PDG) == 211){  //std::cout<<"signal"<<std::endl;
            _event_histo->htotinc_true_beamwire->Fill((true_endz-0.5603500-0.479/2)/0.479);           
-
+	   //MM calculate the total inelastic interaction of each eslice bin
+	   if(start_true_esliceID>=0 && start_true_esliceID < eslice_nBin && true_esliceID!=start_true_esliceID){
+	     ++true_interacting_eslice_pion_totinel[true_esliceID]; //total number of inelastic interactions including upstream and non-upstream
+	   }  
+	
 	   nevt_truesliceid_inelastic_all->Fill(true_sliceID);
            if (t->true_daughter_nPi0 == 0 && t->true_daughter_nPiPlus == 0 && t->true_daughter_nPiMinus ==0){//true absorption
 
@@ -2727,28 +2732,23 @@ void Main::Maker::MakeFile()
 
 	   //Interacting energy	
            	     
-	     if (t->true_daughter_nPi0 == 0 && t->true_daughter_nPiPlus == 0 && t->true_daughter_nPiMinus ==0){//true absorption
+	   if (t->true_daughter_nPi0 == 0 && t->true_daughter_nPiPlus == 0 && t->true_daughter_nPiMinus ==0){//true absorption
 	       if(true_esliceID==-1){
 	         ++true_abs_eslice_neg;
 	       }
 	       else if(true_esliceID>=0 && true_esliceID <= eslice_nBin+1){
 	         ++true_abs_eslice[true_esliceID];
 	       }
-	     }
+	   }
 	     //CHX (was Pi0>0) -MM
-	     else if (t->true_daughter_nPi0 == 1 && t->true_daughter_nPiPlus == 0 && t->true_daughter_nPiMinus ==0){
+	   else if (t->true_daughter_nPi0 == 1 && t->true_daughter_nPiPlus == 0 && t->true_daughter_nPiMinus ==0){
 	       if(true_esliceID==-1){
 	          ++true_chx_eslice_neg;
 	       }
 	       else if(true_esliceID>=0 && true_esliceID <= eslice_nBin+1){
 	          ++true_chx_eslice[true_esliceID];
 	       }
-	     }
-           //MM - Add Inelastic here, and compare to the other calculation
-	   //Initial energy 
-	   //if(start_true_esliceID>=0 && start_true_esliceID < eslice_nBin && true_esliceID!=start_true_esliceID){
-	   //  ++true_initial_eslice_pion_inel[start_true_esliceID];
-	   //}  
+	   }
 	
 	}//end of selecting pion inclusive events
          
@@ -6107,7 +6107,7 @@ for(int i=0;i<=eslice_nBin+1;i++){
     tempxsec_eslice_chx[i] = tempxsec_eslice_chx[i]/1e-27;
     //cout << "E: " << eslice_bins[i] << ", chx XS= " << tempxsec_eslice_chx[i] << endl;
 
-    cout << "Upstream test: i = " << i << "Upstream total: " << true_interacting_eslice_upstream[i] << ", Upstream pi-inel: " << test_add_upstream_inter_inel[i] << ", Upstream decay: " << test_add_upstream_inter_decay[i] << endl;
+    cout << "Upstream test: i = " << i << "Upstream total: " << true_interacting_eslice_upstream[i] << ", Upstream pi-inel: " << test_add_upstream_inter_inel[i] << ", Upstream decay: " << test_add_upstream_inter_decay[i] << " total number of inelastic interaction is  "<<true_interacting eslice_pion_totinel<<endl;
 
 
   }
