@@ -6107,7 +6107,7 @@ for(int i=0;i<=eslice_nBin+1;i++){
     tempxsec_eslice_chx[i] = tempxsec_eslice_chx[i]/1e-27;
     //cout << "E: " << eslice_bins[i] << ", chx XS= " << tempxsec_eslice_chx[i] << endl;
 
-    cout << "Upstream test: i = " << i << "Upstream total: " << true_interacting_eslice_upstream[i] << ", Upstream pi-inel: " << test_add_upstream_inter_inel[i] << ", Upstream decay: " << test_add_upstream_inter_decay[i] << " total number of inelastic interaction is  "<<true_interacting eslice_pion_totinel<<endl;
+    cout << "Upstream test: i = " << i << "Upstream total: " << true_interacting_eslice_upstream[i] << ", Upstream pi-inel: " << test_add_upstream_inter_inel[i] << ", Upstream decay: " << test_add_upstream_inter_decay[i] << " total number of inelastic interaction is  "<<true_interacting_eslice_pion_totinel[i]<<endl;
 
 
   }
