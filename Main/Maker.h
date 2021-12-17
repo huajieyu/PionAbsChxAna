@@ -186,6 +186,8 @@ namespace Main{
     TVector3 PretendAtBoundary(TVector3 const& point) const;
     double densityEffect(long double beta, double gamma);
     double betheBloch(double energy, double mass_particle);
+    double true_interE_francesca(double endX, double endY, double endZ, double startKE, TH1* runningSum_true_dE); 
+    void hist_bethe_mean_distance(double E_init, double mass_particle, TH1D* h_bethe );
 
     TH3F *hDz_sim_pos_orig_new;
     TH3F *hDz_sim_neg_orig_new;
@@ -523,6 +525,8 @@ namespace Main{
     double true_chx_eslice[eslice_nBin+2];
     double true_chx_eslice_neg = 0;
 
+    double true_rea_eslice[eslice_nBin+2];   
+
     double true_chx[nslices+3];
     double reco_chx[nslices+3];
 
@@ -665,6 +669,18 @@ namespace Main{
     double beamcut_dz_min, beamcut_dz_max;
     double beamcut_dxy_min, beamcut_dxy_max;
     double beamcut_costh_min, beamcut_costh_max; 
+
+    ///Variables for Francesca's method of calculating interacting energy
+    double P_in_pion = 1000.; //MeV
+    double mass_pion = 139.; //MeV
+    double KE_in_pion = sqrt( pow(P_in_pion,2) + pow(mass_pion,2) ) - mass_pion;
+    
+    TH1D* bethe_pi_mean_distance = new TH1D("betheMeanDistance_pion", "", 400, 0, 400); //centimeter distance
+    //bethe_pi_mean_distance->GetXaxis()->SetTitle("distance [cm]"); bethe_pi_mean_distance->GetYaxis()->SetTitle("dEdX (MeV/cm)");
+    
+    
+    ////
+
 
     bool isBeamType(int i);
     bool data_beam_PID(const std::vector<int> *pidCandidates);
