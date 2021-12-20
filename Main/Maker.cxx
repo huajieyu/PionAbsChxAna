@@ -2722,7 +2722,7 @@ void Main::Maker::MakeFile()
            _event_histo->htotinc_true_beamwire->Fill((true_endz-0.5603500-0.479/2)/0.479);           
 	   //MM calculate the total inelastic interaction of each eslice bin
 	   //if(true_esliceID >=0 && true_esliceID <= eslice_nBin+1){ //with over/underflow
-	   if(1 /*true_esliceID >0 && true_esliceID < eslice_nBin+1*/){ //without over/underflow
+	   if(t->true_beam_endZ > 0 /*true_esliceID >0 && true_esliceID < eslice_nBin+1*/){ //without over/underflow
 	     ++true_interacting_eslice_pion_totinel[true_esliceID]; //total number of inelastic interactions including upstream and non-upstream
 	   }  
 	
@@ -2864,17 +2864,17 @@ void Main::Maker::MakeFile()
         }
       //ESlice Initial and Interacting selection///////// 
 	//if(isPiInelastic && true_esliceID < start_true_esliceID && true_esliceID >=0 && true_esliceID <= eslice_nBin+1 /*&& start_true_esliceID >= 0  && start_true_esliceID <= eslice_nBin+1*/){ //with over/underflow
-	if(isPiInelastic /*&& true_esliceID < start_true_esliceID && true_esliceID >0 && true_esliceID < eslice_nBin+1 && start_true_esliceID >= 0  && start_true_esliceID <= eslice_nBin+1*/){ //without over/underflow
+	if(isPiInelastic && t->true_beam_endZ > 0 /*&& true_esliceID < start_true_esliceID && true_esliceID >0 && true_esliceID < eslice_nBin+1 && start_true_esliceID >= 0  && start_true_esliceID <= eslice_nBin+1*/){ //without over/underflow
 	    ++true_interacting_eslice_pion_inel[true_esliceID];
 	    ++true_initial_eslice_pion_inel[start_true_esliceID];
 	}
 	//else if(isPiDecay && true_esliceID < start_true_esliceID && true_esliceID >=0 && true_esliceID <= eslice_nBin+1 /*&& start_true_esliceID >= 0  && start_true_esliceID <= eslice_nBin+1*/){ //with over/underflow
-	else if(isPiDecay /*&& true_esliceID < start_true_esliceID && true_esliceID >0 && true_esliceID < eslice_nBin+1 && start_true_esliceID >= 0  && start_true_esliceID <= eslice_nBin+1*/){ //no over/underflow
+	else if(isPiDecay && t->true_beam_endZ > 0/*&& true_esliceID < start_true_esliceID && true_esliceID >0 && true_esliceID < eslice_nBin+1 && start_true_esliceID >= 0  && start_true_esliceID <= eslice_nBin+1*/){ //no over/underflow
 	    ++true_interacting_eslice_pion_decay[true_esliceID];
 	    ++true_initial_eslice_pion_decay[start_true_esliceID];
 	}
 	//else if(isUpstream && abs(t->true_beam_PDG ==211) && true_esliceID < start_true_esliceID && true_esliceID >=0 && true_esliceID <= eslice_nBin+1 /*&& start_true_esliceID >= 0  && start_true_esliceID <= eslice_nBin+1*/){ //with over/underflow
-	else if(isUpstream && abs(t->true_beam_PDG ==211) /*&& true_esliceID < start_true_esliceID && true_esliceID >0 && true_esliceID < eslice_nBin+1 && start_true_esliceID >= 0  && start_true_esliceID <= eslice_nBin+1*/){ //no over/underflow
+	else if(isUpstream && abs(t->true_beam_PDG ==211) && t->true_beam_endZ > 0/*&& true_esliceID < start_true_esliceID && true_esliceID >0 && true_esliceID < eslice_nBin+1 && start_true_esliceID >= 0  && start_true_esliceID <= eslice_nBin+1*/){ //no over/underflow
             ++true_interacting_eslice_upstream[true_esliceID];
 	    ++true_initial_eslice_upstream[start_true_esliceID];
 	 if(*temp_Ptr0=="pi+Inelastic"){
@@ -2887,7 +2887,7 @@ void Main::Maker::MakeFile()
 	  }
         }
 
-	if(abs(t->true_beam_PDG)==211/* && true_esliceID < start_true_esliceID && true_esliceID >=0 && true_esliceID <= eslice_nBin+1 && start_true_esliceID >= 0  && start_true_esliceID <= eslice_nBin+1*/){
+	if(abs(t->true_beam_PDG)==211 && t->true_beam_endZ > 0/* && true_esliceID < start_true_esliceID && true_esliceID >=0 && true_esliceID <= eslice_nBin+1 && start_true_esliceID >= 0  && start_true_esliceID <= eslice_nBin+1*/){
 	    ++true_interacting_eslice_pion_total[true_esliceID];
 	    ++true_initial_eslice_pion_total[start_true_esliceID];
 	}
