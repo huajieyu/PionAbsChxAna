@@ -69,7 +69,7 @@ void Main::Maker::SetSignalTypeChx(bool v)
 {
   sel_chx = v;
 }
-/*void fill_initE_interE(TH1D* initE, TH1D* interE, double init_KE, double inter_KE){
+void fill_initE_interE(TH1D* initE, TH1D* interE, double init_KE, double inter_KE){
    //make sure incident Pion does not interact in bin it was born
    int bin_initE = (int) init_KE / bin_size_inc + 1;
    int bin_interE = (int) inter_KE / bin_size_inc + 1;
@@ -89,7 +89,7 @@ void fill_interacting(TH1D* interE, double init_KE, double inter_KE){
       interE->SetBinContent( bin_interE, interE->GetBinContent( bin_interE ) + 1);
    }
    return;
-};*/
+};
 
 void build_incidentHist(TH1D* initialE, TH1D* interE, TH1D* incident){
 
@@ -2709,6 +2709,17 @@ void Main::Maker::MakeFile()
 	        for (int i = 0; i<=true_sliceID; ++i){
 	            if (i<nslices) ++true_incident[i];
           	}
+                //fill the interacting E and initial E here
+	        //fill_initE_interE(TH1D* initE, TH1D* interE, double init_KE, double inter_KE);
+	        //fill_interacting(TH1D* interE, double init_KE, double inter_KE);
+		//
+		if(t->true_beam_endZ > 0){
+			fill_initE_interE( h_trueE_truePion_inc_initE, h_trueE_truePion_inc_interE, true_initKE, true_beam_interactingEnergy);
+			//select pion inelastic interaction
+			if(*temp_Ptr0 == "pi+Inelastic") {
+                		fill_interacting( h_trueE_truePionInel, true_initKE, true_beam_interactingEnergy);
+			}
+		}
 	}
 
         bool isInelastic = abs(t->true_beam_PDG) == 211 && *temp_Ptr0 == "pi+Inelastic";
@@ -2725,7 +2736,7 @@ void Main::Maker::MakeFile()
 	   if(1 /*true_esliceID >0 && true_esliceID < eslice_nBin+1*/){ //without over/underflow
 	     ++true_interacting_eslice_pion_totinel[true_esliceID]; //total number of inelastic interactions including upstream and non-upstream
 	   }  
-	
+
 	   nevt_truesliceid_inelastic_all->Fill(true_sliceID);
            if (t->true_daughter_nPi0 == 0 && t->true_daughter_nPiPlus == 0 && t->true_daughter_nPiMinus ==0){//true absorption
 
@@ -6133,6 +6144,10 @@ for(int i=0;i<=eslice_nBin+1;i++){
   file_out->Close();
 
   LOG_NORMAL() << "Output file closed." << std::endl;
+
+
+
+  build_incidentHist( h_trueE_truePion_inc_initE, h_trueE_truePion_inc_interE, h_trueE_truePion_incident );
 
 
   string outfilename0 = "./Main/mac/output_sliceIDmat.root";
