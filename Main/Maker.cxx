@@ -69,8 +69,29 @@ void Main::Maker::SetSignalTypeChx(bool v)
 {
   sel_chx = v;
 }
-void fill_initE_interE(TH1D* initE, TH1D* interE, double init_KE, double inter_KE){
+
+auto Main::Maker::checkBins(double init_KE, double inter_KE, int bin_init, int bin_inter){
+
+   if(
+         bin_init != bin_inter && 
+         init_KE > inter_KE &&
+         bin_init <= nBin_int &&
+         bin_init > 0 &&
+         bin_inter <= nBin_int &&
+         bin_inter > 0 ){
+
+      return true;
+   }
+
+   else return false;
+};
+
+
+void Main::Maker::fill_initE_interE(TH1D* initE, TH1D* interE, double init_KE, double inter_KE){
    //make sure incident Pion does not interact in bin it was born
+
+   //cout << "In fill_initE_interE: Bins init = " << initE->GetNbinsX() << endl;
+
    int bin_initE = (int) init_KE / bin_size_inc + 1;
    int bin_interE = (int) inter_KE / bin_size_inc + 1;
    if( checkBins(init_KE, inter_KE, bin_initE, bin_interE) ){
@@ -81,7 +102,7 @@ void fill_initE_interE(TH1D* initE, TH1D* interE, double init_KE, double inter_K
    return;
 };
 
-void fill_interacting(TH1D* interE, double init_KE, double inter_KE){
+void Main::Maker::fill_interacting(TH1D* interE, double init_KE, double inter_KE){
    //make sure incident Pion does not interact in bin it was born
    int bin_initE = (int) init_KE / bin_size_inc + 1;
    int bin_interE = (int) inter_KE / bin_size_inc + 1;
@@ -91,13 +112,13 @@ void fill_interacting(TH1D* interE, double init_KE, double inter_KE){
    return;
 };
 
-void build_incidentHist(TH1D* initialE, TH1D* interE, TH1D* incident){
+void Main::Maker::build_incidentHist(TH1D* initialE, TH1D* interE, TH1D* incident){
 
    int nBin = initialE->GetNbinsX();
-   //std::cout << "New Incident Histo" << std::endl;
-   //std::cout << "Bin Content Overflow InitialE = " << initialE->GetBinContent( nBin + 1) << std::endl;
-   //std::cout << "Bin Content Overflow Interacting E = " << interE->GetBinContent( nBin + 1) << std::endl;
-   //std::cout << "   BIN" << " Birth " << " Death " << " Entry Incident   " << std::endl;
+   std::cout << "New Incident Histo" << std::endl;
+   std::cout << "Bin Content Overflow InitialE = " << initialE->GetBinContent( nBin + 1) << std::endl;
+   std::cout << "Bin Content Overflow Interacting E = " << interE->GetBinContent( nBin + 1) << std::endl;
+   std::cout << "   BIN" << " Birth " << " Death " << " Entry Incident   " << std::endl;
    //taking care of Overflow bin in order to account for pions that were born + died before we start measuring initE and interE
 
    for(int i = nBin + 1; i>=1; i--){
@@ -116,7 +137,7 @@ void build_incidentHist(TH1D* initialE, TH1D* interE, TH1D* incident){
          incident->SetBinError( j, incident->GetBinError(j) + pow( death_err, 2) );
       };
 
-    //std::cout << "   " << i << "      " << birth << "      " << death << "      " << incident->GetBinContent(i) << std::endl;
+    std::cout << "   " << i << "      " << birth << "      " << death << "      " << incident->GetBinContent(i) << std::endl;
 
    };
 
@@ -130,6 +151,36 @@ void build_incidentHist(TH1D* initialE, TH1D* interE, TH1D* incident){
 
    return;
 
+};
+
+
+void Main::Maker::fill_betheHisto( TH1D* bethe_hist, double mass){
+
+   int nBin = bethe_hist->GetNbinsX();
+
+   for(int i = 1; i <= nBin; i ++){
+      bethe_hist->SetBinContent( i, betheBloch( eEnd + (i - 0.5)*bin_size_int, mass) );  
+   };  
+
+};
+
+void Main::Maker::do_XS_log(TH1D* xs, TH1D* interacting, TH1D* incident, TH1D* hist_bethe){
+
+   TH1D* temp = (TH1D*) incident->Clone();
+   temp->Add( interacting, -1);
+
+   xs->Divide( incident, temp);
+   for(int i = 1; i <= xs->GetNbinsX(); i++){
+
+      if( xs->GetBinContent(i) > 0) xs->SetBinContent(i, log( xs->GetBinContent(i) ) );
+
+      else xs->SetBinContent(i, -10);
+   };  
+
+   xs->Multiply( hist_bethe);
+   xs->Scale( scale_factor );
+
+   return;
 };
 
 
@@ -1926,6 +1977,7 @@ void Main::Maker::MakeFile()
   ofstream outfile_pion;  ofstream outfile_muon; ofstream outfile_broken; 
   ofstream outfile_roounfold;
   ofstream outfile_roounfold_piabs;
+  ofstream outfile_xsec;
 
   ofstream outfile_nmbp;  
   outfile_pion.open("./Main/mac/pion_0and1_slice_information.txt");
@@ -1934,7 +1986,8 @@ void Main::Maker::MakeFile()
   outfile_nmbp.open("./Main/mac/notmatched_beam_particle_information.txt");
   outfile_roounfold.open("/dune/app/users/jiang/dunetpc_analysis/RooUnfold/examples/roounfold_test.txt");
   outfile_roounfold_piabs.open("/dune/app/users/jiang/dunetpc_analysis/RooUnfold/examples/roounfold_piabs_test.txt");
-   
+  outfile_xsec.open("./Main/mac/xsec_pion_interactions.txt");   
+
   //open a new txt file to save the information of the muon interactions
   
   
@@ -2100,6 +2153,32 @@ void Main::Maker::MakeFile()
      bins_mucostheta[i]=-1.0 + 2.0/50.0*i;
      bins_muphi[i]=-TMath::Pi() + 2*TMath::Pi()*i/50.0;
   }
+
+
+   //Histogram declarations to reimplement Francesca's eslice code/////
+   /*TH1D* h_trueE_truePion_inc_initE = new TH1D("h_trueE_truePion_inc_initE", "Incident Selected Pion true_initE", nBin_int, eEnd, eStart);
+   h_trueE_truePion_inc_initE->GetXaxis()->SetTitle("True KE (MeV)");
+
+   TH1D* h_trueE_truePion_inc_interE = new TH1D("h_trueE_truePion_inc_interE", "Incident Selected Pion true_interE", nBin_int, eEnd, eStart);
+   h_trueE_truePion_inc_interE->GetXaxis()->SetTitle("True KE (MeV)");
+
+   TH1D* h_trueE_truePionInel = new TH1D("h_trueE_truePionInel", "Incident Selected Pion true_interE", nBin_int, eEnd, eStart);
+   h_trueE_truePionInel->GetXaxis()->SetTitle("True KE (MeV)");
+   
+   TH1D* h_trueE_truePion_incident = new TH1D("h_trueE_truePion_incident", "Incident Selected Pion trueE", nBin_inc, eEnd, eStart);
+   h_trueE_truePion_incident->GetXaxis()->SetTitle("True KE (MeV)");
+
+   TH1D* h_trueE_trueAbs_interacting = new TH1D("h_trueE_trueAbs_interacting", "Interacting Selected ABS True Energy", nBin_int, eEnd, eStart);
+   h_trueE_trueAbs_interacting->GetXaxis()->SetTitle("True KE (MeV)");
+   
+   TH1D* h_betheMean_pion = new TH1D("h_betheMean_pion", "Mean Energy Loss", nBin_int, eEnd, eStart);
+   fill_betheHisto(h_betheMean_pion, mass_pion);
+
+   TH1D* h_xs_trueE_trueInel = new TH1D("h_xs_trueE_trueInel", "Inelastic MC", nBin_int, eEnd, eStart);
+  *////////////////////////////////////////////////////////////////////
+   fill_betheHisto(_event_histo_1d->h_betheMean_pion, mass_pion);
+
+  TH1D* h_inter_energy_diff = new TH1D("h_inter_energy_diff","h_inter_energy_diff",50,-300,300);
 
   TH2D *h_pcostheta1st2nd_ptmissing = new TH2D("h_pcostheta1st2nd_ptmissing", "h_pcostheta1st2nd_ptmissing", 50, 0.0, 1.2, 50, -1.0, 1.0);
   TH1D *h_sel_pcostheta1st2nd=new TH1D("h_sel_pcostheta1st2nd", "h_sel_pcostheta1st2nd", 50, -1.0, 1.0);
@@ -2531,10 +2610,12 @@ void Main::Maker::MakeFile()
 
 	esliceID = int(t->reco_beam_interactingEnergy/eslice_bin_size)+1;
 	double true_endKE_eslice_old = 1000.*(TMath::Sqrt(t->true_beam_endP*t->true_beam_endP + PionMass*PionMass) - PionMass);
-	double true_startKE_eslice = 1000.*(TMath::Sqrt(t->true_beam_startP*t->true_beam_startP + PionMass*PionMass) - PionMass); 
+	double true_startKE_eslice = 1000.*(TMath::Sqrt(t->true_beam_startP*t->true_beam_startP + PionMass*PionMass) - PionMass);//-43; //43 MeV is beam plug
 	double true_endKE_eslice = true_interE_francesca(t->true_beam_endX,t->true_beam_endY,t->true_beam_endZ,true_startKE_eslice,runningSum_true_dE);
 	
 	cout << "Interacting KE: old: " << true_endKE_eslice_old << ", New: " << true_endKE_eslice << endl;
+
+	h_inter_energy_diff->Fill(true_endKE_eslice-true_endKE_eslice_old);
 
 	//Fill histogram of initKE and interKE for inelastic scattering  
 	//from eSliceMethod_trueProcess_trueE.C in Francesca and Jake's branch
@@ -2714,10 +2795,10 @@ void Main::Maker::MakeFile()
 	        //fill_interacting(TH1D* interE, double init_KE, double inter_KE);
 		//
 		if(t->true_beam_endZ > 0){
-			fill_initE_interE( h_trueE_truePion_inc_initE, h_trueE_truePion_inc_interE, true_initKE, true_beam_interactingEnergy);
+			fill_initE_interE( _event_histo_1d->h_trueE_truePion_inc_initE, _event_histo_1d->h_trueE_truePion_inc_interE, true_startKE_eslice, true_endKE_eslice);
 			//select pion inelastic interaction
 			if(*temp_Ptr0 == "pi+Inelastic") {
-                		fill_interacting( h_trueE_truePionInel, true_initKE, true_beam_interactingEnergy);
+                		fill_interacting( _event_histo_1d->h_trueE_truePionInel, true_startKE_eslice, true_endKE_eslice);
 			}
 		}
 	}
@@ -5948,6 +6029,14 @@ if(passCuts == true){
   buildIncident(true_incident_eslice_pion_decay2, eslice_nBin, true_initial_eslice_pion_decay, true_interacting_eslice_pion_decay);
   buildIncident(true_incident_eslice_upstream2, eslice_nBin, true_initial_eslice_upstream, true_interacting_eslice_upstream);
 
+//cout <<"Number of bins: " << h_trueE_truePion_inc_initE->GetNbinsX() << ", " << h_trueE_truePion_inc_interE->GetNbinsX() << ", " << h_trueE_truePion_incident->GetNbinsX() << endl;
+
+  //for(int i=0;i<h_trueE_truePion_inc_initE->GetNbinsX();i++){
+   // cout << "i: " << i << ", Init: " << h_trueE_truePion_inc_initE->GetBinContent(i) << ", Int: " << h_trueE_truePion_inc_interE->GetBinContent(i) << ", Incident: " << h_trueE_truePion_incident->GetBinContent(i) << endl;
+  //}
+
+  build_incidentHist( _event_histo_1d->h_trueE_truePion_inc_initE, _event_histo_1d->h_trueE_truePion_inc_interE, _event_histo_1d->h_trueE_truePion_incident );
+
 
 for(int i=0;i<=eslice_nBin+1;i++){
     cout << "i: " << i << " initial: " << true_initial_eslice_pion_total[i] << " Interacting: " << true_interacting_eslice_pion_total[i] << endl;
@@ -6135,6 +6224,27 @@ for(int i=0;i<=eslice_nBin+1;i++){
     //cout << "E: " << eslice_bins[i] << ", chx XS= " << tempxsec_eslice_chx[i] << endl;
 
   }
+
+  /////ESlice calculation using histograms
+
+   do_XS_log(_event_histo_1d->h_xs_trueE_trueInel, _event_histo_1d->h_trueE_truePionInel, _event_histo_1d->h_trueE_truePion_incident, _event_histo_1d->h_betheMean_pion); 
+   
+   outfile_xsec<<setw(20)<<"bin "<<setw(20)<<" energy  "<<setw(20)<<" xsec_pion_inelastic"<<std::endl;
+   
+   int f_bins = _event_histo_1d->h_xs_trueE_trueInel->GetNbinsX();
+   double f_bin_center[f_bins];
+   double f_xs_inel[f_bins];
+
+   for(int i=0; i<_event_histo_1d->h_xs_trueE_trueInel->GetNbinsX(); i++){
+     
+   f_bin_center[i] = _event_histo_1d->h_xs_trueE_trueInel->GetBinCenter(i+1);
+   f_xs_inel[i] = _event_histo_1d->h_xs_trueE_trueInel->GetBinContent(i+1);
+
+   outfile_xsec << setw(20) << setprecision(5) << i << setw(20) << setprecision(5) << _event_histo_1d->h_xs_trueE_trueInel->GetBinCenter(i+1) <<setw(20)<<setprecision(5)<< _event_histo_1d->h_xs_trueE_trueInel->GetBinContent(i+1) << std::endl;
+   }
+ 
+   TGraph *gr_f_xs_inel = new TGraph(f_bins,f_bin_center,f_xs_inel);
+
   //////////////////////////////////////////////  
 
   file_out->Write();
@@ -6145,10 +6255,15 @@ for(int i=0;i<=eslice_nBin+1;i++){
 
   LOG_NORMAL() << "Output file closed." << std::endl;
 
+  /*cout <<"Number of bins: " << h_trueE_truePion_inc_initE->GetNbinsX() << ", " << h_trueE_truePion_inc_interE->GetNbinsX() << ", " << h_trueE_truePion_incident->GetNbinsX() << endl;
 
+  for(int i=0;h_trueE_truePion_inc_initE->GetNbinsX();i++){
+    cout << "i: " << i << ", Init: " << h_trueE_truePion_inc_initE->GetBinContent(i) << ", Int: " << h_trueE_truePion_inc_interE->GetBinContent(i) << ", Incident: " << h_trueE_truePion_incident->GetBinContent(i) << endl;
+  }
 
   build_incidentHist( h_trueE_truePion_inc_initE, h_trueE_truePion_inc_interE, h_trueE_truePion_incident );
-
+*/
+  cout << "After build_incidentHist\n";
 
   string outfilename0 = "./Main/mac/output_sliceIDmat.root";
   TFile output_sliceIDmat(outfilename0.c_str(), "RECREATE");
@@ -6521,11 +6636,44 @@ for(int i=0;i<=eslice_nBin+1;i++){
   gr_chx_eslice->SetName("gr_chx_eslice");
   gr_chx_eslice->Write();
 
+  cout << "line 6628\n";
+
+  h_inter_energy_diff->Write();
+  runningSum_true_dE->Write();
+  bethe_pi_mean_distance->Write();
+
+  gr_f_xs_inel->SetName("gr_f_xs_inel");
+  gr_f_xs_inel->Write();
+
+  cout << "line 6634\n";
   output_newsf.Write();
 
+/*
+  TFile *output_histtest = new TFile("./Main/mac/output_histtest.root", "RECREATE");
 
+  //h_trueE_truePion_inc_initE->SetName("h_trueE_truePion_inc_initE");
+  _event_histo_1d->h_trueE_truePion_inc_initE->TH1D::Write("h_trueE_truePion_inc_initE"); 
+  //output_histtest->WriteObject(&h_trueE_truePion_inc_initE,"h_trueE_truePion_inc_initE");
 
+  //h_trueE_truePion_inc_interE->SetName("h_trueE_truePion_inc_interE");
+  _event_histo_1d->h_trueE_truePion_inc_interE->TH1D::Write("h_trueE_truePion_inc_interE");
+  //output_histtest->WriteObject(&h_trueE_truePion_inc_interE,"h_trueE_truePion_inc_interE");
 
+  //h_trueE_truePion_incident->SetName("h_trueE_truePion_incident");
+  _event_histo_1d->h_trueE_truePion_incident->TH1D::Write("h_trueE_truePion_incident"); 
+  //output_histtest->WriteObject(&h_trueE_truePion_incident,"h_trueE_truePion_incident");
+
+  //h_trueE_truePionInel->SetName("h_trueE_truePionInel");
+  _event_histo_1d->h_trueE_truePionInel->TH1D::Write("h_trueE_truePionInel");
+  //output_histtest->WriteObject(&h_trueE_truePionInel,"h_trueE_truePionInel");
+
+  _event_histo_1d->h_xs_trueE_trueInel->TH1D::Write("h_xs_trueE_trueInel");
+  //output_histtest->WriteObject(&h_xs_trueE_trueInel,"h_xs_trueE_trueInel");
+
+  output_histtest->Write();
+  output_histtest->Close();
+*/
+  cout << "line 6662\n";
 
   //=============================================================================================
   TH1D  *selected_signal_percut = new TH1D("selected_signal_percut", "selected_percut", 4, 0, 4);

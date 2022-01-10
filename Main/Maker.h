@@ -140,6 +140,12 @@ namespace Main{
 
     void build_incidentHist(TH1D* initialE, TH1D* interE, TH1D* incident);
 
+    auto checkBins(double init_KE, double inter_KE, int bin_init, int bin_inter);
+
+    void fill_betheHisto( TH1D* bethe_hist, double mass);
+
+    void do_XS_log(TH1D* xs, TH1D* interacting, TH1D* incident, TH1D* hist_bethe);
+
     /// If true, MEC events are turned off, and MA is scaled up
     void SetMaUpMECOff(bool option) {_maup_mecoff = option;}
 
@@ -413,7 +419,7 @@ namespace Main{
     const double eslice_eEnd = 1000.;
     //int eslice_nBin = (eslice_eStart-eslice_eEnd)/eslice_bin_size;
     static const int eslice_nBin = 20;
-    const double bin_size_inc = 50;
+    //const double bin_size_inc = 50;
 
     double true_incident_eslice_pion_inel[eslice_nBin+2];
     double true_interacting_eslice_pion_inel[eslice_nBin+2];
@@ -678,7 +684,19 @@ namespace Main{
     TH1D* bethe_pi_mean_distance = new TH1D("betheMeanDistance_pion", "", 400, 0, 400); //centimeter distance
     //bethe_pi_mean_distance->GetXaxis()->SetTitle("distance [cm]"); bethe_pi_mean_distance->GetYaxis()->SetTitle("dEdX (MeV/cm)");
     
+   
+    double bin_size_int = 50.;
+    double bin_size_inc = 50.; //2
+    double eStart = 1000.; //1200
+    double eEnd = 0.;
+    int nBin_int = (eStart - eEnd) / bin_size_int;
+    int nBin_inc = (eStart - eEnd) / bin_size_inc;
     
+    double atomic_mass = 39.948;
+    double density = 1.4;
+    double N_avogadro = 6.02*pow(10,23);
+    double factor_mbarn = pow(10,27);
+    double scale_factor = factor_mbarn * atomic_mass / ( density * N_avogadro * bin_size_int );    
     ////
 
 
