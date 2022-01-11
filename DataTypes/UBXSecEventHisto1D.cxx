@@ -487,6 +487,30 @@ namespace DataTypes {
             h_energetic_shower_dist_other = new TH1D("h_energetic_shower_dist_other", "h_energetic_shower_dist_other", 50, 0.0, 40);
             h_pcostheta1st2nd_ptmissing = new TH2D("h_pcostheta1st2nd_ptmissing", "h_pcostheta1st2nd_ptmissing", 50, 0.0, 1.2, 50, -1.0, 1.0);
 
+	   h_trueE_truePion_inc_initE = new TH1D("h_trueE_truePion_inc_initE", "Incident Selected Pion true_initE", nBin_int, eEnd, eStart);
+	   h_trueE_truePion_inc_initE->GetXaxis()->SetTitle("True KE (MeV)");
+
+ 	   h_trueE_truePion_inc_interE = new TH1D("h_trueE_truePion_inc_interE", "Incident Selected Pion true_interE", nBin_int, eEnd, eStart);
+ 	   h_trueE_truePion_inc_interE->GetXaxis()->SetTitle("True KE (MeV)");
+	
+	   h_trueE_truePionInel = new TH1D("h_trueE_truePionInel", "Incident Selected Pion true_interE", nBin_int, eEnd, eStart);
+ 	   h_trueE_truePionInel->GetXaxis()->SetTitle("True KE (MeV)");
+   
+	   h_trueE_truePion_incident = new TH1D("h_trueE_truePion_incident", "Incident Selected Pion trueE", nBin_inc, eEnd, eStart);
+	   h_trueE_truePion_incident->GetXaxis()->SetTitle("True KE (MeV)");
+
+	   h_trueE_trueAbs_interacting = new TH1D("h_trueE_trueAbs_interacting", "Interacting Selected ABS True Energy", nBin_int, eEnd, eStart);
+	   h_trueE_trueAbs_interacting->GetXaxis()->SetTitle("True KE (MeV)");
+   
+	   h_trueE_trueChx_interacting = new TH1D("h_trueE_trueChx_interacting", "Interacting Selected CHX True Energy", nBin_int, eEnd, eStart);
+	   h_trueE_trueChx_interacting->GetXaxis()->SetTitle("True KE (MeV)");
+
+	   h_betheMean_pion = new TH1D("h_betheMean_pion", "Mean Energy Loss", nBin_int, eEnd, eStart);
+
+	   h_xs_trueE_trueInel = new TH1D("h_xs_trueE_trueInel", "Inelastic MC", nBin_int, eEnd, eStart);
+	   h_xs_trueE_trueAbs = new TH1D("h_xs_trueE_trueAbs", "Absorption MC", nBin_int, eEnd, eStart);
+	   h_xs_trueE_trueChx = new TH1D("h_xs_trueE_trueChx", "Charge Exchange MC", nBin_int, eEnd, eStart);
+
     }
 
   }

@@ -69,7 +69,13 @@ namespace DataTypes {
 
     Int_t nbins_beamE = 6;
     Double_t bins_beamE[7] = {0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2};
-
+    
+    double bin_size_int = 50.;
+    double bin_size_inc = 50.; //2 
+    double eStart = 1000.; //1200
+    double eEnd = 0.; 
+    int nBin_int = (eStart - eEnd) / bin_size_int;
+    int nBin_inc = (eStart - eEnd) / bin_size_inc;
 
     TH1D *h_orimom_proton;
     TH1D *h_orimom_neutron;
@@ -457,6 +463,17 @@ namespace DataTypes {
     TH1D  *h_energetic_shower_dist_other;
 
     TH2D  *h_pcostheta1st2nd_ptmissing;
+
+    TH1D* h_trueE_truePion_inc_initE;
+    TH1D* h_trueE_truePion_inc_interE;
+    TH1D* h_trueE_truePionInel;
+    TH1D* h_trueE_truePion_incident;
+    TH1D* h_trueE_trueAbs_interacting;
+    TH1D* h_trueE_trueChx_interacting;
+    TH1D* h_betheMean_pion;
+    TH1D* h_xs_trueE_trueInel;
+    TH1D* h_xs_trueE_trueAbs;
+    TH1D* h_xs_trueE_trueChx;
 
   protected:
 

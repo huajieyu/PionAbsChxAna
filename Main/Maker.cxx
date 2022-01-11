@@ -2797,8 +2797,14 @@ void Main::Maker::MakeFile()
 		if(t->true_beam_endZ > 0){
 			fill_initE_interE( _event_histo_1d->h_trueE_truePion_inc_initE, _event_histo_1d->h_trueE_truePion_inc_interE, true_startKE_eslice, true_endKE_eslice);
 			//select pion inelastic interaction
-			if(*temp_Ptr0 == "pi+Inelastic") {
-                		fill_interacting( _event_histo_1d->h_trueE_truePionInel, true_startKE_eslice, true_endKE_eslice);
+			if(*temp_Ptr0 == "pi+Inelastic") { //All inelastics
+                		fill_interacting( _event_histo_1d->h_trueE_truePionInel, true_startKE_eslice, true_endKE_eslice );
+				if(t->true_daughter_nPi0 == 0 && t->true_daughter_nPiPlus == 0 && t->true_daughter_nPiMinus ==0){ //Absorption
+					fill_interacting( _event_histo_1d->h_trueE_trueAbs_interacting, true_startKE_eslice, true_endKE_eslice );
+				}
+				else if(t->true_daughter_nPi0 == 1 && t->true_daughter_nPiPlus == 0 && t->true_daughter_nPiMinus ==0){ //Absorption
+					fill_interacting( _event_histo_1d->h_trueE_trueChx_interacting, true_startKE_eslice, true_endKE_eslice );
+				}
 			}
 		}
 	}
@@ -6229,24 +6235,34 @@ for(int i=0;i<=eslice_nBin+1;i++){
 
    do_XS_log(_event_histo_1d->h_xs_trueE_trueInel, _event_histo_1d->h_trueE_truePionInel, _event_histo_1d->h_trueE_truePion_incident, _event_histo_1d->h_betheMean_pion); 
    
-   outfile_xsec<<setw(20)<<"bin "<<setw(20)<<" energy  "<<setw(20)<<" xsec_pion_inelastic"<<std::endl;
+   do_XS_log(_event_histo_1d->h_xs_trueE_trueAbs, _event_histo_1d->h_trueE_trueAbs_interacting, _event_histo_1d->h_trueE_truePion_incident, _event_histo_1d->h_betheMean_pion); 
+
+   do_XS_log(_event_histo_1d->h_xs_trueE_trueChx, _event_histo_1d->h_trueE_trueChx_interacting, _event_histo_1d->h_trueE_truePion_incident, _event_histo_1d->h_betheMean_pion); 
+ 
+   outfile_xsec<<setw(20)<<"bin "<<setw(20)<<" energy  "<<setw(20)<<" xsec_pion_inelastic"<<setw(20)<<" xsec_pion_abs"<<setw(20)<<" xsec_pion_chx"<<std::endl;
    
    int f_bins = _event_histo_1d->h_xs_trueE_trueInel->GetNbinsX();
    double f_bin_center[f_bins];
    double f_xs_inel[f_bins];
+   double f_xs_abs[f_bins];
+   double f_xs_chx[f_bins];
 
    for(int i=0; i<_event_histo_1d->h_xs_trueE_trueInel->GetNbinsX(); i++){
      
    f_bin_center[i] = _event_histo_1d->h_xs_trueE_trueInel->GetBinCenter(i+1);
    f_xs_inel[i] = _event_histo_1d->h_xs_trueE_trueInel->GetBinContent(i+1);
-
-   outfile_xsec << setw(20) << setprecision(5) << i << setw(20) << setprecision(5) << _event_histo_1d->h_xs_trueE_trueInel->GetBinCenter(i+1) <<setw(20)<<setprecision(5)<< _event_histo_1d->h_xs_trueE_trueInel->GetBinContent(i+1) << std::endl;
+   f_xs_abs[i] = _event_histo_1d->h_xs_trueE_trueAbs->GetBinContent(i+1);
+   f_xs_chx[i] = _event_histo_1d->h_xs_trueE_trueChx->GetBinContent(i+1);
+   
+   outfile_xsec << setw(20) << setprecision(5) << i << setw(20) << setprecision(5) << _event_histo_1d->h_xs_trueE_trueInel->GetBinCenter(i+1) << setw(20) << setprecision(5) << _event_histo_1d->h_xs_trueE_trueInel->GetBinContent(i+1) << setw(20) << setprecision(5) << _event_histo_1d->h_xs_trueE_trueAbs->GetBinContent(i+1) << setw(20) << setprecision(5) << _event_histo_1d->h_xs_trueE_trueChx->GetBinContent(i+1) << std::endl;
    }
  
    TGraph *gr_f_xs_inel = new TGraph(f_bins,f_bin_center,f_xs_inel);
+   TGraph *gr_f_xs_abs = new TGraph(f_bins,f_bin_center,f_xs_abs);
+   TGraph *gr_f_xs_chx = new TGraph(f_bins,f_bin_center,f_xs_chx);
 
   //////////////////////////////////////////////  
-
+  
   file_out->Write();
 
   LOG_NORMAL() << "All saved." << std::endl;
@@ -6644,6 +6660,12 @@ for(int i=0;i<=eslice_nBin+1;i++){
 
   gr_f_xs_inel->SetName("gr_f_xs_inel");
   gr_f_xs_inel->Write();
+
+  gr_f_xs_abs->SetName("gr_f_xs_abs");
+  gr_f_xs_abs->Write();
+
+  gr_f_xs_chx->SetName("gr_f_xs_chx");
+  gr_f_xs_chx->Write();
 
   cout << "line 6634\n";
   output_newsf.Write();
