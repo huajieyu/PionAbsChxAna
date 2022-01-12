@@ -6247,19 +6247,41 @@ for(int i=0;i<=eslice_nBin+1;i++){
    double f_xs_abs[f_bins];
    double f_xs_chx[f_bins];
 
+   double fabs_stat_errx[f_bins];
+   double fabs_stat_erry[f_bins];
+   double fchx_stat_errx[f_bins];
+   double fchx_stat_erry[f_bins];
+   double finel_stat_errx[f_bins];
+   double finel_stat_erry[f_bins];
+
+
    for(int i=0; i<_event_histo_1d->h_xs_trueE_trueInel->GetNbinsX(); i++){
      
    f_bin_center[i] = _event_histo_1d->h_xs_trueE_trueInel->GetBinCenter(i+1);
    f_xs_inel[i] = _event_histo_1d->h_xs_trueE_trueInel->GetBinContent(i+1);
    f_xs_abs[i] = _event_histo_1d->h_xs_trueE_trueAbs->GetBinContent(i+1);
    f_xs_chx[i] = _event_histo_1d->h_xs_trueE_trueChx->GetBinContent(i+1);
-   
+  
+   finel_stat_erry[i]=_event_histo_1d->h_xs_trueE_trueInel->GetBinError(i+1);
+   fabs_stat_erry[i]=_event_histo_1d->h_xs_trueE_trueAbs->GetBinError(i+1);
+   fchx_stat_erry[i]=_event_histo_1d->h_xs_trueE_trueChx->GetBinError(i+1);   
+
+   finel_stat_errx[i]=0;
+   fabs_stat_errx[i]=0;
+   fchx_stat_errx[i]=0;
+
    outfile_xsec << setw(20) << setprecision(5) << i << setw(20) << setprecision(5) << _event_histo_1d->h_xs_trueE_trueInel->GetBinCenter(i+1) << setw(20) << setprecision(5) << _event_histo_1d->h_xs_trueE_trueInel->GetBinContent(i+1) << setw(20) << setprecision(5) << _event_histo_1d->h_xs_trueE_trueAbs->GetBinContent(i+1) << setw(20) << setprecision(5) << _event_histo_1d->h_xs_trueE_trueChx->GetBinContent(i+1) << std::endl;
    }
  
-   TGraph *gr_f_xs_inel = new TGraph(f_bins,f_bin_center,f_xs_inel);
-   TGraph *gr_f_xs_abs = new TGraph(f_bins,f_bin_center,f_xs_abs);
-   TGraph *gr_f_xs_chx = new TGraph(f_bins,f_bin_center,f_xs_chx);
+   TGraphAsymmErrors *gr_f_xs_inel = new TGraphAsymmErrors(f_bins,f_bin_center,f_xs_inel, finel_stat_errx, finel_stat_errx, finel_stat_erry, finel_stat_erry);
+   TGraphAsymmErrors *gr_f_xs_abs = new TGraphAsymmErrors(f_bins,f_bin_center,f_xs_abs, fabs_stat_errx, fabs_stat_errx, fabs_stat_erry, fabs_stat_erry);
+   TGraphAsymmErrors *gr_f_xs_chx = new TGraphAsymmErrors(f_bins,f_bin_center,f_xs_chx, fchx_stat_errx, fchx_stat_errx, fchx_stat_erry, fchx_stat_erry);
+
+
+
+   //TGraph *gr_f_xs_inel = new TGraph(f_bins,f_bin_center,f_xs_inel);
+   //TGraph *gr_f_xs_abs = new TGraph(f_bins,f_bin_center,f_xs_abs);
+   //TGraph *gr_f_xs_chx = new TGraph(f_bins,f_bin_center,f_xs_chx);
 
   //////////////////////////////////////////////  
   
